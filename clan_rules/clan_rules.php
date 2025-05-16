@@ -1,0 +1,106 @@
+<?php
+// Sprachdateien aus dem Plugin-Ordner laden
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("clan_rules", $plugin_path);
+
+// Action auslesen
+$action = $_GET['action'] ?? '';
+
+if ($action == "show") {
+    $clan_rulesID = isset($_GET['clan_rulesID']) ? (int)$_GET['clan_rulesID'] : 0;
+
+    if ($clan_rulesID > 0) {
+        $data_array = [
+            'title'    => $plugin_language['clan_rules'],
+            'subtitle' => 'Clan Rules'
+        ];
+        echo $tpl->loadTemplate("clan_rules", "head", $data_array, "plugin");
+
+        $get = safe_query("SELECT * FROM plugins_clan_rules WHERE clan_rulesID='$clan_rulesID' LIMIT 1");
+        if ($ds = mysqli_fetch_array($get)) {
+            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
+
+            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate->detectLanguages($ds['title']);
+            $title = $translate->getTextByLanguage($ds['title']);
+            $translate->detectLanguages($ds['text']);
+            $text = $translate->getTextByLanguage($ds['text']);
+
+            $date = !empty($ds['date']) ? date("d.m.Y", strtotime($ds['date'])) : '';
+
+            $data_array = [
+                'title'  => $title,
+                'text'   => $text,
+                'date'   => $date,
+                'poster' => $poster,
+                'info'   => $plugin_language['info'],
+                'stand'  => $plugin_language['stand']
+            ];
+
+            echo $tpl->loadTemplate("clan_rules", "content_area", $data_array, "plugin");
+        } else {
+            echo $plugin_language['no_clan_rules'];
+        }
+
+        echo $tpl->loadTemplate("clan_rules", "foot", [], "plugin");
+
+    } else {
+        echo $plugin_language['no_clan_rules'];
+    }
+
+} else {
+    // Liste anzeigen
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+    $data_array = [
+        'title' => $plugin_language['clan_rules'],
+        'subtitle' => 'Clan Rules'
+    ];
+    echo $tpl->loadTemplate("clan_rules", "head", $data_array, "plugin");
+
+    $alle = safe_query("SELECT clan_rulesID FROM plugins_clan_rules WHERE displayed = '1'");
+    $gesamt = mysqli_num_rows($alle);
+
+    $settings = safe_query("SELECT * FROM plugins_clan_rules_settings");
+    $dn = mysqli_fetch_array($settings);
+    $max = !empty($dn['clan_rules']) ? (int)$dn['clan_rules'] : 1;
+
+    $pages = ceil($gesamt / $max);
+    $page = max(1, min($page, $pages));
+    $start = ($page - 1) * $max;
+
+    $ergebnis = safe_query("SELECT * FROM plugins_clan_rules WHERE displayed = '1' ORDER BY `sort` LIMIT $start, $max");
+
+    if (mysqli_num_rows($ergebnis) > 0) {
+        while ($ds = mysqli_fetch_array($ergebnis)) {
+            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
+
+            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate->detectLanguages($ds['title']);
+            $title = $translate->getTextByLanguage($ds['title']);
+            $translate->detectLanguages($ds['text']);
+            $text = $translate->getTextByLanguage($ds['text']);
+
+            $date = !empty($ds['date']) ? date("d.m.Y", strtotime($ds['date'])) : '';
+
+            $data_array = [
+                'title'  => $title,
+                'text'   => $text,
+                'date'   => $date,
+                'poster' => $poster,
+                'info'   => $plugin_language['info'],
+                'stand'  => $plugin_language['stand']
+            ];
+
+            echo $tpl->loadTemplate("clan_rules", "content_area", $data_array, "plugin");
+        }
+
+        echo $tpl->renderPagination("index.php?site=clan_rules", $page, $pages);
+
+    } else {
+        echo $plugin_language['no_clan_rules'];
+    }
+
+    #echo $tpl->loadTemplate("clan_rules", "foot", [], "plugin");
+}
+?>
