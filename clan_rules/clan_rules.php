@@ -10,7 +10,12 @@ if ($action == "show") {
     $clan_rulesID = isset($_GET['clan_rulesID']) ? (int)$_GET['clan_rulesID'] : 0;
 
     if ($clan_rulesID > 0) {
+        $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
+        $class = htmlspecialchars($config['selected_style']);
+
+        // Header-Daten
         $data_array = [
+            'class'    => $class,
             'title'    => $plugin_language['clan_rules'],
             'subtitle' => 'Clan Rules'
         ];
@@ -52,7 +57,12 @@ if ($action == "show") {
     // Liste anzeigen
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
+    $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
+    $class = htmlspecialchars($config['selected_style']);
+
+    // Header-Daten
     $data_array = [
+        'class'    => $class,
         'title' => $plugin_language['clan_rules'],
         'subtitle' => 'Clan Rules'
     ];

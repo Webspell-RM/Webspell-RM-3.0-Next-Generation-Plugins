@@ -99,13 +99,17 @@ if ($action === "show") {
     if ($action === "") {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
+        $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
+        $class = htmlspecialchars($config['selected_style']);
+
         // Header-Daten
-        $plugin_data = [
+        $data_array = [
+            'class'    => $class,
             'title'    => $plugin_language['partners'],
             'subtitle' => 'Partners'
         ];
 
-        echo $tpl->loadTemplate("partners", "head", $plugin_data, 'plugin');
+        echo $tpl->loadTemplate("partners", "head", $data_array, 'plugin');
 
         // Anzahl aller angezeigten Partner ermitteln
         $alle = safe_query("SELECT partnerID FROM plugins_partners WHERE displayed = '1'");

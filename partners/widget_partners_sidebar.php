@@ -5,8 +5,12 @@ $plugin_language = $pm->plugin_language("partners", $plugin_path);
 
 $tpl = new Template();
 
-// Überschriften-Daten vorbereiten
+$config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
+$class = htmlspecialchars($config['selected_style']);
+
+// Header-Daten
 $data_array = [
+    'class'    => $class,
     'title'    => $plugin_language['title'],
     'subtitle' => 'Partners'
 ];
