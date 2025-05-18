@@ -12,7 +12,7 @@ if (isset($_POST[ 'submit' ])) {
     $users_online = $_POST[ "users_online" ];
     $CAPCLASS = new \webspell\Captcha;
     if ($CAPCLASS->checkCaptcha(0, $_POST[ 'captcha_hash' ])) {
-        safe_query("UPDATE `" . PREFIX . "plugins_userlist` SET users_list='" . $_POST[ 'users_list' ] . "', users_online='" . $_POST[ 'users_online' ] . "'");
+        safe_query("UPDATE plugins_userlist SET users_list='" . $_POST[ 'users_list' ] . "', users_online='" . $_POST[ 'users_online' ] . "'");
         
         
         redirect("admincenter.php?site=admin_reg_userlist", "", 0);
@@ -20,7 +20,7 @@ if (isset($_POST[ 'submit' ])) {
         redirect("admincenter.php?site=admin_reg_userlist", $plugin_language[ 'transaction_invalid' ], 3);
     }
 } else {
-    $ergebnis = safe_query("SELECT * FROM `" . PREFIX . "plugins_userlist`");
+    $ergebnis = safe_query("SELECT * FROM plugins_userlist");
     $ds = mysqli_fetch_array($ergebnis);
     $CAPCLASS = new \webspell\Captcha;
     $CAPCLASS->createTransaction();

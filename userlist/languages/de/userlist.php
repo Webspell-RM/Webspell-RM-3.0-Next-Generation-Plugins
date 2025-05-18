@@ -34,7 +34,7 @@ $language_array = array(
     'hour_and'                => 'Stunde und',
     'minutes'                 => 'Minuten',
 
-    'lastlogin_activity_control' => 'Member Aktivit&auml;tskontrolle',
+    /*'lastlogin_activity_control' => 'Member Aktivit&auml;tskontrolle',
     'lastlogin_number'           => 'Nummer',
     'lastlogin_id'               => 'ID',
     'lastlogin_member'           => 'Member',
@@ -54,7 +54,29 @@ $language_array = array(
     'lastlogin_before'           => 'vor',
     'lastlogin_days'             => 'Tagen',
     'lastlogin_squad'            => 'Squad',
-    'lastlogin_title'            => 'Last Login'
+    'lastlogin_title'            => 'Last Login',*/
+
+
+    'title' => 'Benutzer-Login-Übersicht',
+    'lastlogin_activity_control' => 'Letzter Login & Aktivitätsstatus',
+    'lastlogin_id' => 'ID',
+    'lastlogin_member' => 'Benutzername',
+    'lastlogin_lastlogin' => 'Letzter Login',
+    'lastlogin_in_days' => 'Tage seit Login',
+    'lastlogin_activity' => 'Aktiv',
+    'lastlogin_squad' => 'Squad',
+    'lastlogin_filter_all_activity' => 'Alle (aktiv + inaktiv)',
+    'lastlogin_activ' => 'Aktiv',
+    'lastlogin_inactiv' => 'Inaktiv',
+    'lastlogin_filter_all_squads' => 'Alle Squads',
+    'lastlogin_search_username' => 'Benutzername suchen',
+    'lastlogin_submit' => 'Filtern',
+    'lastlogin_day' => 'Tag',
+    'lastlogin_clock' => 'Uhrzeit',
+    'lastlogin_today' => 'Heute',
+    'lastlogin_yesterday' => 'Gestern',
+    'lastlogin_before' => 'Vor',
+    'lastlogin_days' => 'Tagen',
 
 );
 

@@ -49,7 +49,7 @@ PRIMARY KEY (id)
 
 safe_query("INSERT IGNORE INTO plugins_partners_settings_widgets (id, position, modulname, themes_modulname, widgetname, widgetdatei, activated, sort) VALUES
 ('1', 'navigation_widget', 'navigation', 'default', 'Navigation', 'widget_navigation', 1, 1),
-('2', 'footer_widget', 'footer', 'default', 'Footer Easy', 'widget_footer_easy', 1, 1)");
+('2', 'footer_widget', 'footer_easy', 'default', 'Footer Easy', 'widget_footer_easy', 1, 1)");
 
 ## SYSTEM #####################################################################################################################################
 
@@ -71,5 +71,10 @@ safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, mod
 
 #######################################################################################################################################
 
-	
+safe_query("
+  INSERT IGNORE INTO user_role_admin_navi_rights (id, roleID, type, modulname, accessID)
+  VALUES ('', 1, 'link', 'partners', (
+    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'partners' LIMIT 1
+  ))
+");
  ?>

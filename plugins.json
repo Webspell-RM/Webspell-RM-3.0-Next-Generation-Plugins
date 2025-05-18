@@ -1,0 +1,72 @@
+[
+    {
+    "name": "News",
+    "modulname": "news",
+    "description": "News Plugin für webSPELL RM, Kommentarfunktion noch nicht aktiv und muss deaktiviert werden.",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "news",
+    "download": "news.zip"
+  },
+    {
+    "name": "Blog",
+    "modulname": "blog",
+    "description": "Blog Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "blog",
+    "download": "DISABLED"
+    },
+    {
+    "name": "Carousel",
+    "modulname": "carousel",
+    "description": "Carousel Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "carousel",
+    "download": "carousel.zip"
+    },
+    {
+    "name": "Clan Rules",
+    "modulname": "clan_rules",
+    "description": "Clan Rules Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "clan_rules",
+    "download": "clan_rules.zip"
+    },
+    {
+    "name": "User List",
+    "modulname": "userlist",
+    "description": "User List Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "userlist",
+    "download": "userlist.zip"
+    },
+    {
+    "name": "Lastlogin",
+    "modulname": "lastlogin",
+    "description": "User List Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "lastlogin",
+    "download": "lastlogin.zip"
+    },
+    {
+    "name": "Partners",
+    "modulname": "partners",
+    "description": "Partners Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "partners",
+    "download": "partners.zip"
+    }
+]
