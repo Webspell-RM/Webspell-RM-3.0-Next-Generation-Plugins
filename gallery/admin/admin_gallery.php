@@ -1,11 +1,12 @@
 <?php
-// Annahme: $_database ist ein MySQLi-Objekt
-#$sql = null; // oder nicht gesetzt
-$sql = "SELECT * FROM plugins_gallery WHERE id = ?"; // Beispiel SQL-Query
-$stmt = $_database->prepare($sql);
-if (!$stmt) {
-    die("Prepare-Fehler: " . $_database->error);
-}
+# Sprachdateien aus dem Plugin-Ordner laden
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("gallery", $plugin_path);
+
+use webspell\AccessControl;
+// Den Admin-Zugriff für das Modul überprüfen
+AccessControl::checkAdminAccess('gallery');
+
 
 
 // Parameter aus URL lesen
@@ -186,28 +187,25 @@ if ($action === "add" || $action === "edit") {
 if ($action === "sort") {
 
 ########################
-
-
-
-// Konfiguration laden
-
-// Alle Bilder laden, sortiert nach Position
-// Einstellungen
-
-// Einstellungen
 $columns = 4;
 $rowsPerPage = 3;
 $imagesPerPage = $columns * $rowsPerPage;
+
+$isPartial = isset($_GET['partial']) && $_GET['partial'] == '1';
 
 // Bilder holen
 $result = $_database->query("SELECT id, filename, class FROM plugins_gallery ORDER BY position ASC, id ASC");
 $allImages = [];
 if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) $allImages[] = $row;
+    while ($row = $result->fetch_assoc()) {
+        $allImages[] = $row;
+    }
 }
 $pages = array_chunk($allImages, $imagesPerPage);
 ?>
-<link type="text/css" rel="stylesheet" href="/includes/plugins/gallery/admin/css/admin_gallery.css" />
+
+<?php if (!$isPartial): ?>
+<link rel="stylesheet" href="/includes/plugins/gallery/admin/css/admin_gallery.css" />
 <div class="card">
     <div class="card-header">
         <i class="bi bi-paragraph"></i> Galerie verwalten
@@ -219,37 +217,36 @@ $pages = array_chunk($allImages, $imagesPerPage);
             <li class="breadcrumb-item"><a href="admincenter.php?site=admin_gallery&action=sort">Galerie: Bilder sortieren</a></li>
             <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
         </ol>
-    </nav>  
+    </nav>
 
     <div class="card-body">
+<?php endif; ?>
 
-<div class="container-fluid py-5" id="sortable-gallery">
-    <?php foreach ($pages as $index => $pageImages): ?>
-        <div class="card-site">
-            <h2>Seite <?= $index + 1 ?></h2>
-            <div class="grid-wrapper">
-                <?php foreach ($pageImages as $image): ?>
-                    <div class="sortable-item <?= htmlspecialchars($image['class']) ?>" data-id="<?= $image['id'] ?>">
-                        <img src="/includes/plugins/gallery/images/<?= htmlspecialchars($image['filename']) ?>" alt="">
+        <div class="container-fluid py-5" id="sortable-gallery">
+            <?php foreach ($pages as $index => $pageImages): ?>
+                <div class="card-site">
+                    <h2>Seite <?= $index + 1 ?></h2>
+                    <div class="grid-wrapper">
+                        <?php foreach ($pageImages as $image): ?>
+                            <div class="sortable-item <?= htmlspecialchars($image['class']) ?>" data-id="<?= (int)$image['id'] ?>">
+                                <img src="/includes/plugins/gallery/images/<?= htmlspecialchars($image['filename']) ?>" alt="">
+                            </div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                </div>
+            <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
+
+<?php if (!$isPartial): ?>
+        <button id="save-order" disabled class="btn btn-primary mt-3">Reihenfolge speichern</button>
+    </div> 
 </div>
-
-<button id="save-order" disabled>Reihenfolge speichern</button>
-
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="/includes/plugins/gallery/admin/js/gallery.js"></script>
+<?php endif; ?>
 
-</div></div>
+
 <?php } else {
-
-
-
-
-// --- Hauptübersicht mit Filter, Sortierung und Pagination ---
 
 $where = '';
 $params = [];
@@ -325,8 +322,7 @@ $stmtData->close();
 
         <div class="container py-5">
 
-            <div class="mb-3">
-                
+            <div class="mb-3">                
 
                 <form method="get" action="admincenter.php" class="d-flex align-items-center" style="gap:10px;">
                     <input type="hidden" name="site" value="admin_gallery" />

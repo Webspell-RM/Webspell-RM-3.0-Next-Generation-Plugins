@@ -42,7 +42,7 @@ safe_query("INSERT IGNORE INTO plugins_clan_rules_settings_widgets (id, position
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, plugin_display, widget_display, sidebar) VALUES
-('', 'Servers', 'clan_rules', '{[de]}Mit diesem Plugin könnt ihr eure Clan Regeln anzeigen lassen.{[en]}With this plugin it is possible to show the Clan Rules on the website.{[it]}Con questo plugin è possibile mostrare le Regole del Clan sul sito web', 'admin_clan_rules', 1, 'T-Seven', 'https://webspell-rm.de', 'clan_rules', '', '0.1', 'includes/plugins/clan_rules/', 1, 1, 'deactivated')");
+('', 'Servers', 'clan_rules', '[[lang:de]]Mit diesem Plugin könnt ihr eure Clan Regeln anzeigen lassen.[[lang:en]]With this plugin it is possible to show the Clan Rules on the website.[[lang:it]]Con questo plugin è possibile mostrare le Regole del Clan sul sito web', 'admin_clan_rules', 1, 'T-Seven', 'https://webspell-rm.de', 'clan_rules', '', '0.1', 'includes/plugins/clan_rules/', 1, 1, 'deactivated')");
 
 ## NAVIGATION #####################################################################################################################################
 

@@ -54,7 +54,7 @@ safe_query("INSERT IGNORE INTO plugins_partners_settings_widgets (id, position, 
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
-('', 'Partner', 'partners', '{[de]}Mit diesem Plugin könnt ihr eure Partner mit Slider und Page anzeigen lassen.{[en]}With this plugin you can display your partners with slider and page.{[it]}Con questo plugin puoi visualizzare i tuoi partner con slider e pagina.', 'admin_partners', 1, 'T-Seven', 'https://webspell-rm.de', 'partners', '', '0.1', 'includes/plugins/partners/', 1, 1, 1, 1, 'deactivated')");
+('', 'Partner', 'partners', '[[lang:de]]Mit diesem Plugin könnt ihr eure Partner mit Slider und Page anzeigen lassen.[[lang:en]]With this plugin you can display your partners with slider and page.[[lang:it]]Con questo plugin puoi visualizzare i tuoi partner con slider e pagina.', 'admin_partners', 1, 'T-Seven', 'https://webspell-rm.de', 'partners', '', '0.1', 'includes/plugins/partners/', 1, 1, 1, 1, 'deactivated')");
 
 safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetname, widgetdatei, area) VALUES
 ('', 'partners', 'Partners Content', 'widget_partners_content', 3),
@@ -63,11 +63,11 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 12, '{[de]}Partner{[en]}Partners{[it]}Partner', 'partners', 'admincenter.php?site=admin_partners', 1)");
+('', 12, '[[lang:de]]Partner[[lang:en]]Partners[[lang:it]]Partner', 'partners', 'admincenter.php?site=admin_partners', 1)");
 
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
-('', 4, '{[de]}Partner{[en]}Partners{[it]}Partner', 'partners', 'index.php?site=partners', 1, 1, 'default')");
+('', 4, '[[lang:de]]Partner[[lang:en]]Partners[[lang:it]]Partner', 'partners', 'index.php?site=partners', 1, 1, 'default')");
 
 #######################################################################################################################################
 

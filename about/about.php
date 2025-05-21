@@ -65,7 +65,7 @@ if (mysqli_num_rows($ergebnis)) {
         'subtitle' => 'About Us'
     ];
     
-    #echo $tpl->loadTemplate("about", "head", $data_array, 'plugin');
+    echo $tpl->loadTemplate("about", "head", $data_array, 'plugin');
     echo '<p>' . $plugin_language['no_about'] . '</p>';
 }
 ?>

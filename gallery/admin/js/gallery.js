@@ -1,7 +1,7 @@
 const saveBtn = document.getElementById('save-order');
 let isChanged = false;
 
-// Alle Grids einzeln sortierbar machen
+// Drag-&-Drop aktivieren
 document.querySelectorAll('.grid-wrapper').forEach(wrapper => {
     Sortable.create(wrapper, {
         group: 'gallery',
@@ -13,12 +13,13 @@ document.querySelectorAll('.grid-wrapper').forEach(wrapper => {
     });
 });
 
+// Reihenfolge speichern
 saveBtn.addEventListener('click', () => {
-    if (!isChanged) return;
-
     const order = [];
-    document.querySelectorAll('.sortable-item').forEach((item, index) => {
-        order.push({ id: item.dataset.id, position: index + 1 });
+    document.querySelectorAll('.grid-wrapper').forEach(wrapper => {
+        wrapper.querySelectorAll('.sortable-item').forEach(item => {
+            order.push({ id: item.dataset.id, position: order.length + 1 });
+        });
     });
 
     fetch('/includes/plugins/gallery/admin/save_order.php', {
@@ -26,29 +27,40 @@ saveBtn.addEventListener('click', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order)
     })
-    .then(res => res.ok ? res.text() : Promise.reject())
+    .then(res => res.ok ? res.text() : Promise.reject(res))
     .then(() => {
         alert('Reihenfolge gespeichert!');
-        isChanged = false;
-        saveBtn.disabled = true;
+        reloadGalleryGrid();  // ⬅️ danach Grid aktualisieren
     })
-    .catch(() => {
+    .catch((err) => {
+        console.error('Fehler beim Speichern:', err); // <--- wichtig!
         alert('Fehler beim Speichern!');
-        saveBtn.disabled = false;
     });
 });
 
-function confirmDelete(id, filename) {
-    if (confirm('Bild "' + filename + '" wirklich löschen?')) {
-        fetch('admincenter.php?site=admin_gallery&action=delete&id=' + id)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Bild gelöscht');
-                    location.reload();
-                } else {
-                    alert('Fehler: ' + (data.error || 'Löschung fehlgeschlagen'));
-                }
-            }).catch(() => alert('Fehler bei der Anfrage'));
-    }
+// Soft-Reload der Galerie
+function reloadGalleryGrid() {
+    fetch('admincenter.php?site=admin_gallery&action=sort&partial=1')
+        .then(res => res.text())
+        .then(html => {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            const newGrid = temp.querySelector('#sortable-gallery');
+            document.getElementById('sortable-gallery').replaceWith(newGrid);
+
+            // Sortable nachladen
+            document.querySelectorAll('.grid-wrapper').forEach(wrapper => {
+                Sortable.create(wrapper, {
+                    group: 'gallery',
+                    animation: 150,
+                    onEnd: () => {
+                        isChanged = true;
+                        saveBtn.disabled = false;
+                    }
+                });
+            });
+
+            saveBtn.disabled = true;
+            isChanged = false;
+        });
 }

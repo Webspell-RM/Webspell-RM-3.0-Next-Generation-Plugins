@@ -44,7 +44,7 @@ safe_query("INSERT IGNORE INTO plugins_gallery_settings_widgets (id, position, m
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
-('', 'Gallery', 'gallery', '{[de]}Mit diesem Plugin könnt ihr ein Gallery auf die Webseite anzeigen lassen.{[en]}With this plugin you can display a gallery on the website.{[it]}Con questo plugin puoi visualizzare una galleria sul sito web.', 'admin_gallery', 1, 'T-Seven', 'https://webspell-rm.de', 'gallery', '', '0.1', 'includes/plugins/gallery/', 1, 1, 0, 1, 'deactivated')");
+('', 'Gallery', 'gallery', '[[lang:de]]Mit diesem Plugin könnt ihr ein Gallery auf die Webseite anzeigen lassen.[[lang:en]]With this plugin you can display a gallery on the website.[[lang:it]]Con questo plugin puoi visualizzare una galleria sul sito web.', 'admin_gallery', 1, 'T-Seven', 'https://webspell-rm.de', 'gallery', '', '0.1', 'includes/plugins/gallery/', 1, 1, 0, 1, 'deactivated')");
 
 ## NAVIGATION #####################################################################################################################################
 

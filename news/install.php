@@ -97,7 +97,7 @@ safe_query("INSERT IGNORE INTO plugins_news_settings_widgets (id, position, modu
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
-('', 'News Manager', 'news', '{[de]}Mit diesem Plugin könnt ihr euch eure News anzeigen lassen.{[en]}With this plugin you can display your news.{[it]}Con questo plugin puoi visualizzare le tue notizie.', 'admin_news', 1, 'T-Seven', 'https://webspell-rm.de', 'news,news_comments,news_contents', '', '0.1', 'includes/plugins/news/', 1, 1, 1, 1, 'deactivated')");
+('', 'News Manager', 'news', '[[lang:de]]Mit diesem Plugin könnt ihr euch eure News anzeigen lassen.[[lang:en]]With this plugin you can display your news.[[lang:it]]Con questo plugin puoi visualizzare le tue notizie.', 'admin_news', 1, 'T-Seven', 'https://webspell-rm.de', 'news,news_comments,news_contents', '', '0.1', 'includes/plugins/news/', 1, 1, 1, 1, 'deactivated')");
 
 safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetname, widgetdatei, area) VALUES
 ('', 'news', 'News Content', 'widget_news_content', 3),
@@ -108,14 +108,14 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 7, '{[de]}News{[en]}News{[it]}Notizie', 'news', 'admincenter.php?site=admin_news', 1)");
+('', 7, '[[lang:de]]News[[lang:en]]News[[lang:it]]Notizie', 'news', 'admincenter.php?site=admin_news', 1)");
 
 #####################################################
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
-('', 1, '{[de]}News{[en]}News{[it]}Notizie', 'news', 'index.php?site=news', 1, 1, 'default')");
+('', 1, '[[lang:de]]News[[lang:en]]News[[lang:it]]Notizie', 'news', 'index.php?site=news', 1, 1, 'default')");
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
-('', 1, '{[de]}News Archive{[en]}News Archive{[it]}Archivio Notizie', 'news', 'index.php?site=news&action=news_archive', 1, 1, 'default')");
+('', 1, '[[lang:de]]News Archive[[lang:en]]News Archive[[lang:it]]Archivio Notizie', 'news', 'index.php?site=news&action=news_archive', 1, 1, 'default')");
 
 #######################################################################################################################################
 

@@ -43,7 +43,7 @@ if ($page > $totalPages) $page = $totalPages;
 $offset = ($page - 1) * $imagesPerPage;
 
 // Bilder laden
-$stmt = $_database->prepare("SELECT filename, class FROM plugins_gallery ORDER BY id ASC LIMIT ?, ?");
+$stmt = $_database->prepare("SELECT filename, class FROM plugins_gallery ORDER BY position ASC, id ASC LIMIT ?, ?");
 $stmt->bind_param("ii", $offset, $imagesPerPage);
 $stmt->execute();
 $result = $stmt->get_result();
