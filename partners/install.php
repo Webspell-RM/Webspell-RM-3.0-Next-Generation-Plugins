@@ -1,28 +1,37 @@
 ﻿<?php
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners (
-  partnerID int(11) NOT NULL AUTO_INCREMENT,
+  id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) NOT NULL DEFAULT '',
   url varchar(255) NOT NULL DEFAULT '',
-  facebook varchar(255) NOT NULL,
-  twitter varchar(255) NOT NULL,
   banner varchar(255) NOT NULL DEFAULT '',
   info text NOT NULL,
   date int(14) NOT NULL DEFAULT '0',
   sort int(11) NOT NULL DEFAULT '0',
   displayed varchar(255) NOT NULL DEFAULT '1',
   hits int(11) DEFAULT '0',
-  PRIMARY KEY (partnerID)
+  PRIMARY KEY (id)
 ) AUTO_INCREMENT=1
   DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci");
 
-safe_query("INSERT IGNORE INTO plugins_partners (partnerID, name, url, facebook, twitter, banner, info, date, sort, displayed, hits) VALUES
-('', 'Partner 1', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '1.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577612091, 1, '1', 0),
-('', 'Partner 2', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '2.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577612226, 1, '1', 0),
-('', 'Partner 3', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '3.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577612301, 1, '1', 0),
-('', 'Partner 4', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '4.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577612446, 1, '1', 0),
-('', 'Partner 5', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '5.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577613122, 1, '1', 0),
-('', 'Partner 6', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '6.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577613187, 1, '1', 0),
-('', 'Partner 7', 'https://www.webspell-rm.de', 'https://www.facebook.com/WebspellRM', 'https://twitter.com/webspell_rm', '7.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann. Es war nicht leicht zu verstehen, was es bedeutet, ein blinder Text zu sein: Man ergibt keinen Sinn. Wirklich keinen Sinn. Man wird zusammenhangslos eingeschoben und rumgedreht &ndash; und oftmals gar nicht erst gelesen. Aber bin ich allein deshalb ein schlechterer Text als andere? Na gut, ich werde nie in den Bestsellerlisten stehen. Aber andere Texte schaffen das auch nicht. Und darum st&ouml;rt es mich nicht besonders blind zu sein. Und sollten Sie diese Zeilen noch immer lesen, so habe ich als kleiner Blindtext etwas geschafft, wovon all die richtigen und wichtigen Texte meist nur tr&auml;umen.', 1577613221, 1, '1', 0)");
+safe_query("INSERT IGNORE INTO plugins_partners (id, name, url, banner, info, date, sort, displayed) VALUES
+(1, 'Partner 1', 'https://www.webspell-rm.de', '1.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612091, 1, '1'),
+(2, 'Partner 2', 'https://www.webspell-rm.de', '2.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612226, 1, '1'),
+(3, 'Partner 3', 'https://www.webspell-rm.de', '3.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612301, 1, '1'),
+(4, 'Partner 4', 'https://www.webspell-rm.de', '4.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612446, 1, '1'),
+(5, 'Partner 5', 'https://www.webspell-rm.de', '5.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613122, 1, '1'),
+(6, 'Partner 6', 'https://www.webspell-rm.de', '6.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613187, 1, '1'),
+(7, 'Partner 7', 'https://www.webspell-rm.de', '7.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613221, 1, '1')");
+
+
+
+safe_query("CREATE TABLE IF NOT EXISTS plugins_partners_clicks (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  partner_id int(11) NOT NULL,
+  click_date date NOT NULL,
+  clicks int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (id),
+  UNIQUE KEY partner_id (partner_id, click_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
 
   
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners_settings (

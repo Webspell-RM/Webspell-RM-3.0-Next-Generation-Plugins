@@ -1,204 +1,116 @@
 <?php
-// Sprachdateien aus dem Plugin-Ordner laden
+
+
+// Sprachdateien laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("partners", $plugin_path);
 
-$filepath = $plugin_path . "images/";
-$tpl = new Template();
+$config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
+$class = htmlspecialchars($config['selected_style']);
 
-$action = $_GET['action'] ?? '';
+    // Header-Daten
+    $data_array = [
+        'class'    => $class,
+        'title' => $plugin_language['title'],
+        'subtitle' => 'Partners'
+    ];
+    
+    echo $tpl->loadTemplate("partners", "head", $data_array, 'plugin');
 
-if ($action === "show") {
-    $partnerID = $_GET['partnerID'] ?? null;
 
-    if ($partnerID !== null) {
+$alertColors = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
+$filepath = "/includes/plugins/partners/images/";
 
-        // Überschriften-Daten
-        $plugin_data = [
-            'title'    => $plugin_language['partners'],
-            'subtitle' => 'Partners'
-        ];
+$query = "SELECT * FROM plugins_partners WHERE displayed = 1 ORDER BY `sort`";
+$result = $_database->query($query);
 
-        echo $tpl->loadTemplate("partners", "head", $plugin_data, $plugin_path);
+$colorIndex = 0;
+?>
 
-        // Partnerdaten abrufen
-        $get = safe_query("SELECT * FROM plugins_partners WHERE partnerID='" . intval($partnerID) . "' ORDER BY `sort` LIMIT 1");
-        $db = mysqli_fetch_array($get);
+<title>Partnerliste mit wechselnden Alert-Farben</title>
+<style>
+  .card-box {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .img-wrapper {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .card .badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    padding: 0.4rem 0.9rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    user-select: none;
+    pointer-events: none;
+    text-transform: uppercase;
+    z-index: 10;
+    color: #000;
+  }
+</style>
+</head>
 
-        $partnerID = $db['partnerID'];
-        $alt = htmlspecialchars($db['name']);
-        $title = htmlspecialchars($db['name']);
+<div class="card">
+    <div class="card-body">
+        <h2 class="mb-4 text-center">Unsere Partnerressourcen</h2>
+        <div class="row g-4">
+<?php
+if ($result && $result->num_rows > 0) {
+    while ($partner = $result->fetch_assoc()) {
+        $name = htmlspecialchars($partner['name']);
+        $banner = !empty($partner['banner']) ? $filepath . $partner['banner'] : $filepath . "no-image.jpg";
 
-        // Bild prüfen und setzen
-        if (!empty($db['banner'])) {
-            $pic = '<img class="img-fluid" src="../' . $filepath . $db['banner'] . '" alt="">';
-        } else {
-            $pic = '<img class="img-thumbnail" style="width: 100%; max-width: 150px" src="../' . $filepath . 'no-image.jpg" alt="">';
-        }
+        $colorKey = $alertColors[$colorIndex];
+        $colorIndex = ($colorIndex + 1) % count($alertColors);
 
-        $name = $db['name'];
-
-        // Link erzeugen
-        if (!empty($db['url'])) {
-            $url = htmlspecialchars($db['url']);
-            $href = str_starts_with($url, "https://") ? $url : "http://" . $url;
-
-            $link = '<a class="url-link" href="' . $href . '" onclick="setTimeout(function(){window.location.href=\'../includes/modules/out.php?partnerID=' . $partnerID . '\', 1000})" target="_blank" rel="nofollow"><i class="bi bi-house" style="font-size: 2rem;"></i></a>';
-        } else {
-            $link = $_language->module['n_a'];
-        }
-
-        // Touchscreen-Script
-        $script = '<script>
-        window.addEventListener("load", function(){
-            var box = document.getElementById("box_' . $partnerID . '");
-            if(box){
-                box.addEventListener("touchstart", function(e){
-                    setTimeout(function(){
-                        window.location.href="../includes/modules/out.php?partnerID=' . $partnerID . '";
-                    }, 200);
-                    e.preventDefault();
-                }, false);
-                box.addEventListener("touchmove", function(e){
-                    e.preventDefault();
-                }, false);
-                box.addEventListener("touchend", function(e){
-                    window.open("' . $db['url'] . '", "_blank");
-                    e.preventDefault();
-                }, false);
+        $urlRaw = trim($partner['url']);
+        $url = '';
+        if (!empty($urlRaw)) {
+            $urlCandidate = (stripos($urlRaw, 'http') === 0) ? $urlRaw : 'http://' . $urlRaw;
+            if (filter_var($urlCandidate, FILTER_VALIDATE_URL)) {
+                $url = $urlCandidate;
             }
-        }, false);
-        </script>';
+        }
 
-        $info = $db['info'];
+        $btnClass = "btn btn-outline-$colorKey btn-sm";
+        $partnerId = isset($partner['id']) ? (int)$partner['id'] : 0;
+        ?>
+        <div class="col-md-6 col-lg-4">
+            <div class="card-box position-relative">
+                <div class="img-wrapper alert alert-<?php echo $colorKey; ?>">
+                    <img src="<?php echo htmlspecialchars($banner); ?>" alt="Banner von <?php echo $name; ?>" class="card-img-top" loading="lazy">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo $name; ?></h5>
+                    <p class="card-text"><?php echo nl2br(htmlspecialchars($partner['info'])); ?></p>
 
-        // Soziale Medien Links vorbereiten
-        $facebook = !empty($db['facebook']) 
-            ? '<a class="facebook" href="' . $db['facebook'] . '" target="_blank"><i class="bi bi-facebook" style="font-size: 2rem;"></i></a>'
-            : '';
-
-        $twitter = !empty($db['twitter']) 
-            ? '<a class="twitter" href="' . $db['twitter'] . '" target="_blank"><i class="bi bi-twitter-x" style="font-size: 2rem;"></i></a>'
-            : '';
-
-        $data_array = [
-            'partnerID' => $partnerID,
-            'link'      => $link,
-            'script'    => $script,
-            'title'     => $title,
-            'pic'       => $pic,
-            'info'      => $info,
-            'facebook'  => $facebook,
-            'twitter'   => $twitter
-        ];
-
-        echo $tpl->loadTemplate("partners", "content", $data_array, 'plugin');
+                    <?php if (!empty($url)): ?>
+                        <a href="./includes/plugins/partners/click.php?id=<?php echo $partnerId; ?>"
+       target="_blank"
+       rel="nofollow"
+       class="<?php echo $btnClass; ?>">
+        Mehr erfahren
+    </a>
+                    <?php else: ?>
+                        <span class="text-muted">Kein gültiger Link vorhanden</span>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+<?php
     }
 } else {
-    // Startseite bzw. Partnerliste anzeigen
-    if ($action === "") {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-        $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
-        $class = htmlspecialchars($config['selected_style']);
-
-        // Header-Daten
-        $data_array = [
-            'class'    => $class,
-            'title'    => $plugin_language['partners'],
-            'subtitle' => 'Partners'
-        ];
-
-        echo $tpl->loadTemplate("partners", "head", $data_array, 'plugin');
-
-        // Anzahl aller angezeigten Partner ermitteln
-        $alle = safe_query("SELECT partnerID FROM plugins_partners WHERE displayed = '1'");
-        $gesamt = mysqli_num_rows($alle);
-
-        // Einstellungen laden (max. Partner pro Seite)
-        $settings = safe_query("SELECT * FROM plugins_partners_settings");
-        $dn = mysqli_fetch_array($settings);
-        $max = !empty($dn['partners']) ? (int)$dn['partners'] : 1;
-
-        // Pagination berechnen
-        $pages = ceil($gesamt / $max);
-        $page = max(1, min($page, $pages));
-        $start = ($page - 1) * $max;
-
-        // Partner-Daten abfragen
-        $ergebnis = safe_query("SELECT * FROM plugins_partners WHERE displayed = '1' ORDER BY `sort` LIMIT $start, $max");
-
-        if (mysqli_num_rows($ergebnis) > 0) {
-            while ($db = mysqli_fetch_array($ergebnis)) {
-                $partnerID = $db['partnerID'];
-                $title = htmlspecialchars($db['name']);
-                $info = $db['info'];
-
-                // Bild prüfen
-                $pic = !empty($db['banner'])
-                    ? '<img class="img-fluid" src="../' . $filepath . $db['banner'] . '" alt="">'
-                    : '<img class="img-thumbnail" style="width: 100%; max-width: 150px" src="../' . $filepath . 'no-image.jpg" alt="">';
-
-                // Link erzeugen
-                if (!empty($db['url'])) {
-                    $url = htmlspecialchars($db['url']);
-                    $href = str_starts_with($url, "https://") ? $url : "http://" . $url;
-
-                    $link = '<a class="url-link" href="' . $href . '" onclick="setTimeout(function(){window.location.href=\'../includes/modules/out.php?partnerID=' . $partnerID . '\'}, 1000)" target="_blank" rel="nofollow"><i class="bi bi-house" style="font-size: 2rem;"></i></a>';
-                } else {
-                    $link = $_language->module['n_a'];
-                }
-
-                // Touchscreen-Script
-                $script = '<script>
-                window.addEventListener("load", function(){
-                    var box = document.getElementById("box_' . $partnerID . '");
-                    if(box){
-                        box.addEventListener("touchstart", function(e){
-                            setTimeout(function(){
-                                window.location.href="../includes/modules/out.php?partnerID=' . $partnerID . '";
-                            }, 200);
-                            e.preventDefault();
-                        }, false);
-                        box.addEventListener("touchmove", function(e){
-                            e.preventDefault();
-                        }, false);
-                        box.addEventListener("touchend", function(e){
-                            window.open("' . $db['url'] . '", "_blank");
-                            e.preventDefault();
-                        }, false);
-                    }
-                }, false);
-                </script>';
-
-                // Soziale Medien Links
-                $facebook = !empty($db['facebook'])
-                    ? '<a class="facebook" href="' . $db['facebook'] . '" target="_blank"><i class="bi bi-facebook" style="font-size: 2rem;"></i></a>'
-                    : '';
-
-                $twitter = !empty($db['twitter'])
-                    ? '<a class="twitter" href="' . $db['twitter'] . '" target="_blank"><i class="bi bi-twitter-x" style="font-size: 2rem;"></i></a>'
-                    : '';
-
-                $data_array = [
-                    'partnerID' => $partnerID,
-                    'link'      => $link,
-                    'script'    => $script,
-                    'title'     => $title,
-                    'pic'       => $pic,
-                    'info'      => $info,
-                    'facebook'  => $facebook,
-                    'twitter'   => $twitter
-                ];
-
-                echo $tpl->loadTemplate("partners", "content", $data_array, "plugin");
-            }
-
-            // Pagination anzeigen
-            echo $tpl->renderPagination("index.php?site=partners", $page, $pages);
-        } else {
-            echo '<div class="alert alert-warning">' . $plugin_language['no_partners'] . '</div>';
-        }
-    }
+    echo '<div class="alert alert-warning">Keine Partner gefunden.</div>';
 }
+// Hinweis: Kein $_database->close(), wenn danach noch DB-Zugriffe erfolgen
 ?>
+        </div>
+    </div>
+</div>
+

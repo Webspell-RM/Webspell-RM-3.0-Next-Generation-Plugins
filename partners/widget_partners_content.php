@@ -20,7 +20,7 @@ if (mysqli_num_rows($ergebnis)) {
 
     while ($db = mysqli_fetch_array($ergebnis)) {
 
-        $partnerID = $db['partnerID'];
+        $id = $db['id'];
         $alt = htmlspecialchars($db['name']);
         $title = htmlspecialchars($db['name']);
 
@@ -32,14 +32,14 @@ if (mysqli_num_rows($ergebnis)) {
             $url = htmlspecialchars($db['url']);
             $href = (stristr($url, "https://")) ? $url : "http://" . $url;
 
-            $link = '<a href="' . $href . '" target="_blank" rel="nofollow" onclick="setTimeout(function(){window.location.href=\'../includes/modules/out.php?partnerID=' . $partnerID . '\', 1000})">' . $img_str . '</a>';
+            $link = '<a href="./includes/plugins/partners/click.php?id=' . $id . '" target="_blank" rel="nofollow">' . $img_str . '</a>';
         } else {
             $link = $_language->module['n_a'];
         }
 
         // Daten für Template vorbereiten
         $data_array = [
-            'partnerID' => $partnerID,
+            'id' => $id,
             'link'      => $link,
             'title'     => $title
         ];

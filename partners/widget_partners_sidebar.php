@@ -19,74 +19,97 @@ $data_array = [
 echo $tpl->loadTemplate("partners", "head", $data_array, "plugin");
 echo $tpl->loadTemplate("partners", "widget_head_head", $data_array, "plugin");
 
-// Abfrage aller angezeigten Partner
-$query = "SELECT * FROM plugins_partners WHERE displayed = '1' ORDER BY sort";
-$ergebnis = safe_query($query);
 
-if (mysqli_num_rows($ergebnis)) {
-    // Durch alle Partner iterieren
-    while ($db = mysqli_fetch_array($ergebnis)) {
-        $filepath = $plugin_path . "images/";
-        $partnerID = $db['partnerID'];
-        $banner = $db['banner'];
-        $alt = htmlspecialchars($db['name']);
-        $title = htmlspecialchars($db['name']);
-        $name = $db['name'];
+// Basis-Pfad für Bannerbilder (relativ zum Webroot)
+$filepath = '/includes/plugins/partners/images/';
 
-        // Pfad zum Bild
-        $img = '/includes/plugins/partners/images/' . $banner;
+// SQL-Abfrage: alle sichtbaren Partner sortiert ausgeben
+$query = "SELECT * FROM plugins_partners WHERE displayed = 1 ORDER BY sort";
+$result = safe_query($query);
 
-        // Bild HTML mit Tooltip
-        $img_str = '<img class="img-fluid" style="height: 35px" src="' . $filepath . $banner . '" alt="' . $alt . '" data-toggle="tooltip" data-bs-html="true" title="' . $title . '">';
+if ($result && mysqli_num_rows($result) > 0) {
+    while ($partner = mysqli_fetch_assoc($result)) {
 
-        // Bild prüfen - existiert Datei?
-        if (is_file($img) && file_exists($img)) {
-            $text = $img_str;
+        $id = (int)$partner['id'];
+        $name = htmlspecialchars($partner['name']);
+        $urlRaw = trim($partner['url']);
+        $banner = $partner['banner'];
+
+        // Bildpfad absolut
+        $imgPath = $_SERVER['DOCUMENT_ROOT'] . $filepath . $banner;
+
+        // Prüfen, ob Banner-Bild existiert, ansonsten Fallback auf Text (Name)
+        if (!empty($banner) && file_exists($imgPath)) {
+            $imgTag = '<img class="img-fluid" style="height:35px" src="' . $filepath . htmlspecialchars($banner) . '" alt="' . $name . '" data-bs-toggle="tooltip" data-bs-html="true" title="' . $name . '">';
         } else {
-            $text = $name;
+            $imgTag = $name;
         }
 
-        // Link generieren
-        if (!empty($db['url'])) {
-            $url = htmlspecialchars($db['url']);
-            $href = (stristr($url, "https://")) ? $url : "http://" . $url;
-
-            $link = '<a href="' . $href . '" onclick="setTimeout(function(){window.location.href=\'../includes/modules/out.php?partnerID=' . $partnerID . '\', 1000})" target="_blank" rel="nofollow">' . $img_str . '</a>';
+        // URL validieren / auf https prüfen und ggf. http ergänzen
+        if (!empty($urlRaw)) {
+            $urlSafe = htmlspecialchars($urlRaw);
+            if (!preg_match('#^https?://#i', $urlSafe)) {
+                $urlSafe = 'http://' . $urlSafe;
+            }
         } else {
-            $link = $_language->module['n_a'];
+            $urlSafe = '';
         }
 
-        // Touch-Script für mobiles Verhalten
-        $script = '<script> 
-            window.addEventListener("load", function() {
-                var box' . $partnerID . ' = document.getElementById("box_' . $partnerID . '");
-                box' . $partnerID . '.addEventListener("touchstart", function(e) {
-                    setTimeout(function() { window.location.href = "out.php?partnerID=' . $partnerID . '"; }, 200);
-                    e.preventDefault();
-                }, false);
-                box' . $partnerID . '.addEventListener("touchmove", function(e) {
-                    e.preventDefault();
-                }, false);
-                box' . $partnerID . '.addEventListener("touchend", function(e) {
-                    window.open("' . $db['url'] . '", "_blank");
-                    e.preventDefault();
-                }, false);
-            }, false);
-        </script>';
+        // Button-Klasse (optional, hier Beispielwert)
+        $btnClass = 'partner-link btn btn-primary btn-sm';
 
-        // Daten für Template vorbereiten
+        // Link generieren: Wenn URL vorhanden, dann Link auf click.php mit id und Target _blank
+        if (!empty($urlSafe)) {
+            // Link mit Klick-Tracking über click.php
+            $link = '<a href="./includes/plugins/partners/click.php?id=' . $id . '" target="_blank" rel="nofollow">' . $imgTag . '</a>';
+        } else {
+            $link = '<span class="text-muted">Kein gültiger Link vorhanden</span>';
+        }
+
+        // Touch-Event-Script (modifiziert, um doppelte event.preventDefault() zu vermeiden)
+        $script = <<<SCRIPT
+<script>
+window.addEventListener("load", function() {
+    var box = document.getElementById("box_$id");
+    if(box) {
+        var touchTimeout;
+        box.addEventListener("touchstart", function(e) {
+            touchTimeout = setTimeout(function() {
+                window.location.href = "out.php?id=$id";
+            }, 200);
+            e.preventDefault();
+        }, false);
+
+        box.addEventListener("touchmove", function(e) {
+            clearTimeout(touchTimeout);
+        }, false);
+
+        box.addEventListener("touchend", function(e) {
+            clearTimeout(touchTimeout);
+            window.open("$urlSafe", "_blank");
+            e.preventDefault();
+        }, false);
+    }
+});
+</script>
+SCRIPT;
+
+        // Daten-Array für Template
         $data_array = [
-            'partnerID' => $partnerID,
-            'link'      => $link,
-            'script'    => $script,
-            'title'     => $title
+            'id'     => $id,
+            'link'   => $link,
+            'script' => $script,
+            'title'  => $name
         ];
 
-        // Template ausgeben
+        // Template ausgeben (dein Template-System)
         echo $tpl->loadTemplate("partners", "widget_content", $data_array, 'plugin');
     }
 
-    // Footer-Template ausgeben
-    echo $tpl->loadTemplate("partners", "widget_foot_foot", $data_array, 'plugin');
+    // Footer-Template einmal ausgeben (z.B. Schließung der Box etc.)
+    echo $tpl->loadTemplate("partners", "widget_foot_foot", [], 'plugin');
+
+} else {
+    // Kein Partner gefunden - evtl. Hinweis ausgeben
+    echo '<p>Keine Partner gefunden.</p>';
 }
-?>

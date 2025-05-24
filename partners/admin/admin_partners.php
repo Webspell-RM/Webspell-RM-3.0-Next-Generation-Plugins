@@ -18,7 +18,13 @@ function normalizeUrl($url) {
 }
 
 function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
-    if (!$upload->hasFile() || $upload->hasError()) return $upload->translateError();
+    if (!$upload->hasFile()) {
+        return $plugin_language['no_file_uploaded'] ?? 'Keine Datei hochgeladen.';
+    }
+
+    if ($upload->hasError()) {
+        return $upload->translateError();
+    }
 
     $mime_types = ['image/jpeg', 'image/png', 'image/gif'];
     if (!$upload->supportedMimeType($mime_types)) return $plugin_language['unsupported_image_type'];
@@ -42,7 +48,7 @@ function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
 
     if ($upload->saveAs($filepath . $filename)) {
         chmod($filepath . $filename, 0777);
-        safe_query("UPDATE plugins_partners SET banner='" . $filename . "' WHERE partnerID='" . $id . "'");
+        safe_query("UPDATE plugins_partners SET banner='" . $filename . "' WHERE id='" . $id . "'");
         return true;
     }
     return $plugin_language['upload_failed'];
@@ -57,12 +63,12 @@ if (isset($_GET['action'])) {
 if (isset($_GET['delete'])) {
     $CAPCLASS = new \webspell\Captcha;
     if ($CAPCLASS->checkCaptcha(0, $_GET['captcha_hash'])) {
-        $partnerID = (int)$_GET['partnerID'];
-        safe_query("DELETE FROM plugins_partners WHERE partnerID='" . $partnerID . "'");
+        $id = (int)$_GET['id'];
+        safe_query("DELETE FROM plugins_partners WHERE id='" . $id . "'");
         $filepath = "../images/partners/";
         foreach (['.gif', '.jpg', '.png'] as $ext) {
-            if (file_exists($filepath . $partnerID . $ext)) {
-                unlink($filepath . $partnerID . $ext);
+            if (file_exists($filepath . $id . $ext)) {
+                unlink($filepath . $id . $ext);
             }
         }
     } else {
@@ -73,7 +79,7 @@ if (isset($_GET['delete'])) {
     if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
         foreach ($_POST['sort'] as $sortstring) {
             $sorter = explode("-", $sortstring);
-            safe_query("UPDATE plugins_partners SET sort='" . (int)$sorter[1] . "' WHERE partnerID='" . (int)$sorter[0] . "'");
+            safe_query("UPDATE plugins_partners SET sort='" . (int)$sorter[1] . "' WHERE id='" . (int)$sorter[0] . "'");
         }
     } else {
         echo $plugin_language['transaction_invalid'];
@@ -84,17 +90,15 @@ if (isset($_GET['delete'])) {
     if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
         $name = htmlspecialchars($_POST['name']);
         $url = normalizeUrl(htmlspecialchars($_POST['url']));
-        $facebook = normalizeUrl(htmlspecialchars($_POST['facebook']));
-        $twitter = normalizeUrl(htmlspecialchars($_POST['twitter']));
         $info = htmlspecialchars($_POST['message']);
         $displayed = isset($_POST['displayed']) ? 1 : 0;
 
         if ($isEdit) {
-            $partnerID = (int)$_POST['partnerID'];
-            safe_query("UPDATE plugins_partners SET name='$name', url='$url', facebook='$facebook', twitter='$twitter', info='$info', displayed='$displayed' WHERE partnerID='$partnerID'");
-            $id = $partnerID;
+            $id = (int)$_POST['id'];
+            safe_query("UPDATE plugins_partners SET name='$name', url='$url', info='$info', displayed='$displayed' WHERE id='$id'");
+            $id = $id;
         } else {
-            safe_query("INSERT INTO plugins_partners (name, url, facebook, twitter, displayed, date, info, sort) VALUES ('$name', '$url', '$facebook', '$twitter', '$displayed', '" . time() . "', '$info', '1')");
+            safe_query("INSERT INTO plugins_partners (name, url, displayed, date, info, sort) VALUES ('$name', '$url', '$displayed', '" . time() . "', '$info', '1')");
             $id = mysqli_insert_id($_database);
         }
 
@@ -145,7 +149,7 @@ if ($action == "add") {
             <div class="mb-3 row">
                 <label class="col-sm-2 col-form-label">' . $plugin_language['partner_name'] . ':</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="name" />
+                    <input type="text" class="form-control" name="name" placeholder="Name"  required />
                 </div>
             </div>
 
@@ -160,21 +164,7 @@ if ($action == "add") {
             <div class="mb-3 row">
                 <label class="col-sm-2 col-form-label">' . $plugin_language['homepage_url'] . ':</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" name="url" value="http://" />
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Facebook:</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="facebook" value="http://" />
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Twitter:</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="twitter" value="http://" />
+                    <input type="url" class="form-control" name="url" placeholder="https://" required />
                 </div>
             </div>
 
@@ -224,8 +214,8 @@ if ($action == "add") {
 
         <div class="card-body">';
 
-    $partnerID = (int) $_GET['partnerID'];
-    $ergebnis = safe_query("SELECT * FROM plugins_partners WHERE partnerID='$partnerID'");
+    $id = (int) $_GET['id'];
+    $ergebnis = safe_query("SELECT * FROM plugins_partners WHERE id='$id'");
     $ds = mysqli_fetch_array($ergebnis);
 
     $pic = '<img id="img-upload" class="img-thumbnail" style="width: 100%; max-width: 150px" src="../' . $filepath . (!empty($ds['banner']) ? $ds['banner'] : 'no-image.jpg') . '" alt="">';
@@ -261,20 +251,6 @@ if ($action == "add") {
         </div>
 
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">Facebook</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="facebook" value="' . htmlspecialchars($ds['facebook']) . '" />
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">Twitter</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="twitter" value="' . htmlspecialchars($ds['twitter']) . '" />
-            </div>
-        </div>
-
-        <div class="mb-3 row">
             <label class="col-sm-2 col-form-label">Info:</label>
             <div class="col-sm-10">
                 <textarea class="ckeditor" id="ckeditor" name="message" rows="10">' . htmlspecialchars($ds['info']) . '</textarea>
@@ -291,7 +267,7 @@ if ($action == "add") {
         <div class="mb-3 row">
             <div class="col-sm-10 offset-sm-2">
                 <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                <input type="hidden" name="partnerID" value="' . $partnerID . '" />
+                <input type="hidden" name="id" value="' . $id . '" />
                 <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $plugin_language['edit_partner'] . '</button>
             </div>
         </div>
@@ -340,28 +316,28 @@ if ($action == "add") {
 }
  else {
 
-    echo '<div class="card">
-        <div class="card-header">
-            <i class="bi bi-person-vcard"></i> ' . $plugin_language['partners'] . '
-        </div>
+echo '<div class="card">
+    <div class="card-header">
+        <i class="bi bi-person-vcard"></i> ' . $plugin_language['partners'] . '
+    </div>
 
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb t-5 p-2 bg-light">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language['partners'] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
-            </ol>
-        </nav>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb t-5 p-2 bg-light">
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language['partners'] . '</a></li>
+            <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
+        </ol>
+    </nav>
 
-        <div class="card-body">
-            <div class="form-group row">
+    <div class="card-body">
+        <div class="form-group row">
             <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
             <div class="col-md-8">
-                    <a href="admincenter.php?site=admin_partners&amp;action=add" class="btn btn-primary btn-sm">' . $plugin_language['new_partner'] . '</a>
-                    <a href="admincenter.php?site=admin_partners&amp;action=admin_partners_settings" class="btn btn-primary btn-sm">' . $plugin_language['partners_settings'] . '</a>
-                </div>
+                <a href="admincenter.php?site=admin_partners&amp;action=add" class="btn btn-primary btn-sm">' . $plugin_language['new_partner'] . '</a>
+                <a href="admincenter.php?site=admin_partners&amp;action=admin_partners_settings" class="btn btn-primary btn-sm">' . $plugin_language['partners_settings'] . '</a>
             </div>
+        </div>
 
-            <div class="container py-5">
+        <div class="container py-5">
             <form method="post" action="admincenter.php?site=admin_partners">
                 <table class="table table-bordered table-striped">
                     <thead class="table-light">
@@ -375,84 +351,93 @@ if ($action == "add") {
                     </thead>
                     <tbody>';
 
-    $partners = safe_query("SELECT * FROM plugins_partners ORDER BY sort");
-    $tmp = mysqli_fetch_assoc(safe_query("SELECT count(partnerID) as cnt FROM plugins_partners"));
-    $anzpartners = $tmp['cnt'];
+$partners = safe_query("
+    SELECT p.*, COALESCE(SUM(c.clicks), 0) AS total_clicks
+    FROM plugins_partners p
+    LEFT JOIN plugins_partners_clicks c ON p.id = c.partner_id
+    GROUP BY p.id
+    ORDER BY p.sort
+");
 
-    $CAPCLASS = new \webspell\Captcha;
-    $CAPCLASS->createTransaction();
-    $hash = $CAPCLASS->getHash();
-    $CAPCLASS->createTransaction();
-    $hash_2 = $CAPCLASS->getHash();
+$tmp = mysqli_fetch_assoc(safe_query("SELECT count(id) as cnt FROM plugins_partners"));
+$anzpartners = $tmp['cnt'];
 
-    $i = 1;
-    while ($db = mysqli_fetch_array($partners)) {
-        $td = ($i % 2) ? 'td1' : 'td2';
-        $displayed = ($db['displayed'] == 1)
-            ? '<span class="text-success fw-bold">' . $plugin_language['yes'] . '</span>'
-            : '<span class="text-danger fw-bold">' . $plugin_language['no'] . '</span>';
+$CAPCLASS = new \webspell\Captcha;
+$CAPCLASS->createTransaction();
+$hash = $CAPCLASS->getHash();
+$CAPCLASS->createTransaction();
+$hash_2 = $CAPCLASS->getHash();
 
-        $days = round((time() - $db['date']) / (60 * 60 * 24));
-        $perday = $days ? round($db['hits'] / $days, 2) : $db['hits'];
+$i = 1;
+while ($db = mysqli_fetch_array($partners)) {
+    $td = ($i % 2) ? 'td1' : 'td2';
+    $displayed = ($db['displayed'] == 1)
+        ? '<span class="text-success fw-bold">' . $plugin_language['yes'] . '</span>'
+        : '<span class="text-danger fw-bold">' . $plugin_language['no'] . '</span>';
 
-        $modal_id = 'confirm-delete-' . (int)$db['partnerID'];
+    $days = round((time() - $db['date']) / (60 * 60 * 24));
+    $perday = $days ? round($db['total_clicks'] / $days, 2) : $db['total_clicks'];
 
-        echo '<tr>
-            <td><a href="' . htmlspecialchars($db['url']) . '" target="_blank">' . htmlspecialchars($db['name']) . '</a></td>
-            <td>' . (int)$db['hits'] . ' (' . $perday . ')</td>
-            <td>' . $displayed . '</td>
-            <td>
-                <a href="admincenter.php?site=admin_partners&amp;action=edit&amp;partnerID=' . (int)$db['partnerID'] . '" class="btn btn-warning btn-sm">' . $plugin_language['edit'] . '</a>
+    $modal_id = 'confirm-delete-' . (int)$db['id'];
 
-                <!-- Delete Button -->
-                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#' . $modal_id . '" data-href="admincenter.php?site=admin_partners&amp;delete=true&amp;partnerID=' . (int)$db['partnerID'] . '&amp;captcha_hash=' . $hash . '">
-                    ' . $plugin_language['delete'] . '
-                </button>
+    echo '<tr>
+        <td><a href="' . htmlspecialchars($db['url']) . '" target="_blank">' . htmlspecialchars($db['name']) . '</a></td>
+        <td>' . (int)$db['total_clicks'] . ' (' . $perday . ')</td>
+        <td>' . $displayed . '</td>
+        <td>
+            <a href="admincenter.php?site=admin_partners&amp;action=edit&amp;id=' . (int)$db['id'] . '" class="btn btn-warning btn-sm">' . $plugin_language['edit'] . '</a>
 
-                <!-- Modal -->
-                <div class="modal fade" id="' . $modal_id . '" tabindex="-1" aria-labelledby="modalLabel-' . $modal_id . '" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalLabel-' . $modal_id . '">' . $plugin_language['partners'] . '</h5>
-                                <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $plugin_language['close'] . '"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>' . $plugin_language['really_delete'] . '</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $plugin_language['close'] . '</button>
-                                <a class="btn btn-danger btn-ok btn-sm" href="admincenter.php?site=admin_partners&amp;delete=true&amp;partnerID=' . (int)$db['partnerID'] . '&amp;captcha_hash=' . $hash . '">' . $plugin_language['delete'] . '</a>
-                            </div>
+            <!-- Delete Button -->
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#' . $modal_id . '" data-href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">
+                ' . $plugin_language['delete'] . '
+            </button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="' . $modal_id . '" tabindex="-1" aria-labelledby="modalLabel-' . $modal_id . '" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalLabel-' . $modal_id . '">' . $plugin_language['partners'] . '</h5>
+                            <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $plugin_language['close'] . '"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>' . $plugin_language['really_delete'] . '</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $plugin_language['close'] . '</button>
+                            <a class="btn btn-danger btn-ok btn-sm" href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">' . $plugin_language['delete'] . '</a>
                         </div>
                     </div>
                 </div>
-                <!-- Modal END -->
-            </td>
-            <td width="8%" class="' . $td . '" align="center">
-                    <select name="sort[]">';
-            for ($j = 1; $j <= $anzpartners; $j++) {
-                $selected = ($db['sort'] == $j) ? 'selected="selected"' : '';
-                echo '<option value="' . $db['partnerID'] . '-' . $j . '" ' . $selected . '>' . $j . '</option>';
-            }
-            echo '</select>
-                </td>
-        </tr>';
-
-        $i++;
+            </div>
+            <!-- Modal END -->
+        </td>
+        <td width="8%" class="' . $td . '" align="center">
+            <select name="sort[]">';
+    for ($j = 1; $j <= $anzpartners; $j++) {
+        $selected = ($db['sort'] == $j) ? 'selected="selected"' : '';
+        echo '<option value="' . $db['id'] . '-' . $j . '" ' . $selected . '>' . $j . '</option>';
     }
+    echo '</select>
+        </td>
+    </tr>';
 
-    echo '
-        <tr>
-            <td colspan="5" class="text-end">
-                <input type="hidden" name="captcha_hash" value="' . $hash_2 . '" />
-                <button class="btn btn-primary btn-sm" type="submit" name="sortieren">' . $plugin_language['to_sort'] . '</button>
-            </td>
-        </tr>
+    $i++;
+}
+
+echo '
+    <tr>
+        <td colspan="5" class="text-end">
+            <input type="hidden" name="captcha_hash" value="' . $hash_2 . '" />
+            <button class="btn btn-primary btn-sm" type="submit" name="sortieren">' . $plugin_language['to_sort'] . '</button>
+        </td>
+    </tr>
     </tbody>
     </table>
     </form>
     </div>
     </div>
     </div>';
+
+
 }
