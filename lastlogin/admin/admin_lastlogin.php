@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('plugin_lastlogin');
+AccessControl::checkAdminAccess('lastlogin');
 
 // Sprachdateien laden
 $pm = new plugin_manager(); 

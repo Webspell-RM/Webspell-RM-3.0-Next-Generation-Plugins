@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('plugin_whoisonline');
+AccessControl::checkAdminAccess('whoisonline');
 
 $res = safe_query("
     SELECT w.*, u.username
