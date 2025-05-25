@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('plugin_carousel');
+AccessControl::checkAdminAccess('carousel');
 
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("carousel", $plugin_path);

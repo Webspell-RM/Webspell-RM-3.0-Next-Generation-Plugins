@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('plugin_about');
+AccessControl::checkAdminAccess('about');
 
 
 $pm = new plugin_manager();

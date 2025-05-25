@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('plugin_footer_easy');
+AccessControl::checkAdminAccess('footer_easy');
 
 $pm = new plugin_manager();
 $plugin_language = $pm->plugin_language("footer_easy", $plugin_path);
