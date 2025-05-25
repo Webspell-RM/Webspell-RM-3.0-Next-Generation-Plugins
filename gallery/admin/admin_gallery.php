@@ -1,13 +1,15 @@
 <?php
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("gallery", $plugin_path);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('gallery');
+AccessControl::checkAdminAccess('plugin_gallery');
 
-
+# Sprachdateien aus dem Plugin-Ordner laden
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("gallery", $plugin_path);
 
 // Parameter aus URL lesen
 $action = $_GET['action'] ?? '';

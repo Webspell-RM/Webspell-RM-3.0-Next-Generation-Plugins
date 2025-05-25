@@ -1,10 +1,14 @@
 <?php
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('carousel');
+AccessControl::checkAdminAccess('plugin_carousel');
+
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("carousel", $plugin_path);
  
 $filepath = $plugin_path."images/";
 $filepathvid = $plugin_path."videos/";

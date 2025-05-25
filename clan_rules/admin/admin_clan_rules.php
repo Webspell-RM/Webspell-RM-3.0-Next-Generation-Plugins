@@ -1,13 +1,15 @@
 <?php
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("clan_rules", $plugin_path);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('clan_rules');
+AccessControl::checkAdminAccess('plugin_clan_rules');
 
-
+# Sprachdateien aus dem Plugin-Ordner laden
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("clan_rules", $plugin_path);
 
 if (isset($_GET[ 'action' ])) {
     $action = $_GET[ 'action' ];

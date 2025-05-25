@@ -1,6 +1,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.js"></script>
-
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Sprachdateien aus dem Plugin-Ordner laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("sc_partners", $plugin_path);

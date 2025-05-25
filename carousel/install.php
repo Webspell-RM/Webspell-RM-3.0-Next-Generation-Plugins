@@ -94,8 +94,8 @@ safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, 
 
 safe_query("
   INSERT IGNORE INTO user_role_admin_navi_rights (id, roleID, type, modulname, accessID)
-  VALUES ('', 1, 'link', 'carousel', (
-    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'carousel' LIMIT 1
+  VALUES ('', 1, 'link', 'plugin_carousel', (
+    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'plugin_carousel' LIMIT 1
   ))
 ");
   

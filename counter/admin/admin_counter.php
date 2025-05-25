@@ -1,4 +1,11 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+use webspell\AccessControl;
+// Den Admin-Zugriff für das Modul überprüfen
+AccessControl::checkAdminAccess('plugin_counter');
 
 $range = $_GET['range'] ?? 'week';
 $days = ($range === 'month') ? 30 : 7;

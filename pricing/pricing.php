@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Sprachdateien laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("pricing", $plugin_path);
@@ -14,13 +18,6 @@ $class = htmlspecialchars($config['selected_style']);
     ];
     
     echo $tpl->loadTemplate("pricing", "head", $data_array, 'plugin');
-
-
-// Annahme: $_database ist ein mysqli-Objekt (z. B. aus config.php eingebunden)
-
-
-
-
 
 // Alle Pläne laden
 $plans = [];

@@ -36,8 +36,8 @@ safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, mod
 
 safe_query("
   INSERT IGNORE INTO user_role_admin_navi_rights (id, roleID, type, modulname, accessID)
-  VALUES ('', 1, 'link', 'masterlist', (
-    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'masterlist' LIMIT 1
+  VALUES ('', 1, 'link', 'plugin_masterlist', (
+    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'plugin_masterlist' LIMIT 1
   ))
 ");
  ?>

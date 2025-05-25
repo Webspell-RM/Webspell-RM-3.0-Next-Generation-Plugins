@@ -1,6 +1,11 @@
 <?php
-// Zugriffsschutz etc.
-#if (!isadmin($userID)) die("Access denied");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+use webspell\AccessControl;
+// Den Admin-Zugriff für das Modul überprüfen
+AccessControl::checkAdminAccess('plugin_footer_easy');
 
 $pm = new plugin_manager();
 $plugin_language = $pm->plugin_language("footer_easy", $plugin_path);

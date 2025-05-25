@@ -1,13 +1,17 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+use webspell\AccessControl;
+// Den Admin-Zugriff für das Modul überprüfen
+AccessControl::checkAdminAccess('plugin_partners');
+
 # Sprachdateien aus dem Plugin-Ordner laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("partners", $plugin_path);
 
 $title = $plugin_language[ 'title' ]; #sc_datei Info
-
-use webspell\AccessControl;
-// Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('partners');
 
 $filepath = $plugin_path."images/";
 

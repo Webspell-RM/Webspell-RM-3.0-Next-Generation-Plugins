@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 # Sprachdateien aus dem Plugin-Ordner laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("carousel", $plugin_path);

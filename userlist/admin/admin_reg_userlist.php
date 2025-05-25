@@ -1,11 +1,15 @@
 <?php
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("userlist", $plugin_path);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
-AccessControl::checkAdminAccess('userlist');
+AccessControl::checkAdminAccess('plugin_userlist');
+
+# Sprachdateien aus dem Plugin-Ordner laden
+$pm = new plugin_manager(); 
+$plugin_language = $pm->plugin_language("userlist", $plugin_path);
 
 if (isset($_POST[ 'submit' ])) {
     $users_list = $_POST[ "users_list" ];

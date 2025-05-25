@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Seite (z. B. URI)
 $page = $_SERVER['REQUEST_URI'] ?? '';
 

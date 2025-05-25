@@ -1,4 +1,14 @@
 <?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+use webspell\AccessControl;
+// Den Admin-Zugriff für das Modul überprüfen
+AccessControl::checkAdminAccess('plugin_about');
+
+
 $pm = new plugin_manager();
 $plugin_language = $pm->plugin_language("about", $plugin_path);
 

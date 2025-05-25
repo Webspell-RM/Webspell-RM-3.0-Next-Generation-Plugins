@@ -1,4 +1,9 @@
 <?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Sprachdateien laden
 $pm = new plugin_manager(); 
 $plugin_language = $pm->plugin_language("about", $plugin_path);
