@@ -1,15 +1,24 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('gallery');
+
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('gallery');
-
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("gallery", $plugin_path);
 
 // Parameter aus URL lesen
 $action = $_GET['action'] ?? '';

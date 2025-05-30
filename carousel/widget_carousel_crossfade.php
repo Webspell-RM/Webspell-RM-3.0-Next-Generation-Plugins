@@ -3,8 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('carousel');
+
 $tpl = new Template();
 
 $filepath = $plugin_path."images/";
@@ -51,13 +56,13 @@ if (mysqli_num_rows($carousel)) {
         $description = $db['description'];
 
         if (!empty($db['link'])) {
-            $link = '<a href="'.$db['link'].'" class="btn-get-started animated '.$ani_link.' scrollto">'.$plugin_language['read_more'].'</a>';
+            $link = '<a href="'.$db['link'].'" class="btn-get-started animated '.$ani_link.' scrollto">'.$languageService->get('read_more').'</a>';
         } else {
             $link = '';
         }
 
         // Mehrsprachigkeit
-        $translate = new multiLanguage(detectCurrentLanguage());
+        $translate = new multiLanguage($lang);
         $translate->detectLanguages($title);
         $title = $translate->getTextByLanguage($title);
         $translate->detectLanguages($description);

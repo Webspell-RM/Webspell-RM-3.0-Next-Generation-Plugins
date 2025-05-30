@@ -1,16 +1,26 @@
 <?php
 
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$lang = $languageService->detectLanguage();
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('about');
+
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('about');
-
-
-$pm = new plugin_manager();
-$plugin_language = $pm->plugin_language("about", $plugin_path);
 
 if (isset($_POST['save'])) {
     $title = htmlspecialchars($_POST['title']);

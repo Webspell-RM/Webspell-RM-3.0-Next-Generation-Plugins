@@ -68,5 +68,75 @@
     "url": "https://www.webspell-rm.de",
     "folder": "partners",
     "download": "partners.zip"
+    },
+    {
+    "name": "Gallery",
+    "modulname": "gallery",
+    "description": "Gallerx Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "gallery",
+    "download": "gallery.zip"
+    },
+    {
+    "name": "About",
+    "modulname": "about",
+    "description": "About Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "about",
+    "download": "about.zip"
+    },
+    {
+    "name": "Pricing",
+    "modulname": "pricing",
+    "description": "Pricing Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "pricing",
+    "download": "pricing.zip"
+    },
+    {
+    "name": "Masterlist",
+    "modulname": "masterlist",
+    "description": "Call of Duty Masterlist Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "masterlist",
+    "download": "masterlist.zip"
+    },
+    {
+    "name": "Articles",
+    "modulname": "articles",
+    "description": "Articles Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "articles",
+    "download": "articles.zip"
+    },
+    {
+    "name": "Counter",
+    "modulname": "counter",
+    "description": "Counter Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "counter",
+    "download": "counter.zip"
+    },
+    {
+    "name": "Who is online",
+    "modulname": "whoisonline",
+    "description": "Who is online Plugin für webSPELL RM",
+    "version": "1.0.0",
+    "author": "webspell-team",
+    "url": "https://www.webspell-rm.de",
+    "folder": "whoisonline",
+    "download": "whoisonline.zip"
     }
 ]

@@ -41,14 +41,14 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 7, '[[lang:de]]Who is online[[lang:en]]Who is online[[lang:it]]Who is online', 'whoisonline', 'admincenter.php?site=admin_whoisonline', 1)");
+('', 2, '[[lang:de]]Who is online[[lang:en]]Who is online[[lang:it]]Who is online', 'whoisonline', 'admincenter.php?site=admin_whoisonline', 1)");
 
 #######################################################################################################################################
 
 safe_query("
   INSERT IGNORE INTO user_role_admin_navi_rights (id, roleID, type, modulname, accessID)
-  VALUES ('', 1, 'link', 'plugin_whoisonline', (
-    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'plugin_whoisonline' LIMIT 1
+  VALUES ('', 1, 'link', 'whoisonline', (
+    SELECT linkID FROM navigation_dashboard_links WHERE modulname = 'whoisonline' LIMIT 1
   ))
 ");
  ?>

@@ -3,9 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-# Sprachdateien aus dem Plugin-Ordner laden
-	$pm = new plugin_manager(); 
-	$plugin_language = $pm->plugin_language("articles", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('articles');
 
 	$tpl = new Template();
 	$config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
@@ -14,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
     // Header-Daten
     $data_array = [
         'class'    => $class,
-        'title' => $plugin_language['title'],
+        'title' => $languageService->get('title'),
         'subtitle' => 'About'
     ];
     
@@ -33,12 +36,12 @@ $qry = safe_query("SELECT * FROM plugins_articles WHERE articleID!=0 ORDER BY ar
         $monat = date("n", $timestamp);
         $year = date("Y", $timestamp);
         $monate = array(
-            1 => $plugin_language['jan'], 2 => $plugin_language['feb'],
-            3 => $plugin_language['mar'], 4 => $plugin_language['apr'],
-            5 => $plugin_language['may'], 6 => $plugin_language['jun'],
-            7 => $plugin_language['jul'], 8 => $plugin_language['aug'],
-            9 => $plugin_language['sep'], 10 => $plugin_language['oct'],
-            11 => $plugin_language['nov'], 12 => $plugin_language['dec']
+            1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
+            3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
+            5 => $languageService->get('may'), 6 => $languageService->get('jun'),
+            7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
+            9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
+            11 => $languageService->get('nov'), 12 => $languageService->get('dec')
         );
 
         $monatname = $monate[$monat];
@@ -49,7 +52,7 @@ $qry = safe_query("SELECT * FROM plugins_articles WHERE articleID!=0 ORDER BY ar
 		$articleID = $ds['articleID'];
 		
 
-		$translate = new multiLanguage(detectCurrentLanguage());
+		$translate = new multiLanguage($lang);
     	$translate->detectLanguages($question);
     	$question = $translate->getTextByLanguage($question);
 		
@@ -90,6 +93,6 @@ $qry = safe_query("SELECT * FROM plugins_articles WHERE articleID!=0 ORDER BY ar
 		echo $tpl->loadTemplate("articles", "widget_articles_foot", $data_array, 'plugin');
 }
 else {
-	echo $plugin_language[ 'no_articles' ];
+	echo $languageService->get('no_articles');
 }
 ?>

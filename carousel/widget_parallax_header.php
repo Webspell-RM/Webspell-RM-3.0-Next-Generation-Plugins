@@ -3,9 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('carousel');
+
 $tpl = new Template();
 
 $filepath = $plugin_path . "images/";
@@ -26,5 +30,5 @@ if (mysqli_num_rows($ergebnis)) {
         echo $tpl->loadTemplate("parallax_header", "content", $data_array, 'plugin');
     }
 } else {
-    echo '<div class="alert alert-danger" role="alert">' . $plugin_language['no_header'] . '</div>';
+    echo '<div class="alert alert-danger" role="alert">' . $languageService->get('no_header') . '</div>';
 }

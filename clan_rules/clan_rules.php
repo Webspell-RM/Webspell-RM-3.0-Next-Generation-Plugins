@@ -3,9 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("clan_rules", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('clan_rules');
 
 // Action auslesen
 $action = $_GET['action'] ?? '';
@@ -20,7 +23,7 @@ if ($action == "show") {
         // Header-Daten
         $data_array = [
             'class'    => $class,
-            'title'    => $plugin_language['clan_rules'],
+            'title'    => $languageService->get('clan_rules'),
             'subtitle' => 'Clan Rules'
         ];
         echo $tpl->loadTemplate("clan_rules", "head", $data_array, "plugin");
@@ -29,7 +32,7 @@ if ($action == "show") {
         if ($ds = mysqli_fetch_array($get)) {
             $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
 
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($ds['title']);
             $title = $translate->getTextByLanguage($ds['title']);
             $translate->detectLanguages($ds['text']);
@@ -42,19 +45,19 @@ if ($action == "show") {
                 'text'   => $text,
                 'date'   => $date,
                 'poster' => $poster,
-                'info'   => $plugin_language['info'],
-                'stand'  => $plugin_language['stand']
+                'info'   => $languageService->get('info'),
+                'stand'  => $languageService->get('stand')
             ];
 
             echo $tpl->loadTemplate("clan_rules", "content_area", $data_array, "plugin");
         } else {
-            echo $plugin_language['no_clan_rules'];
+            echo $languageService->get('no_clan_rules');
         }
 
         echo $tpl->loadTemplate("clan_rules", "foot", [], "plugin");
 
     } else {
-        echo $plugin_language['no_clan_rules'];
+        echo $languageService->get('no_clan_rules');
     }
 
 } else {
@@ -67,7 +70,7 @@ if ($action == "show") {
     // Header-Daten
     $data_array = [
         'class'    => $class,
-        'title' => $plugin_language['clan_rules'],
+        'title' => $languageService->get('clan_rules'),
         'subtitle' => 'Clan Rules'
     ];
     echo $tpl->loadTemplate("clan_rules", "head", $data_array, "plugin");
@@ -89,7 +92,7 @@ if ($action == "show") {
         while ($ds = mysqli_fetch_array($ergebnis)) {
             $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
 
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($ds['title']);
             $title = $translate->getTextByLanguage($ds['title']);
             $translate->detectLanguages($ds['text']);
@@ -102,8 +105,8 @@ if ($action == "show") {
                 'text'   => $text,
                 'date'   => $date,
                 'poster' => $poster,
-                'info'   => $plugin_language['info'],
-                'stand'  => $plugin_language['stand']
+                'info'   => $languageService->get('info'),
+                'stand'  => $languageService->get('stand')
             ];
 
             echo $tpl->loadTemplate("clan_rules", "content_area", $data_array, "plugin");
@@ -112,7 +115,7 @@ if ($action == "show") {
         echo $tpl->renderPagination("index.php?site=clan_rules", $page, $pages);
 
     } else {
-        echo $plugin_language['no_clan_rules'];
+        echo $languageService->get('no_clan_rules');
     }
 
     #echo $tpl->loadTemplate("clan_rules", "foot", [], "plugin");

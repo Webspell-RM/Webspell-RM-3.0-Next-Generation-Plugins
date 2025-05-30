@@ -49,7 +49,7 @@ safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 8, '[[lang:de]]Gallery[[lang:en]]Gallery[[lang:it]]Gallery', 'gallery', 'admincenter.php?site=admin_gallery', 1)");
+('', 9, '[[lang:de]]Gallery[[lang:en]]Gallery[[lang:it]]Gallery', 'gallery', 'admincenter.php?site=admin_gallery', 1)");
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
 ('', 4, '[[lang:de]]Gallery[[lang:en]]Gallery[[lang:it]]Gallery', 'gallery', 'index.php?site=gallery', 1, 1, 'default')");

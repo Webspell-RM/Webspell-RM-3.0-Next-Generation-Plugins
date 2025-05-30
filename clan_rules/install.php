@@ -47,7 +47,7 @@ safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 4, '[[lang:de]]Clan Regeln[[lang:en]]Clan Rules[[lang:it]]Regole del Clan', 'clan_rules', 'admincenter.php?site=admin_clan_rules', 1)");
+('', 5, '[[lang:de]]Clan Regeln[[lang:en]]Clan Rules[[lang:it]]Regole del Clan', 'clan_rules', 'admincenter.php?site=admin_clan_rules', 1)");
 
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES

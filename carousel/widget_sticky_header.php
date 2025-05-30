@@ -3,8 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('carousel');
+
 $tpl = new Template();
 
 GLOBAL $theme_name;
@@ -26,13 +31,13 @@ if (mysqli_num_rows($ergebnis)) {
             if (stristr($link_url, "https://")) {
                 $link = '<a data-aos="fade-up" data-aos-delay="200" href="' . htmlspecialchars($link_url) . '" class="btn-get-started scrollto"><i class="bi bi-chevron-double-down"></i></a>';
             } else {
-                $link = '<a data-aos="fade-up" data-aos-delay="200" href="' . htmlspecialchars($link_url) . '" class="btn-get-started scrollto">' . $plugin_language['read_more'] . '</a>';
+                $link = '<a data-aos="fade-up" data-aos-delay="200" href="' . htmlspecialchars($link_url) . '" class="btn-get-started scrollto">' . $languageService->get('read_more') . '</a>';
             }
         } else {
             $link = '';
         }
 
-        $translate = new multiLanguage(detectCurrentLanguage());
+        $translate = new multiLanguage($lang);
         $translate->detectLanguages($title);
         $title = $translate->getTextByLanguage($title);
         $translate->detectLanguages($description);
@@ -50,5 +55,5 @@ if (mysqli_num_rows($ergebnis)) {
         echo $tpl->loadTemplate("sticky_header", "content", $replaces, 'plugin');
     }
 } else {
-    echo '<div class="alert alert-danger" role="alert">' . $plugin_language['no_header'] . '</div>';
+    echo '<div class="alert alert-danger" role="alert">' . $languageService->get('no_header') . '</div>';
 }

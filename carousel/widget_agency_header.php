@@ -3,8 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('carousel');
+
 $tpl = new Template();
 
 GLOBAL $theme_name;
@@ -25,13 +30,13 @@ if (mysqli_num_rows($ergebnis)) {
 
         // Link korrekt einbauen
         if (!empty($link_raw)) {
-            $link = '<a data-aos="fade-up" data-aos-delay="200" href="' . $link_raw . '" class="btn-get-started scrollto">' . $plugin_language['read_more'] . '</a>';
+            $link = '<a data-aos="fade-up" data-aos-delay="200" href="' . $link_raw . '" class="btn-get-started scrollto">' . $languageService->get('read_more') . '</a>';
         } else {
             $link = '';
         }
 
         // Mehrsprachigkeit
-        $translate = new multiLanguage(detectCurrentLanguage());
+        $translate = new multiLanguage($lang);
         $translate->detectLanguages($title);
         $title = $translate->getTextByLanguage($title);
         $translate->detectLanguages($description);
@@ -51,5 +56,5 @@ if (mysqli_num_rows($ergebnis)) {
         $i++;
     }
 } else {
-    echo '<div class="alert alert-danger" role="alert">' . $plugin_language['no_header'] . '</div>';
+    echo '<div class="alert alert-danger" role="alert">' . $languageService->get('no_header') . '</div>';
 }

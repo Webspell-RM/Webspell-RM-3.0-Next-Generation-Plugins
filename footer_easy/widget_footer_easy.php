@@ -3,8 +3,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager();
-$plugin_language = $pm->plugin_language("footer_easy", $plugin_path);
+#$pm = new plugin_manager();
+#$plugin_language = $pm->plugin_language("footer_easy", $plugin_path);
+
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('footer_easy');
+
+
 $tpl = Template::getInstance();
 
 GLOBAL $myclanname, $since;
@@ -12,7 +21,7 @@ GLOBAL $myclanname, $since;
 // Links aus DB holen
 $res = safe_query("SELECT * FROM plugins_footer_easy ORDER BY link_number");
 $data = [];
-$translate = new multiLanguage(detectCurrentLanguage());
+$translate = new multiLanguage($lang);
 
 while ($r = mysqli_fetch_assoc($res)) {
     $translate->detectLanguages($r['copyright_link_name']);
@@ -37,4 +46,3 @@ $data_array = array_merge([
 
 // ausgeben
 echo $tpl->loadTemplate("footer_easy", "content", $data_array, 'plugin');
-?>

@@ -4,9 +4,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Sprachdateien laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("about", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('about');
 
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
 $class = htmlspecialchars($config['selected_style']);
@@ -14,7 +17,7 @@ $class = htmlspecialchars($config['selected_style']);
     // Header-Daten
     $data_array = [
         'class'    => $class,
-        'title' => $plugin_language['title'],
+        'title' => $languageService->get('title'),
         'subtitle' => 'About'
     ];
     
@@ -25,7 +28,7 @@ $ergebnis = safe_query("SELECT * FROM plugins_about");
 
 if (mysqli_num_rows($ergebnis)) {
     $ds = mysqli_fetch_array($ergebnis);
-    $translate = new multiLanguage(detectCurrentLanguage());
+    $translate = new multiLanguage($lang);
 
     // Titel und Abschnitte übersetzen
     $translate->detectLanguages($ds['title']);
@@ -66,11 +69,11 @@ if (mysqli_num_rows($ergebnis)) {
 } else {
     // Fallback wenn keine Daten vorhanden
     $data_array = [
-        'title' => $plugin_language['title'],
+        'title' => $languageService->get('title'),
         'subtitle' => 'About Us'
     ];
     
     echo $tpl->loadTemplate("about", "head", $data_array, 'plugin');
-    echo '<p>' . $plugin_language['no_about'] . '</p>';
+    echo '<p>' . $languageService->get('no_about') . '</p>';
 }
 ?>

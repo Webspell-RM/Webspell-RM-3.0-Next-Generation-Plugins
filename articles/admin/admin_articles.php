@@ -1,17 +1,25 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$lang = $languageService->detectLanguage();
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('articles');
+
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('articles');
-
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("admin_articles", $plugin_path);
-
-
 
 $filepath = $plugin_path."images/article/";
 
@@ -59,7 +67,7 @@ if (isset($_GET[ 'delete' ])) {
             }
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST[ 'save' ])) {
     $CAPCLASS = new \webspell\Captcha;
@@ -151,20 +159,20 @@ if (isset($_GET[ 'delete' ])) {
                                 );
                             }
                         } else {
-                            echo generateErrorBox(sprintf($plugin_language[ 'image_too_big' ], 1920, 1080));
+                            echo generateErrorBox(sprintf($languageService->get('image_too_big'), 1920, 1080));
                         }
                     } else {
-                        echo generateErrorBox($plugin_language[ 'broken_image' ]);
+                        echo generateErrorBox($languageService->get('broken_image'));
                     }
                 } else {
-                    echo generateErrorBox($plugin_language[ 'unsupported_image_type' ]);
+                    echo generateErrorBox($languageService->get('unsupported_image_type'));
                 }
             } else {
                 echo  generateErrorBox($upload->translateError());
             }
         }
     } else {
-        echo  $plugin_language[ 'transaction_invalid' ];
+        echo  $languageService->get('transaction_invalid');
     }
 
 
@@ -254,20 +262,20 @@ if (isset($_GET[ 'delete' ])) {
                                 );
                             }
                         } else {
-                            echo generateErrorBox(sprintf($plugin_language[ 'image_too_big' ], 1920, 1080));
+                            echo generateErrorBox(sprintf($languageService->get('image_too_big'), 1920, 1080));
                         }
                     } else {
-                        echo generateErrorBox($plugin_language[ 'broken_image' ]);
+                        echo generateErrorBox($languageService->get('broken_image'));
                     }
                 } else {
-                    echo generateErrorBox($plugin_language[ 'unsupported_image_type' ]);
+                    echo generateErrorBox($languageService->get('unsupported_image_type'));
                 }
             } else {
                 echo generateErrorBox($upload->translateError());
             }
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 
 
@@ -285,7 +293,7 @@ if (isset($_GET[ 'delete' ])) {
         
         redirect("admincenter.php?site=admin_articles&action=admin_articles_settings", "", 0);
     } else {
-        redirect("admincenter.php?site=admin_articles&action=admin_articles_settings", $plugin_language[ 'transaction_invalid' ], 3);
+        redirect("admincenter.php?site=admin_articles&action=admin_articles_settings", $languageService->get('transaction_invalid'), 3);
     }
 }
 
@@ -303,7 +311,7 @@ if ($action == "add") {
         $linkscats .= '</select>';
 
         if (isset($_GET[ 'answer' ])) {
-            echo '<span style="color: red">' . $plugin_language[ 'no_category_selected' ] . '</span>';
+            echo '<span style="color: red">' . $languageService->get('no_category_selected') . '</span>';
             $question = $_GET[ 'question' ];
             $answer = $_GET[ 'answer' ];
         } else {
@@ -313,12 +321,12 @@ if ($action == "add") {
 
 echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-card-list"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-card-list"></i> ' . $languageService->get('title') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">'.$plugin_language['add_articles'].'</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('add_articles').'</li>
                 </ol>
             </nav>  
                         <div class="card-body">';
@@ -327,46 +335,46 @@ echo'<div class="card">
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_articles" enctype="multipart/form-data">
      <div class="row">
 	 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['category'].'</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('category').'</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       '.$linkscats.'</em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].'</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').'</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
 		<input class="form-control" type="text" name="question" value="'.$question.'" size="97" /></em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['tags'].'</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('tags').'</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
 		<input class="form-control" type="text" name="tags" value="" size="97" /></em></span>
     </div>
   </div>
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="ckeditor" id="ckeditor" name="message" rows="10" cols="" >'.$answer.'</textarea></em></span>
     </div>
   </div>
 
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['homepage'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('homepage').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
         <input type="url" name="url" class="form-control" id="input-url" value=""></em></span>
     </div>
   </div>
 
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['banner'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('banner').':</label>
     <div class="col-sm-10"><span class="text-muted small"><em>
       <input class="btn btn-info" name="banner" type="file" size="40" /> <small>(max. 1000x500)</small></em></span>
     </div>
   </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">' . $plugin_language[ 'is_displayed' ] . ':</label>
+    <label class="col-sm-2 control-label">' . $languageService->get('is_displayed') . ':</label>
   <div class="col-sm-8 form-check form-switch" style="padding: 0px 43px;">
   <input class="form-check-input" type="checkbox" name="displayed" value="1" checked="checked" />
     </div>
@@ -375,7 +383,7 @@ echo'<div class="card">
 <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
 		<input type="hidden" name="captcha_hash" value="'.$hash.'" />
-		<button class="btn btn-success" type="submit" name="save"  />'.$plugin_language['add_articles'].'</button>
+		<button class="btn btn-success" type="submit" name="save"  />'.$languageService->get('add_articles').'</button>
     </div>
   </div>
   </div>
@@ -422,12 +430,12 @@ echo'<div class="card">
        
 echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-card-list"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-card-list"></i> ' . $languageService->get('title') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">'.$plugin_language['edit_articles'].'</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('edit_articles').'</li>
                 </ol>
             </nav>  
                         <div class="card-body">';
@@ -435,54 +443,54 @@ echo'<div class="card">
    echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_articles" enctype="multipart/form-data">
     <div class="row">
 	 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['category'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('category').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       '.$linkscats.'
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
 		<input class="form-control" type="text" name="question" value="'.htmlspecialchars($ds['question']).'" size="97" /></em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">' . $plugin_language[ 'tags' ] . ':</label>
+    <label class="col-sm-2 control-label">' . $languageService->get('tags') . ':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
 		<input class="form-control" type="text" name="tags" value="' . $tags . '" size="97" /></em></span>
 	</div>
   </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="ckeditor" id="ckeditor" name="message" rows="10" cols="" >'.htmlspecialchars($ds['answer']).'</textarea></em></span>
     </div>
   </div>
 
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['homepage'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('homepage').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
         <input type="text" class="form-control" name="url" value="'.htmlspecialchars($ds['url']).'" /></em></span>
     </div>
   </div>
 
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['current_banner'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('current_banner').':</label>
     <div class="col-sm-10">
       '.$pic.'
     </div>
   </div>
 
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['banner'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('banner').':</label>
     <div class="col-sm-10"><span class="text-muted small"><em>
       <input class="btn btn-info" name="banner" type="file" size="40" /> <small>(max. 1000x500)</small></em></span>
     </div>
   </div>
 
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">' . $plugin_language[ 'is_displayed' ] . ':</label>
+    <label class="col-sm-2 control-label">' . $languageService->get('is_displayed') . ':</label>
   <div class="col-sm-8 form-check form-switch" style="padding: 0px 43px;">
   ' . $displayed . '
     </div>
@@ -491,7 +499,7 @@ echo'<div class="card">
   <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
 		<input type="hidden" name="captcha_hash" value="'.$hash.'" /><input type="hidden" name="articleID" value="'.$articleID.'" />
-		<button class="btn btn-warning" type="submit" name="saveedit"  />'.$plugin_language['edit_articles'].'</button>
+		<button class="btn btn-warning" type="submit" name="saveedit"  />'.$languageService->get('edit_articles').'</button>
     </div>
   </div>
 
@@ -522,10 +530,10 @@ $articlecatname = $_POST[ 'articlecatname' ];
                     )"
             );
         } else {
-            echo $plugin_language[ 'information_incomplete' ];
+            echo $languageService->get('information_incomplete');
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
   
 } elseif (isset($_POST[ 'articles_categorys_saveedit' ])) { 
@@ -541,10 +549,10 @@ $articlecatname = $_POST[ 'articlecatname' ];
                 "plugins_articles_categories SET articlecatname='$articlecatname', description='$description' WHERE articlecatID='$articlecatID' "
             );
         } else {
-            echo $plugin_language[ 'information_incomplete' ];
+            echo $languageService->get('information_incomplete');
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     } 
 
 } elseif (isset($_GET[ 'articles_categorys_delete' ])) {  
@@ -588,7 +596,7 @@ $articlecatname = $_POST[ 'articlecatname' ];
         safe_query("DELETE FROM plugins_articles WHERE articlecatID='" . $_GET[ 'articlecatID' ] . "'");
 
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 
 }
@@ -602,13 +610,13 @@ if ($action == "admin_articles_categorys_add") {
 
 echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-card-list"></i> ' . $plugin_language[ 'articles_categorys' ] . '</div>
+                            <i class="bi bi-card-list"></i> ' . $languageService->get('articles_categorys') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $plugin_language[ 'articles_categorys' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">'.$plugin_language['add_category'].'</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $languageService->get('articles_categorys') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('add_category').'</li>
                 </ol>
             </nav>  
                         <div class="card-body">';
@@ -625,20 +633,20 @@ echo '<script language="JavaScript" type="text/javascript">
     
     echo '<form class="form-horizontal" method="post" action="admincenter.php?site=admin_articles&action=admin_articles_categorys" id="post" name="post" enctype="multipart/form-data" onsubmit="return chkFormular();">
     <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['category_name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('category_name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input type="text" class="form-control" name="articlecatname" /></em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
      <textarea class="ckeditor" id="ckeditor" rows="10" cols="" name="message"></textarea></em></span>
     </div>
   </div>
   <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
-     <input type="hidden" name="captcha_hash" value="'.$hash.'" /><button class="btn btn-success" type="submit" name="articles_categorys_save" />'.$plugin_language['add_category'].'</button>
+     <input type="hidden" name="captcha_hash" value="'.$hash.'" /><button class="btn btn-success" type="submit" name="articles_categorys_save" />'.$languageService->get('add_category').'</button>
     </div>
   </div>
     </form>
@@ -657,13 +665,13 @@ echo '<script language="JavaScript" type="text/javascript">
 
 echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-card-list"></i> ' . $plugin_language[ 'articles_categorys' ] . '</div>
+                            <i class="bi bi-card-list"></i> ' . $languageService->get('articles_categorys') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $plugin_language[ 'articles_categorys' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">'.$plugin_language['edit_category'].'</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $languageService->get('articles_categorys') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('edit_category').'</li>
                 </ol>
             </nav>  
                         <div class="card-body">';
@@ -680,20 +688,20 @@ echo '<script language="JavaScript" type="text/javascript">
     
     echo '<form class="form-horizontal" method="post" action="admincenter.php?site=admin_articles&action=admin_articles_categorys" id="post" name="post" onsubmit="return chkFormular();">
     <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['category_name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('category_name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input type="text" class="form-control" name="articlecatname" value="'.htmlspecialchars($ds['articlecatname']).'" /></em></span>
     </div>
   </div>
  <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
      <textarea class="ckeditor" id="ckeditor" rows="10" cols="" name="message">'.htmlspecialchars($ds['description']).'</textarea></em></span>
     </div>
   </div>
   <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
-     <input type="hidden" name="captcha_hash" value="'.$hash.'" /><input type="hidden" name="articlecatID" value="'.$articlecatID.'" /><button class="btn btn-success" type="submit" name="articles_categorys_saveedit" />'.$plugin_language['edit_category'].'</button>
+     <input type="hidden" name="captcha_hash" value="'.$hash.'" /><input type="hidden" name="articlecatID" value="'.$articlecatID.'" /><button class="btn btn-success" type="submit" name="articles_categorys_saveedit" />'.$languageService->get('edit_category').'</button>
     </div>
   </div>
     </form>
@@ -704,21 +712,21 @@ echo '<script language="JavaScript" type="text/javascript">
 
     echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-card-list"></i> ' . $plugin_language[ 'articles_categorys' ] . '</div>
+                            <i class="bi bi-card-list"></i> ' . $languageService->get('articles_categorys') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $plugin_language[ 'articles_categorys' ] . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys">' . $languageService->get('articles_categorys') . '</a></li>
                 <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
                 </ol>
             </nav>  
                         <div class="card-body">
 
 <div class="mb-3 row">
-    <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
+    <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
     <div class="col-md-8">
-      <a href="admincenter.php?site=admin_articles&action=admin_articles&action=admin_articles_categorys_add" class="btn btn-primary">' . $plugin_language[ 'new_category' ] . '</a>
+      <a href="admincenter.php?site=admin_articles&action=admin_articles&action=admin_articles_categorys_add" class="btn btn-primary">' . $languageService->get('new_category') . '</a>
     </div>
   </div>';
 
@@ -726,10 +734,10 @@ echo '<script language="JavaScript" type="text/javascript">
 echo'<form method="post" action="admincenter.php?site=admin_articles&action=admin_articles_categorys">
   <table class="table table-striped">
     <thead>
-      <th><b>'.$plugin_language['articles_categorys'].'</b></th>
-      <th width="" class="title"><b>' . $plugin_language['description'] . '</b></th>
-      <th><b>'.$plugin_language['actions'].'</b></th>
-      <th><b>'.$plugin_language['sort'].'</b></th>
+      <th><b>'.$languageService->get('articles_categorys').'</b></th>
+      <th width="" class="title"><b>' . $languageService->get('description') . '</b></th>
+      <th><b>'.$languageService->get('actions').'</b></th>
+      <th><b>'.$languageService->get('sort').'</b></th>
     </thead>';
 
     $ergebnis = safe_query("SELECT * FROM plugins_articles_categories ORDER BY sort");
@@ -751,7 +759,7 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
             $articlecatname = $ds[ 'articlecatname' ];
             $description = $ds[ 'description' ];
 
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($articlecatname);
             $articlecatname = $translate->getTextByLanguage($articlecatname);
 
@@ -765,11 +773,11 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
         echo '<tr>
             <td class="' . $td . '"><b>' . $articlecatname . '</b></td>
             <td class="' . $td . '">' . $description . '</td>
-      <td><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys_edit&amp;articlecatID='.$ds['articlecatID'].'" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+      <td><a href="admincenter.php?site=admin_articles&action=admin_articles_categorys_edit&amp;articlecatID='.$ds['articlecatID'].'" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
         <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_articles&action=admin_articles_categorys&amp;articles_categorys_delete=true&amp;articlecatID='.$ds['articlecatID'].'&amp;captcha_hash='.$hash.'">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -778,14 +786,14 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'articles_categorys' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('articles_categorys') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete_cat'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete_cat') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -809,7 +817,7 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
     $i++;
     }
     echo'<tr>
-      <td class="td_head" colspan="4" align="right"><input type="hidden" name="captcha_hash" value="'.$hash.'" /><input class="btn btn-primary" type="submit" name="sortieren" value="'.$plugin_language['to_sort'].'" /></td>
+      <td class="td_head" colspan="4" align="right"><input type="hidden" name="captcha_hash" value="'.$hash.'" /><input class="btn btn-primary" type="submit" name="sortieren" value="'.$languageService->get('to_sort').'" /></td>
     </tr>
   </table>
   </form>';
@@ -833,7 +841,7 @@ if (empty($maxshownarticles)) {
 echo'<form method="post" action="admincenter.php?site=admin_articles&action=admin_articles_settings">
         <div class="card">
             <div class="card-header">
-                '.$plugin_language[ 'settings' ].'
+                '.$languageService->get('settings').'
             </div>
 
             <div class="card-body">
@@ -841,8 +849,8 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_settings">' . $plugin_language[ 'settings' ] . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles&action=admin_articles_settings">' . $languageService->get('settings') . '</a></li>
                 <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
                 </ol>
             </nav>  
@@ -854,21 +862,21 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
 
                         <div class="row bt">
                             <div class="col-md-6">
-                                '.$plugin_language['articles'].':
+                                '.$languageService->get('articles').':
                             </div>
 
                             <div class="col-md-6">
-                                <span class="pull-right text-muted small"><em data-toggle="tooltip" title="'.$plugin_language[ 'tooltip_1' ].'"><input class="form-control" type="text" name="articles" value="'.$ds['articles'].'" size="35"></em></span>
+                                <span class="pull-right text-muted small"><em data-toggle="tooltip" title="'.$languageService->get('tooltip_1').'"><input class="form-control" type="text" name="articles" value="'.$ds['articles'].'" size="35"></em></span>
                             </div>
                         </div>
 
                         <div class="row bt">
                             <div class="col-md-6">
-                                '.$plugin_language['max_content'].':
+                                '.$languageService->get('max_content').':
                             </div>
 
                             <div class="col-md-6">
-                                <span class="pull-right text-muted small"><em data-toggle="tooltip" title="'.$plugin_language[ 'tooltip_2' ].'"><input class="form-control" type="text" name="articleschars" value="'.$ds['articleschars'].'" size="35"></em></span>
+                                <span class="pull-right text-muted small"><em data-toggle="tooltip" title="'.$languageService->get('tooltip_2').'"><input class="form-control" type="text" name="articleschars" value="'.$ds['articleschars'].'" size="35"></em></span>
                             </div>
                         </div>
                     </div>
@@ -880,7 +888,7 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
                 <br>
              <div class="mb-3">
             <input type="hidden" name="captcha_hash" value="'.$hash.'"> 
-            <button class="btn btn-primary" type="submit" name="links_settings_save">'.$plugin_language['update'].'</button>
+            <button class="btn btn-primary" type="submit" name="links_settings_save">'.$languageService->get('update').'</button>
             </div>
 
             </div>
@@ -891,22 +899,22 @@ echo'<form method="post" action="admincenter.php?site=admin_articles&action=admi
 
 echo'<div class="card">
             <div class="card-header">
-                            <i class="bi bi-link"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-link"></i> ' . $languageService->get('title') . '</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $plugin_language[ 'title' ] . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">' . $languageService->get('title') . '</a></li>
                 <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
                 </ol>
             </nav>  
                         <div class="card-body">
 
 <div class="mb-3 row">
-    <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
+    <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
     <div class="col-md-8">
-      <a href="admincenter.php?site=admin_articles&amp;action=add" class="btn btn-primary">' . $plugin_language[ 'new_articles' ] . '</a>
-      <a href="admincenter.php?site=admin_articles&action=admin_articles_categorys" class="btn btn-primary">' . $plugin_language[ 'new_category' ] . '</a>
-      <a href="admincenter.php?site=admin_articles&action=admin_articles_settings" class="btn btn-primary" type="button">' . $plugin_language[ 'settings' ] . '</a>
+      <a href="admincenter.php?site=admin_articles&amp;action=add" class="btn btn-primary">' . $languageService->get('new_articles') . '</a>
+      <a href="admincenter.php?site=admin_articles&action=admin_articles_categorys" class="btn btn-primary">' . $languageService->get('new_category') . '</a>
+      <a href="admincenter.php?site=admin_articles&action=admin_articles_settings" class="btn btn-primary" type="button">' . $languageService->get('settings') . '</a>
     </div>
   </div>';
 
@@ -914,11 +922,11 @@ echo'<div class="card">
     echo'<form method="post" action="admincenter.php?site=admin_articles">
   <table class="table table-striped">
     <thead>
-      <th width="" class="title"><b>' . $plugin_language['articles'] . '</b></th>
-      <th width="" class="title"><b>' . $plugin_language['name'] . '</b></th>
-      <th width="15%" class="title"><b>' . $plugin_language[ 'is_displayed' ] . '</b></th>
-      <th width="20%" class="title"><b>' . $plugin_language['actions'] . '</b></th>
-      <th width="8%" class="title"><b>' . $plugin_language['sort'] . '</b></th>
+      <th width="" class="title"><b>' . $languageService->get('articles') . '</b></th>
+      <th width="" class="title"><b>' . $languageService->get('name') . '</b></th>
+      <th width="15%" class="title"><b>' . $languageService->get('is_displayed') . '</b></th>
+      <th width="20%" class="title"><b>' . $languageService->get('actions') . '</b></th>
+      <th width="8%" class="title"><b>' . $languageService->get('sort') . '</b></th>
     </thead>';
 
 	$ergebnis = safe_query("SELECT * FROM `plugins_articles_categories` ORDER BY `sort`");
@@ -933,7 +941,7 @@ echo'<div class="card">
             $articlecatname = $ds[ 'articlecatname' ];
             $description = $ds[ 'description' ];
             
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($articlecatname);
             $articlecatname = $translate->getTextByLanguage($articlecatname);
 
@@ -969,12 +977,12 @@ echo'<div class="card">
             }
 
              $db[ 'displayed' ] == 1 ?
-            $displayed = '<font color="green"><b>' . $plugin_language[ 'yes' ] . '</b></font>' :
-            $displayed = '<font color="red"><b>' . $plugin_language[ 'no' ] . '</b></font>'; 
+            $displayed = '<font color="green"><b>' . $languageService->get('yes') . '</b></font>' :
+            $displayed = '<font color="red"><b>' . $languageService->get('no') . '</b></font>'; 
 
             $question = $db[ 'question' ];
             
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($question);
             $question = $translate->getTextByLanguage($question);
             
@@ -985,11 +993,11 @@ echo'<div class="card">
             echo '<tr>
         <td colspan="2"><b>- '.$question.'</b></td>
         <td>' . $displayed . '</td>
-        <td><a href="admincenter.php?site=admin_articles&amp;action=edit&amp;articleID=' . $db[ 'articleID' ] . '" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+        <td><a href="admincenter.php?site=admin_articles&amp;action=edit&amp;articleID=' . $db[ 'articleID' ] . '" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
         <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_articles&amp;delete=true&amp;articleID='.$db['articleID'].'&amp;captcha_hash='.$hash.'">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -998,14 +1006,14 @@ echo'<div class="card">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'title' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('title') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete_links'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete_links') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -1030,7 +1038,7 @@ echo'<div class="card">
 
 	echo'<tr>
       <td class="td_head" colspan="5" align="right"><input type="hidden" name="captcha_hash" value="'.$hash.'" />
-      <button class="btn btn-primary" type="submit" name="sortieren" />'.$plugin_language['to_sort'].'</button></td>
+      <button class="btn btn-primary" type="submit" name="sortieren" />'.$languageService->get('to_sort').'</button></td>
     </tr>
   </table>
   </form>';

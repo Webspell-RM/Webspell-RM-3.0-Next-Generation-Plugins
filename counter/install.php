@@ -1,12 +1,12 @@
 ﻿<?php
 safe_query("CREATE TABLE IF NOT EXISTS plugins_counter (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  ip VARCHAR(45),
-  user_agent TEXT,
-  referer TEXT,
-  timestamp DATETIME NOT NULL,
-  page VARCHAR(255),
-  PRIMARY KEY (id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ip varchar(128) NOT NULL,
+  user_agent text DEFAULT NULL,
+  referer text DEFAULT NULL,
+  timestamp datetime NOT NULL,
+  page varchar(255) NOT NULL,
+  device_type enum('Desktop','Mobile') DEFAULT 'Desktop'
 ) AUTO_INCREMENT=1
   DEFAULT CHARSET=utf8");
 
@@ -38,9 +38,10 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 7, '[[lang:de]]Counter[[lang:en]]Counter[[lang:it]]Counter', 'counter', 'admincenter.php?site=admin_counter', 1)");
+('', 2, '[[lang:de]]Counter[[lang:en]]Counter[[lang:it]]Counter', 'counter', 'admincenter.php?site=admin_counter', 1)");
 
 #######################################################################################################################################
+
 safe_query("
   INSERT IGNORE INTO user_role_admin_navi_rights (id, roleID, type, modulname, accessID)
   VALUES ('', 1, 'link', 'counter', (

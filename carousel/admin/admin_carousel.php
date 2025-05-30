@@ -1,14 +1,25 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$lang = $languageService->detectLanguage();
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('carousel');
+
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('carousel');
-
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
  
 $filepath = $plugin_path."images/";
 $filepathvid = $plugin_path."videos/";
@@ -159,7 +170,7 @@ if (isset($_POST[ 'sortieren' ])) {
             }
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST[ "save" ])) {
     $title = $_POST[ 'title' ];
@@ -214,10 +225,10 @@ if (isset($_POST[ 'sortieren' ])) {
                             );
                         }
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get( 'broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get( 'unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -245,7 +256,7 @@ if (isset($_POST[ 'sortieren' ])) {
                     );
                 }
             } else {
-                $errors[] = $plugin_language['unsupported_video_type']; // Messaggio di errore per tipo di video non supportato
+                $errors[] = $languageService->get('unsupported_video_type'); // Messaggio di errore per tipo di video non supportato
             }
         } else {
             $errors[] = $upload->translateError(); // Messaggio di errore generico sul caricamento del file
@@ -256,13 +267,13 @@ if (isset($_POST[ 'sortieren' ])) {
     
     if (count($errors)) {
         $errors = array_unique($errors);
-        echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+        echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
     } else {
         redirect("admincenter.php?site=admin_carousel&action=admin_carousel_pic", "", 0);
     }
 
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST[ "saveedit" ])) {
     $title = $_POST[ "title" ];
@@ -321,10 +332,10 @@ if (isset($_POST[ 'sortieren' ])) {
                             );
                         }
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -352,7 +363,7 @@ if (isset($_POST[ 'sortieren' ])) {
                     );
                 }
             } else {
-                $errors[] = $plugin_language['unsupported_video_type']; // Messaggio di errore per tipo di video non supportato
+                $errors[] = $languageService->get('unsupported_video_type'); // Messaggio di errore per tipo di video non supportato
             }
         } else {
             $errors[] = $upload->translateError(); // Messaggio di errore generico sul caricamento del file
@@ -362,12 +373,12 @@ if (isset($_POST[ 'sortieren' ])) {
 }
     if (count($errors)) {
         $errors = array_unique($errors);
-        echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+        echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
     } else {
         redirect("admincenter.php?site=admin_carousel&action=admin_carousel_pic", "", 0);
     }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 
 } elseif (isset($_POST[ 'carousel_settings_save' ])) {  
@@ -387,7 +398,7 @@ if (isset($_POST[ 'sortieren' ])) {
         
         redirect("admincenter.php?site=admin_carousel&action=admin_carousel_settings", "", 0);
     } else {
-        redirect("admincenter.php?site=admin_carousel&action=admin_carousel_settings", $plugin_language[ 'transaction_invalid' ], 3);
+        redirect("admincenter.php?site=admin_carousel&action=admin_carousel_settings", $languageService->get('transaction_invalid'), 3);
     }
 
 } elseif (isset($_GET[ "delete" ])) {
@@ -404,7 +415,7 @@ if (isset($_POST[ 'sortieren' ])) {
             redirect("admincenter.php?site=admin_carousel&action=admin_carousel_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
     }
 
 } elseif (isset($_GET[ "delete_parallax" ])) {
@@ -420,7 +431,7 @@ if (isset($_POST[ 'sortieren' ])) {
             redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
     }
 } elseif (isset($_POST[ "parallax_save" ])) {
@@ -465,10 +476,10 @@ if (isset($_POST[ 'sortieren' ])) {
                         }
  
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -476,12 +487,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
     }
 } elseif (isset($_POST[ "saveedit_parallax" ])) {
@@ -526,10 +537,10 @@ if (isset($_POST[ 'sortieren' ])) {
                             );
                         }
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -537,12 +548,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_parallax_pic", "", 0);
     }
 
@@ -559,7 +570,7 @@ if (isset($_POST[ 'sortieren' ])) {
             redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
     }
 } elseif (isset($_POST[ "sticky_save" ])) {
@@ -606,10 +617,10 @@ if (isset($_POST[ 'sortieren' ])) {
                         }
  
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -617,12 +628,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
     }
 } elseif (isset($_POST[ "saveedit_sticky" ])) {
@@ -669,10 +680,10 @@ if (isset($_POST[ 'sortieren' ])) {
                             );
                         }
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -680,12 +691,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_sticky_pic", "", 0);
     }    
 #}
@@ -706,7 +717,7 @@ if (isset($_POST[ 'sortieren' ])) {
             redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
     }
 } elseif (isset($_POST[ "agency_save" ])) {
@@ -753,10 +764,10 @@ if (isset($_POST[ 'sortieren' ])) {
                         }
  
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -764,12 +775,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
     }
 } elseif (isset($_POST[ "saveedit_agency" ])) {
@@ -816,10 +827,10 @@ if (isset($_POST[ 'sortieren' ])) {
                             );
                         }
                     } else {
-                        $errors[] = $plugin_language[ 'broken_image' ];
+                        $errors[] = $languageService->get('broken_image');
                     }
                 } else {
-                    $errors[] = $plugin_language[ 'unsupported_image_type' ];
+                    $errors[] = $languageService->get('unsupported_image_type');
                 }
             } else {
                 $errors[] = $upload->translateError();
@@ -827,12 +838,12 @@ if (isset($_POST[ 'sortieren' ])) {
         }
         if (count($errors)) {
             $errors = array_unique($errors);
-            echo generateErrorBoxFromArray($plugin_language['errors_there'], $errors);
+            echo generateErrorBoxFromArray($languageService->get('errors_there'), $errors);
         } else {
             redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
         }
     } else {
-        echo $plugin_language[ 'transaction_invalid' ];
+        echo $languageService->get('transaction_invalid');
         redirect("admincenter.php?site=admin_carousel&action=admin_agency_pic", "", 0);
     }    
 }
@@ -850,12 +861,12 @@ if ($action == "add_vid") {
     @$ani_description = str_replace('value="' . $ds['ani_description'] . '"', 'value="' . $ds['ani_description'] . '" selected="selected"', $ani);
     echo '<div class="card">
             <div class="card-header">
-                            <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $plugin_language[ 'carousel' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'add_carousel_vid' ] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $languageService->get('carousel') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('add_carousel_vid') . '</li>
                 </ol>
             </nav> 
                         <div class="card-body">';
@@ -867,32 +878,32 @@ if ($action == "add_vid") {
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_carousel_pic" enctype="multipart/form-data">
 
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_vid'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_vid').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
-    <input class="btn btn-info" name="carousel_vid" type="file" size="40" /> <small>(' . $plugin_language[ 'carousel_upload_info_vid' ] . ')</small></em></span>
+    <input class="btn btn-info" name="carousel_vid" type="file" size="40" /> <small>(' . $languageService->get('carousel_upload_info_vid') . ')</small></em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="title" size="60" maxlength="255" /></em></span>
     </div>
   </div>
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="link" size="60" maxlength="255" /></em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;"></textarea></em></span>
     </div>
   </div>
 
    <div class="mb-3 row">
-        <label for="ani_title" class="col-lg-2 control-label">'.$plugin_language['title-ani'].':</label>
+        <label for="ani_title" class="col-lg-2 control-label">'.$languageService->get('title-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_title" name="ani_title" class="form-select">'.$ani_title.'</select>
@@ -900,7 +911,7 @@ if ($action == "add_vid") {
     </div>
 
     <div class="mb-3 row">
-        <label for="ani_link" class="col-lg-2 control-label">'.$plugin_language['link-ani'].':</label>
+        <label for="ani_link" class="col-lg-2 control-label">'.$languageService->get('link-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_link" name="ani_link" class="form-select">'.$ani_link.'</select>
@@ -909,7 +920,7 @@ if ($action == "add_vid") {
 
 
     <div class="mb-3 row">
-        <label for="ani_description" class="col-lg-2 control-label">'.$plugin_language['description-ani'].':</label>
+        <label for="ani_description" class="col-lg-2 control-label">'.$languageService->get('description-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_description" name="ani_description" class="form-select">'.$ani_description.'</select>
@@ -917,22 +928,22 @@ if ($action == "add_vid") {
     </div>
 
     <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['is_displayed'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('is_displayed').':</label>
     <div class="col-sm-8 form-check form-switch" style="padding: 0px 43px;">
       <input class="form-check-input" type="checkbox" name="displayed" value="1" checked="checked" />
     </div>
   </div>
   <div class="mb-3 row">
-  <label class="col-sm-2 control-label">'.$plugin_language['carousel_time'].':</label>
+  <label class="col-sm-2 control-label">'.$languageService->get('carousel_time').':</label>
     <div class="col-lg-3"><span class="text-muted small"><em>
       <input class="form-control" type="number" name="time_pic" size="20" maxlength="25" value="5"/></em></span>
     </div>
-    <label class="col-sm-2 control-label">'.$plugin_language['time_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('time_info').':</label>
   </div>
   <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-success" type="submit" name="save"  />'.$plugin_language['add_carousel'].'</button>
+        <button class="btn btn-success" type="submit" name="save"  />'.$languageService->get('add_carousel').'</button>
     </div>
   </div>
 </form>
@@ -951,12 +962,12 @@ if ($action == "add_vid") {
     @$ani_description = str_replace('value="' . $ds['ani_description'] . '"', 'value="' . $ds['ani_description'] . '" selected="selected"', $ani);
     echo '<div class="card">
             <div class="card-header">
-                            <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $plugin_language[ 'carousel' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'add_carousel_pic' ] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $languageService->get('carousel') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('add_carousel_pic') . '</li>
                 </ol>
             </nav> 
                         <div class="card-body">';
@@ -967,68 +978,68 @@ if ($action == "add_vid") {
  
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_carousel_pic" enctype="multipart/form-data">
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_pic'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_pic').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
-    <input class="btn btn-info" name="carousel_pic" type="file" size="40" /> <small>(' . $plugin_language[ 'carousel_upload_info' ] . ')</small></em></span>
+    <input class="btn btn-info" name="carousel_pic" type="file" size="40" /> <small>(' . $languageService->get('carousel_upload_info') . ')</small></em></span>
     </div>
   </div>
   
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="title" size="60" maxlength="255" /></em></span>
     </div>
   </div>
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="link" size="60" maxlength="255" /></em></span>
     </div>
   </div>
   <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;"></textarea></em></span>
     </div>
   </div>
    <div class="mb-3 row">
-        <label for="ani_title" class="col-lg-2 control-label">'.$plugin_language['title-ani'].':</label>
+        <label for="ani_title" class="col-lg-2 control-label">'.$languageService->get('title-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_title" name="ani_title" class="form-select">'.$ani_title.'</select>
         </div>
     </div>
     <div class="mb-3 row">
-        <label for="ani_link" class="col-lg-2 control-label">'.$plugin_language['link-ani'].':</label>
+        <label for="ani_link" class="col-lg-2 control-label">'.$languageService->get('link-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_link" name="ani_link" class="form-select">'.$ani_link.'</select>
         </div>
     </div>
     <div class="mb-3 row">
-        <label for="ani_description" class="col-lg-2 control-label">'.$plugin_language['description-ani'].':</label>
+        <label for="ani_description" class="col-lg-2 control-label">'.$languageService->get('description-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_description" name="ani_description" class="form-select">'.$ani_description.'</select>
         </div>
     </div>
     <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['is_displayed'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('is_displayed').':</label>
     <div class="col-sm-8 form-check form-switch" style="padding: 0px 43px;">
       <input class="form-check-input" type="checkbox" name="displayed" value="1" checked="checked" />
     </div>
   </div>
   <div class="mb-3 row">
-  <label class="col-sm-2 control-label">'.$plugin_language['carousel_time'].':</label>
+  <label class="col-sm-2 control-label">'.$languageService->get('carousel_time').':</label>
     <div class="col-lg-3"><span class="text-muted small"><em>
       <input class="form-control" type="number" name="time_pic" size="20" maxlength="25" value="5"/></em></span>
     </div>
-    <label class="col-sm-2 control-label">'.$plugin_language['time_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('time_info').':</label>
   </div>
   <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-success" type="submit" name="save"  />'.$plugin_language['add_carousel'].'</button>
+        <button class="btn btn-success" type="submit" name="save"  />'.$languageService->get('add_carousel').'</button>
     </div>
   </div>
 </form>
@@ -1036,12 +1047,12 @@ if ($action == "add_vid") {
 } elseif ($action == "edit") {
     echo '<div class="card">
             <div class="card-header">
-                            <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $plugin_language[ 'carousel' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'edit_breadcrumb' ] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_pic">' . $languageService->get('carousel') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('edit_breadcrumb') . '</li>
                 </ol>
             </nav> 
                         <div class="card-body">';
@@ -1056,20 +1067,20 @@ if ($action == "add_vid") {
     if (!empty($ds[ 'carousel_pic' ])) {
         $pic = '<img class="img-thumbnail" style="width: 100%; max-width: 600px" src="../' . $filepath . $ds[ 'carousel_pic' ] . '" alt="">';
         $pic_current = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['current_pic'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('current_pic').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$pic.'</em></span>
     </div>
   </div>';
     
     $pic_upload = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_upload_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_upload_info').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="carousel_pic" type="file" size="40" /></em></span>
     </div>
   </div>';
     
     } else {
-        $pic = $plugin_language[ 'no_upload' ];
+        $pic = $languageService->get('no_upload');
         $pic_current = '';
         $pic_upload = '';
     }
@@ -1077,43 +1088,43 @@ if ($action == "add_vid") {
     if (!empty($ds[ 'carousel_vid' ])) {
         $vid = '<video autoplay="autoplay" loop muted playsInline class="img-thumbnail" style="width: 100%; max-width: 600px" src="../' . $filepathvid . $ds[ 'carousel_vid' ] . '" type="video/mp4"></video>';
         $vid_current = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['current_vid'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('current_vid').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$vid.'</em></span>
     </div>
   </div>';
        $vid_upload = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_upload_info_vid'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_upload_info_vid').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="carousel_vid" type="file" size="40" /></em></span>
     </div>
   </div>';
     } else {
-        $vid = $plugin_language[ 'no_upload_vid' ];
+        $vid = $languageService->get('no_upload_vid');
         $vid_current = '';
         $vid_upload = '';
     }
     } else {
     $vid = '<video autoplay="autoplay" loop muted playsInline class="img-thumbnail" style="width: 100%; max-width: 600px" src="../' . $filepathvid . $ds[ 'carousel_vid' ] . '" type="video/mp4"></video>';
         $vid_current = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['current_vid'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('current_vid').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$vid.'</em></span>
     </div>
   </div>';
        $vid_upload = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_upload_info_vid'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_upload_info_vid').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="carousel_vid" type="file" size="40" /></em></span>
     </div>
   </div>';
   $pic = '<img class="img-thumbnail" style="width: 100%; max-width: 600px" src="../' . $filepath . $ds[ 'carousel_pic' ] . '" alt="">';
         $pic_current = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['current_pic'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('current_pic').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$pic.'</em></span>
     </div>
   </div>';
     
     $pic_upload = '<div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_upload_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_upload_info').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="carousel_pic" type="file" size="40" /></em></span>
     </div>
@@ -1141,62 +1152,62 @@ if ($action == "add_vid") {
 '.$pic_upload.'
 '.$vid_upload.'
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="title" size="60" maxlength="255" value="' . htmlspecialchars($ds[ 'title' ]) . '" /></em></span>
     </div>    
   </div> 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="link" size="60" value="' . htmlspecialchars($ds[ 'link' ]) . '" /></em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;">' . htmlspecialchars($ds[ 'description' ]) .
         '</textarea></em></span>
     </div>
   </div>
     <div class="mb-3 row">
-        <label for="ani_title" class="col-lg-2 control-label">'.$plugin_language['title-ani'].':</label>
+        <label for="ani_title" class="col-lg-2 control-label">'.$languageService->get('title-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_title" name="ani_title" class="form-select">'.$ani_title.'</select>
         </div>
     </div>
     <div class="mb-3 row">
-        <label for="ani_link" class="col-lg-2 control-label">'.$plugin_language['link-ani'].':</label>
+        <label for="ani_link" class="col-lg-2 control-label">'.$languageService->get('link-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_link" name="ani_link" class="form-select">'.$ani_link.'</select>
         </div>
     </div>
     <div class="mb-3 row">
-        <label for="ani_description" class="col-lg-2 control-label">'.$plugin_language['description-ani'].':</label>
+        <label for="ani_description" class="col-lg-2 control-label">'.$languageService->get('description-ani').':</label>
 
         <div class="col-lg-3">
             <select id="ani_description" name="ani_description" class="form-select">'.$ani_description.'</select>
         </div>
     </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['is_displayed'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('is_displayed').':</label>
     <div class="col-sm-8 form-check form-switch" style="padding: 0px 43px;">
       '.$displayed.'
     </div>
   </div>  
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_time'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_time').':</label>
     <div class="col-lg-3"><span class="text-muted small"><em>
       <input class="form-control" type="number" name="time_pic" size="60" value="' . htmlspecialchars($ds[ 'time_pic' ]) . '" /></em></span>
     </div>
-        <label class="col-sm-2 control-label">'.$plugin_language['time_info'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('time_info').':</label>
   </div>   
 <div class="mb-3 row">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-warning" type="submit" name="saveedit"  />'.$plugin_language['edit_carousel'].'</button>
+        <button class="btn btn-warning" type="submit" name="saveedit"  />'.$languageService->get('edit_carousel').'</button>
     </div>
   </div>
 </form>
@@ -1206,12 +1217,12 @@ if ($action == "add_vid") {
 
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
     <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>    
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_parallax_pic">' . $plugin_language[ 'parallax' ] . '</a></li>
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>    
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_parallax_pic">' . $languageService->get('parallax') . '</a></li>
         <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
     </ol>
     </nav>
@@ -1223,15 +1234,15 @@ if ($action == "add_vid") {
  
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_parallax_pic" enctype="multipart/form-data">
    <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
-    <input class="btn btn-info" name="parallax_pic" type="file" size="40" /> <small>(' . $plugin_language[ 'header_upload_info' ] . ')</small></em></span>
+    <input class="btn btn-info" name="parallax_pic" type="file" size="40" /> <small>(' . $languageService->get('header_upload_info') . ')</small></em></span>
     </div>
   </div>
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-success" type="submit" name="parallax_save"  />'.$plugin_language['new_header'].'</button>
+        <button class="btn btn-success" type="submit" name="parallax_save"  />'.$languageService->get('new_header').'</button>
     </div>
   </div>
 </div>
@@ -1240,12 +1251,12 @@ if ($action == "add_vid") {
 } elseif ($action == "edit_parallax") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_parallax_pic">' . $plugin_language[ 'parallax' ] . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_parallax_pic">' . $languageService->get('parallax') . '</a></li>
     <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
   </ol>
 </nav>
@@ -1259,7 +1270,7 @@ if ($action == "add_vid") {
     if (!empty($ds[ 'parallax_pic' ])) {
         $pic = '<img class="img-thumbnail" src="../' . $filepath . $ds[ 'parallax_pic' ] . '" alt="">';
     } else {
-        $pic = $plugin_language[ 'no_upload' ];
+        $pic = $languageService->get('no_upload');
     }
     
     $CAPCLASS = new \webspell\Captcha;
@@ -1269,12 +1280,12 @@ if ($action == "add_vid") {
     echo '<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_parallax_pic" enctype="multipart/form-data">
 <input type="hidden" name="parallaxID" value="' . $ds['parallaxID'] . '" />
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$pic.'</em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header_upload_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header_upload_info').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="parallax_pic" type="file" size="40" /></em></span>
     </div>
@@ -1282,7 +1293,7 @@ if ($action == "add_vid") {
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-warning" type="submit" name="saveedit_parallax"  />'.$plugin_language['edit'].'</button>
+        <button class="btn btn-warning" type="submit" name="saveedit_parallax"  />'.$languageService->get('edit').'</button>
     </div>
   </div>
 </form>
@@ -1293,12 +1304,12 @@ if ($action == "add_vid") {
 
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
     <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>    
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_sticky_pic">' . $plugin_language[ 'sticky' ] . '</a></li>
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>    
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_sticky_pic">' . $languageService->get('sticky') . '</a></li>
         <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
     </ol>
     </nav>
@@ -1310,27 +1321,27 @@ if ($action == "add_vid") {
  
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_sticky_pic" enctype="multipart/form-data">
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
-        <input class="btn btn-info" name="sticky_pic" type="file" size="40" /> <small>(' . $plugin_language[ 'header_upload_info' ] . ')</small></em></span>
+        <input class="btn btn-info" name="sticky_pic" type="file" size="40" /> <small>(' . $languageService->get('header_upload_info') . ')</small></em></span>
         </div>
     </div>
     
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <input class="form-control" type="text" name="title" size="60" maxlength="255" /></em></span>
         </div>
     </div>
     
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;"></textarea></em></span>
         </div>
     </div>
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <input class="form-control" type="text" name="link" size="60" maxlength="255" /></em></span>
         </div>
@@ -1338,7 +1349,7 @@ if ($action == "add_vid") {
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
             <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-            <button class="btn btn-success" type="submit" name="sticky_save"  />'.$plugin_language['new_header'].'</button>
+            <button class="btn btn-success" type="submit" name="sticky_save"  />'.$languageService->get('new_header').'</button>
         </div>
     </div>
 
@@ -1348,12 +1359,12 @@ if ($action == "add_vid") {
 } elseif ($action == "edit_sticky") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_sticky_pic">' . $plugin_language[ 'sticky' ] . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_sticky_pic">' . $languageService->get('sticky') . '</a></li>
     <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
   </ol>
 </nav>
@@ -1367,7 +1378,7 @@ if ($action == "add_vid") {
     if (!empty($ds[ 'sticky_pic' ])) {
         $pic = '<img class="img-thumbnail" src="../' . $filepath . $ds[ 'sticky_pic' ] . '" alt="">';
     } else {
-        $pic = $plugin_language[ 'no_upload' ];
+        $pic = $languageService->get('no_upload');
     }
 
     $CAPCLASS = new \webspell\Captcha;
@@ -1377,33 +1388,33 @@ if ($action == "add_vid") {
     echo '<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_sticky_pic" enctype="multipart/form-data">
 <input type="hidden" name="stickyID" value="' . $ds['stickyID'] . '" />
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$pic.'</em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header_upload_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header_upload_info').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="sticky_pic" type="file" size="40" /></em></span>
     </div>
 </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="title" size="60" maxlength="255" value="' . htmlspecialchars($ds[ 'title' ]) . '" /></em></span>
     </div>    
   </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;">' . htmlspecialchars($ds[ 'description' ]) .
         '</textarea></em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="link" size="60" value="' . htmlspecialchars($ds[ 'link' ]) . '" /></em></span>
     </div>
@@ -1412,7 +1423,7 @@ if ($action == "add_vid") {
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-warning" type="submit" name="saveedit_sticky"  />'.$plugin_language['edit'].'</button>
+        <button class="btn btn-warning" type="submit" name="saveedit_sticky"  />'.$languageService->get('edit').'</button>
     </div>
   </div>
 </form>
@@ -1427,12 +1438,12 @@ if ($action == "add_vid") {
 
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
     <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>    
-        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_agency_pic">' . $plugin_language[ 'agency' ] . '</a></li>
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>    
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_agency_pic">' . $languageService->get('agency') . '</a></li>
         <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
     </ol>
     </nav>
@@ -1444,27 +1455,27 @@ if ($action == "add_vid") {
  
     echo'<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_agency_pic" enctype="multipart/form-data">
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
-        <input class="btn btn-info" name="agency_pic" type="file" size="40" /> <small>(' . $plugin_language[ 'header_upload_info' ] . ')</small></em></span>
+        <input class="btn btn-info" name="agency_pic" type="file" size="40" /> <small>(' . $languageService->get('header_upload_info') . ')</small></em></span>
         </div>
     </div>
     
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <input class="form-control" type="text" name="title" size="60" maxlength="255" /></em></span>
         </div>
     </div>
     
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;"></textarea></em></span>
         </div>
     </div>
     <div class="mb-3 row">
-        <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+        <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
         <div class="col-sm-8"><span class="text-muted small"><em>
             <input class="form-control" type="text" name="link" size="60" maxlength="255" /></em></span>
         </div>
@@ -1472,7 +1483,7 @@ if ($action == "add_vid") {
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
             <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-            <button class="btn btn-success" type="submit" name="agency_save"  />'.$plugin_language['new_header'].'</button>
+            <button class="btn btn-success" type="submit" name="agency_save"  />'.$languageService->get('new_header').'</button>
         </div>
     </div>
 
@@ -1482,12 +1493,12 @@ if ($action == "add_vid") {
 } elseif ($action == "edit_agency") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_agency_pic">' . $plugin_language[ 'agency' ] . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_agency_pic">' . $languageService->get('agency') . '</a></li>
     <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
   </ol>
 </nav>
@@ -1501,7 +1512,7 @@ if ($action == "add_vid") {
     if (!empty($ds[ 'agency_pic' ])) {
         $pic = '<img class="img-thumbnail" src="../' . $filepath . $ds[ 'agency_pic' ] . '" alt="">';
     } else {
-        $pic = $plugin_language[ 'no_upload' ];
+        $pic = $languageService->get('no_upload');
     }
 
     $CAPCLASS = new \webspell\Captcha;
@@ -1511,33 +1522,33 @@ if ($action == "add_vid") {
     echo '<form class="form-horizontal" method="post" action="admincenter.php?site=admin_carousel&action=admin_agency_pic" enctype="multipart/form-data">
 <input type="hidden" name="agencyID" value="' . $ds['agencyID'] . '" />
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>'.$pic.'</em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['header_upload_info'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('header_upload_info').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="btn btn-info" name="agency_pic" type="file" size="40" /></em></span>
     </div>
 </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['name'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('name').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="title" size="60" maxlength="255" value="' . htmlspecialchars($ds[ 'title' ]) . '" /></em></span>
     </div>    
   </div>
 
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['description'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('description').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <textarea class="mceNoEditor form-control" id="description" rows="5" cols="" name="description" style="width: 100%;">' . htmlspecialchars($ds[ 'description' ]) .
         '</textarea></em></span>
     </div>
   </div>
 <div class="mb-3 row">
-    <label class="col-sm-2 control-label">'.$plugin_language['carousel_link'].':</label>
+    <label class="col-sm-2 control-label">'.$languageService->get('carousel_link').':</label>
     <div class="col-sm-8"><span class="text-muted small"><em>
       <input class="form-control" type="text" name="link" size="60" value="' . htmlspecialchars($ds[ 'link' ]) . '" /></em></span>
     </div>
@@ -1546,7 +1557,7 @@ if ($action == "add_vid") {
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-        <button class="btn btn-warning" type="submit" name="saveedit_agency"  />'.$plugin_language['edit'].'</button>
+        <button class="btn btn-warning" type="submit" name="saveedit_agency"  />'.$languageService->get('edit').'</button>
     </div>
   </div>
 </form>
@@ -1559,12 +1570,12 @@ if ($action == "add_vid") {
 elseif ($action == "admin_parallax_pic") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'parallax' ] . '</li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('parallax') . '</li>
   </ol>
 </nav>
 <div class="card-body">
@@ -1577,8 +1588,8 @@ $ergebnis = safe_query("SELECT * FROM plugins_carousel_parallax");
 if (isset($ds['parallaxID']) ? isset($ds['parallaxID']) : 0) {  
     $add = "";
 } else {
-    $add = '<label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
-    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_parallax" class="btn btn-primary" type="button">' . $plugin_language[ 'new_header' ] . '</a></div>';
+    $add = '<label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
+    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_parallax" class="btn btn-primary" type="button">' . $languageService->get('new_header') . '</a></div>';
 }
       echo' '.$add.'
     
@@ -1587,8 +1598,8 @@ if (isset($ds['parallaxID']) ? isset($ds['parallaxID']) : 0) {
     echo '<form method="post" action="admincenter.php?site=admin_carousel&action=admin_parallax_pic">
     <table class="table table-striped">
     <thead>
-      <th><b>'.$plugin_language['header'].'</b></th>
-      <th><b>'.$plugin_language['actions'].'</b></th>
+      <th><b>'.$languageService->get('header').'</b></th>
+      <th><b>'.$languageService->get('actions').'</b></th>
     </thead>';
 
    $CAPCLASS = new \webspell\Captcha;
@@ -1610,12 +1621,12 @@ if (isset($ds['parallaxID']) ? isset($ds['parallaxID']) : 0) {
            <td class="' . $td . ' col-5"><img class="img-thumbnail" align="center" src="../' . $filepath . $dx[ 'parallax_pic' ] . '" alt="{img}" /></td>
            
            <td class="' . $td . ' col-2"><a href="admincenter.php?site=admin_carousel&amp;action=edit_parallax&amp;parallaxID=' . $dx[ 'parallaxID' ] .
-                '" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+                '" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
         <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_carousel&amp;delete_parallax=true&amp;parallaxID=' . $ds[ 'parallaxID' ] .
                     '&amp;captcha_hash=' . $hash . '">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -1624,14 +1635,14 @@ if (isset($ds['parallaxID']) ? isset($ds['parallaxID']) : 0) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'title' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('title') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -1661,12 +1672,12 @@ if (isset($ds['parallaxID']) ? isset($ds['parallaxID']) : 0) {
 }elseif ($action == "admin_sticky_pic") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'sticky' ] . '</li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('sticky') . '</li>
   </ol>
 </nav>
 <div class="card-body">
@@ -1679,8 +1690,8 @@ $ergebnis = safe_query("SELECT * FROM plugins_carousel_sticky");
 if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {  
     $add = "";
 } else {
-    $add = '<label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
-    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_sticky" class="btn btn-primary" type="button">' . $plugin_language[ 'new_header' ] . '</a></div>';
+    $add = '<label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
+    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_sticky" class="btn btn-primary" type="button">' . $languageService->get('new_header') . '</a></div>';
 }
       echo' '.$add.'
     
@@ -1690,9 +1701,9 @@ if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {
     <div class="table-responsive">
     <table class="table table-striped">
     <thead>
-        <th><b>'.$plugin_language['name'].'</b></th>
-        <th><b>'.$plugin_language['header'].'</b></th>
-        <th><b>'.$plugin_language['actions'].'</b></th>
+        <th><b>'.$languageService->get('name').'</b></th>
+        <th><b>'.$languageService->get('header').'</b></th>
+        <th><b>'.$languageService->get('actions').'</b></th>
     </thead>';
 
    $CAPCLASS = new \webspell\Captcha;
@@ -1712,7 +1723,7 @@ if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {
            
             $title = $dx[ 'title' ];
     
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($title);
             $title = $translate->getTextByLanguage($title);
             
@@ -1721,12 +1732,12 @@ if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {
            <td class="' . $td . ' col-5"><img class="img-thumbnail" align="center" src="../' . $filepath . $dx[ 'sticky_pic' ] . '" alt="{img}" /></td>
            
            <td class="' . $td . ' col-2"><a href="admincenter.php?site=admin_carousel&amp;action=edit_sticky&amp;stickyID=' . $dx[ 'stickyID' ] .
-                '" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+                '" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
         <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_carousel&amp;delete_sticky=true&amp;stickyID=' . $dx[ 'stickyID' ] .
                     '&amp;captcha_hash=' . $hash . '">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -1735,14 +1746,14 @@ if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'title' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('title') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -1770,12 +1781,12 @@ if (isset($ds['stickyID']) ? isset($ds['stickyID']) : 0) {
 }elseif ($action == "admin_agency_pic") {
     echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '
+        <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '
     </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-    <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'agency' ] . '</li>
+    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+    <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('agency') . '</li>
   </ol>
 </nav>
 <div class="card-body">
@@ -1788,8 +1799,8 @@ $ergebnis = safe_query("SELECT * FROM plugins_carousel_agency");
 if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {  
     $add = "";
 } else {
-    $add = '<label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
-    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_agency" class="btn btn-primary" type="button">' . $plugin_language[ 'new_header' ] . '</a></div>';
+    $add = '<label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
+    <div class="col-md-8"><a href="admincenter.php?site=admin_carousel&amp;action=add_agency" class="btn btn-primary" type="button">' . $languageService->get('new_header') . '</a></div>';
 }
       echo' '.$add.'
     
@@ -1799,9 +1810,9 @@ if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {
     <div class="table-responsive">
     <table class="table table-striped">
     <thead>
-        <th><b>'.$plugin_language['name'].'</b></th>
-        <th><b>'.$plugin_language['header'].'</b></th>
-        <th><b>'.$plugin_language['actions'].'</b></th>
+        <th><b>'.$languageService->get('name').'</b></th>
+        <th><b>'.$languageService->get('header').'</b></th>
+        <th><b>'.$languageService->get('actions').'</b></th>
     </thead>';
 
    $CAPCLASS = new \webspell\Captcha;
@@ -1821,7 +1832,7 @@ if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {
            
             $title = $dx[ 'title' ];
     
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($title);
             $title = $translate->getTextByLanguage($title);
             
@@ -1830,12 +1841,12 @@ if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {
            <td class="' . $td . ' col-5"><img class="img-thumbnail" align="center" src="../' . $filepath . $dx[ 'agency_pic' ] . '" alt="{img}" /></td>
            
            <td class="' . $td . ' col-2"><a href="admincenter.php?site=admin_carousel&amp;action=edit_agency&amp;agencyID=' . $dx[ 'agencyID' ] .
-                '" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+                '" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
         <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_carousel&amp;delete_agency=true&amp;agencyID=' . $dx[ 'agencyID' ] .
                     '&amp;captcha_hash=' . $hash . '">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -1844,14 +1855,14 @@ if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'title' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('title') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -1904,13 +1915,13 @@ if (isset($ds['agencyID']) ? isset($ds['agencyID']) : 0) {
 echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=admin_carousel_settings">
         <div class="card">
             <div class="card-header">
-                '.$plugin_language[ 'settings' ].'
+                '.$languageService->get('settings').'
             </div> 
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_settings">' . $plugin_language[ 'settings' ] . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel&action=admin_carousel_settings">' . $languageService->get('settings') . '</a></li>
                 <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
                 </ol>
             </nav>  
@@ -1919,40 +1930,40 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3 row">
-                            <label class="col-md-4 control-label">'.$plugin_language['carousel_size'].':</label>
+                            <label class="col-md-4 control-label">'.$languageService->get('carousel_size').':</label>
                             <div class="col-md-6">
                                 <select id="ani_carousel_height" name="carousel_height" class="form-select" value="'.$carousel_height.'">'.$ani_carousel_height.'</select>
-                                <span class="text-muted small"><em><small>' . $plugin_language[ 'size_info' ] . '</small></em></span>
+                                <span class="text-muted small"><em><small>' . $languageService->get('size_info') . '</small></em></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="mb-3 row">
-                            <label class="col-md-4 control-label">'.$plugin_language['parallax_size'].':</label>
+                            <label class="col-md-4 control-label">'.$languageService->get('parallax_size').':</label>
                             <div class="col-md-6">
                                 <select id="ani_height" name="parallax_height" class="form-select" value="'.$parallax_height.'">'.$ani_parallax_height.'</select>
-                                <span class="text-muted small"><em><small>' . $plugin_language[ 'size_info' ] . '</small></em></span>
+                                <span class="text-muted small"><em><small>' . $languageService->get('size_info') . '</small></em></span>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                        <div class="mb-3 row">
-                            <label class="col-md-4 control-label">'.$plugin_language['sticky_size'].':</label>
+                            <label class="col-md-4 control-label">'.$languageService->get('sticky_size').':</label>
                             <div class="col-md-6">
                                 <select id="ani_height" name="sticky_height" class="form-select" value="'.$sticky_height.'">'.$ani_sticky_height.'</select>
-                                <span class="text-muted small"><em><small>' . $plugin_language[ 'size_info' ] . '</small></em></span>
+                                <span class="text-muted small"><em><small>' . $languageService->get('size_info') . '</small></em></span>
                             </div>
                         </div> 
                     </div>
 
                     <div class="col-md-6">
                        <div class="mb-3 row">
-                            <label class="col-md-4 control-label">'.$plugin_language['agency_size'].':</label>
+                            <label class="col-md-4 control-label">'.$languageService->get('agency_size').':</label>
                             <div class="col-md-6">
                                 <select id="ani_height" name="sagency_height" class="form-select" value="'.$agency_height.'">'.$ani_agency_height.'</select>
-                                <span class="text-muted small"><em><small>' . $plugin_language[ 'size_info' ] . '</small></em></span>
+                                <span class="text-muted small"><em><small>' . $languageService->get('size_info') . '</small></em></span>
                             </div>
                         </div> 
                     </div>
@@ -1961,7 +1972,7 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
                 <div class="mb-3 row">
                     <div class="col-md-offset-2 col-md-10">
                         <input type="hidden" name="captcha_hash" value="'.$hash.'" />
-                        <button class="btn btn-primary" type="submit" name="carousel_settings_save">'.$plugin_language['edit'].'</button>
+                        <button class="btn btn-primary" type="submit" name="carousel_settings_save">'.$languageService->get('edit').'</button>
                     </div>
                 </div>
             </div>
@@ -1972,20 +1983,20 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
 } elseif ($action == "admin_carousel_pic") {    
     echo '<div class="card">
             <div class="card-header">
-                            <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language[ 'carousel' ] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('carousel') . '</li>
                 </ol>
             </nav> 
                         <div class="card-body">
 
 <div class="mb-3 row">
-    <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
+    <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
     <div class="col-md-8">
-      <a href="admincenter.php?site=admin_carousel&amp;action=add_pic" class="btn btn-primary" type="button">' . $plugin_language[ 'new_carousel_pic' ] . '</a>
-      <a href="admincenter.php?site=admin_carousel&amp;action=add_vid" class="btn btn-primary" type="button">' . $plugin_language[ 'new_carousel_vid' ] . '</a>
+      <a href="admincenter.php?site=admin_carousel&amp;action=add_pic" class="btn btn-primary" type="button">' . $languageService->get('new_carousel_pic') . '</a>
+      <a href="admincenter.php?site=admin_carousel&amp;action=add_vid" class="btn btn-primary" type="button">' . $languageService->get('new_carousel_vid') . '</a>
     </div>
   </div>';
  
@@ -1993,12 +2004,12 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
     <div class="table-responsive">
     <table class="table table-striped">
     <thead>
-      <th><b>'.$plugin_language['name'].'</b></th>
-      <th><b>'.$plugin_language['carousel'].'</b></th>
-      <th><b>'.$plugin_language['is_displayed'].'</b></th>
+      <th><b>'.$languageService->get('name').'</b></th>
+      <th><b>'.$languageService->get('carousel').'</b></th>
+      <th><b>'.$languageService->get('is_displayed').'</b></th>
       <th><b><i class="bi bi-stopwatch"></i> Sec.</b></th>
-      <th><b>'.$plugin_language['actions'].'</b></th>
-      <th><b>'.$plugin_language['sort'].'</b></th>
+      <th><b>'.$languageService->get('actions').'</b></th>
+      <th><b>'.$languageService->get('sort').'</b></th>
     </thead>';
 
    $CAPCLASS = new \webspell\Captcha;
@@ -2017,13 +2028,13 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
             }
  
             $ds[ 'displayed' ] == 1 ?
-            $displayed = '<font color="green"><b>' . $plugin_language[ 'yes' ] . '</b></font>' :
-            $displayed = '<font color="red"><b>' . $plugin_language[ 'no' ] . '</b></font>';
+            $displayed = '<font color="green"><b>' . $languageService->get('yes') . '</b></font>' :
+            $displayed = '<font color="red"><b>' . $languageService->get('no') . '</b></font>';
            
             $title = $ds[ 'title' ];
             $time_pic = $ds[ 'time_pic' ];
     
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($title);
             $title = $translate->getTextByLanguage($title);
 
@@ -2039,11 +2050,11 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
            <td class="' . $td . '">' . $displayed . '</td>
            <td class="' . $td . '">' . $time_pic . '</td>
            <td class="' . $td . '"><a href="admincenter.php?site=admin_carousel&amp;action=edit&amp;carouselID=' . $ds[ 'carouselID' ] .
-                '" class="btn btn-warning" type="button">' . $plugin_language[ 'edit' ] . '</a>
+                '" class="btn btn-warning" type="button">' . $languageService->get('edit') . '</a>
 
             <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_carousel&amp;delete=true&amp;carouselID='.$ds['carouselID'].'&amp;captcha_hash='.$hash.'">
-    ' . $plugin_language['delete'] . '
+    ' . $languageService->get('delete') . '
     </button>
     <!-- Button trigger modal END-->
 
@@ -2052,14 +2063,14 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language[ 'carousel' ] . '</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $plugin_language[ 'close' ] . '"></button>
+        <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('carousel') . '</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
       </div>
-      <div class="modal-body"><p>' . $plugin_language['really_delete'] . '</p>
+      <div class="modal-body"><p>' . $languageService->get('really_delete') . '</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $plugin_language[ 'close' ] . '</button>
-        <a class="btn btn-danger btn-ok">' . $plugin_language['delete'] . '</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+        <a class="btn btn-danger btn-ok">' . $languageService->get('delete') . '</a>
       </div>
     </div>
   </div>
@@ -2083,12 +2094,12 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
         }
         
     } else {
-        echo '<tr><td class="td1" colspan="6">' . $plugin_language[ 'no_entries' ] . '</td></tr>';
+        echo '<tr><td class="td1" colspan="6">' . $languageService->get('no_entries') . '</td></tr>';
     }
  
     echo '<tr>
 <td class="td_head" colspan="6" align="right"><input type="hidden" name="captcha_hash" value="' . $hash .
-    '"><input class="btn btn-primary" type="submit" name="sortieren" value="' . $plugin_language[ 'to_sort' ] . '" /></td>
+    '"><input class="btn btn-primary" type="submit" name="sortieren" value="' . $languageService->get('to_sort') . '" /></td>
 </tr>
 </table></div>
 </form></div></div>';
@@ -2096,10 +2107,10 @@ echo'    <form method="post" action="admincenter.php?site=admin_carousel&action=
 } else {   
     echo '<div class="card">
             <div class="card-header">
-                            <i class="bi bi-layout-wtf"></i> ' . $plugin_language[ 'title' ] . '</div>
+                            <i class="bi bi-layout-wtf"></i> ' . $languageService->get('title') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $plugin_language[ 'carousel_overview' ] . '</a></li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_carousel">' . $languageService->get('carousel_overview') . '</a></li>
                 <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
                 </ol>
             </nav> 
@@ -2109,10 +2120,10 @@ echo'<div class="row text-center">
     <div class="col-sm-4">
         <div class="card">
           <div class="card-header"><i class="bi bi-film"></i> 
-            ' . $plugin_language[ 'carousel' ] . ' ' . $plugin_language[ 'header' ] . '
+            ' . $languageService->get('carousel') . ' ' . $languageService->get('header') . '
           </div>
           <div class="card-body">
-            <h1 class="card-title pricing-card-title">' . $plugin_language[ 'carousel' ] . ' <small class="text-muted fw-light">' . $plugin_language[ 'header' ] . '</small></h1>
+            <h1 class="card-title pricing-card-title">' . $languageService->get('carousel') . ' <small class="text-muted fw-light">' . $languageService->get('header') . '</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
               <li>Du möchtest eine Slidershow einsetzten?</li>
               <li>Hiermit kannst du extra Bilder und Videos hochladen</li>
@@ -2120,7 +2131,7 @@ echo'<div class="row text-center">
               <li>Position auswählen.</li>
               <li>&nbsp;</li>
             </ul>
-            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_carousel_pic" role="button">' . $plugin_language[ 'get_started' ] . '</a>
+            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_carousel_pic" role="button">' . $languageService->get('get_started') . '</a>
 
           </div>
         </div>
@@ -2128,10 +2139,10 @@ echo'<div class="row text-center">
       <div class="col-sm-4">
         <div class="card">
           <div class="card-header"><i class="bi bi-transparency"></i> 
-            ' . $plugin_language[ 'parallax' ] . '  ' . $plugin_language[ 'header' ] . '
+            ' . $languageService->get('parallax') . '  ' . $languageService->get('header') . '
           </div>
           <div class="card-body">
-            <h1 class="card-title pricing-card-title">Parallax <small class="text-muted fw-light">' . $plugin_language[ 'header' ] . '</small></h1>
+            <h1 class="card-title pricing-card-title">Parallax <small class="text-muted fw-light">' . $languageService->get('header') . '</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
               <li>Du möchtest einen Parallax Scrolling Effekt?</li>
               <li>Hiermit kannst du ein extra Bild (mit Parallaxeffekt) hochladen</li>
@@ -2139,48 +2150,48 @@ echo'<div class="row text-center">
               <li>Position auswählen.</li>
               <li>&nbsp;</li>
             </ul>
-            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_parallax_pic" role="button">' . $plugin_language[ 'get_started' ] . '</a>
+            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_parallax_pic" role="button">' . $languageService->get('get_started') . '</a>
           </div>
         </div>
       </div>
       <div class="col-sm-4">
         <div class="card">
           <div class="card-header"><i class="bi bi-sticky"></i> 
-            ' . $plugin_language[ 'sticky' ] . ' ' . $plugin_language[ 'header' ] . '
+            ' . $languageService->get('sticky') . ' ' . $languageService->get('header') . '
           </div>
           <div class="card-body">
 
-          <h1 class="card-title pricing-card-title">' . $plugin_language[ 'sticky' ] . ' <small class="text-muted fw-light">' . $plugin_language[ 'header' ] . '</small></h1>
+          <h1 class="card-title pricing-card-title">' . $languageService->get('sticky') . ' <small class="text-muted fw-light">' . $languageService->get('header') . '</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
-              ' . $plugin_language[ 'sticky_headers_info' ] . '
+              ' . $languageService->get('sticky_headers_info') . '
             </ul>            
-            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_sticky_pic" role="button">' . $plugin_language[ 'get_started' ] . '</a>
+            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_sticky_pic" role="button">' . $languageService->get('get_started') . '</a>
           </div>
         </div>
       </div>
       <div class="col-sm-4">
         <div class="card">
           <div class="card-header"><i class="bi bi-sticky"></i> 
-            ' . $plugin_language[ 'agency' ] . ' ' . $plugin_language[ 'header' ] . '
+            ' . $languageService->get('agency') . ' ' . $languageService->get('header') . '
           </div>
           <div class="card-body">
 
-          <h1 class="card-title pricing-card-title">' . $plugin_language[ 'agency' ] . ' <small class="text-muted fw-light">' . $plugin_language[ 'header' ] . '</small></h1>
+          <h1 class="card-title pricing-card-title">' . $languageService->get('agency') . ' <small class="text-muted fw-light">' . $languageService->get('header') . '</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
-              ' . $plugin_language[ 'agency_headers_info' ] . '
+              ' . $languageService->get('agency_headers_info') . '
             </ul>            
-            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_agency_pic" role="button">' . $plugin_language[ 'get_started' ] . '</a>
+            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&amp;action=admin_agency_pic" role="button">' . $languageService->get('get_started') . '</a>
           </div>
         </div>
       </div>
       <div class="col-sm-4">
         <div class="card">
           <div class="card-header"><i class="bi bi-gear"></i> 
-            ' . $plugin_language[ 'settings' ] . ' ' . $plugin_language[ 'header' ] . '
+            ' . $languageService->get('settings') . ' ' . $languageService->get('header') . '
           </div>
           <div class="card-body">
 
-          <h1 class="card-title pricing-card-title">' . $plugin_language[ 'header' ] . ' <small class="text-muted fw-light">' . $plugin_language[ 'options' ] . '</small></h1>
+          <h1 class="card-title pricing-card-title">' . $languageService->get('header') . ' <small class="text-muted fw-light">' . $languageService->get('options') . '</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
               <li>Wie hoch soll der Header angezeigt werden</li>
               <li>(Angaben in vh! Beispiel: 25vh, 50vh, 75vh, 100vh..)</li>
@@ -2189,7 +2200,7 @@ echo'<div class="row text-center">
               <li>Sticky Header einstellbar</li>
               <li>Agency Header einstellbar</li>
             </ul>     
-            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&action=admin_carousel_settings" role="button">' . $plugin_language[ 'get_started' ] . '</a>
+            <a class="w-100 btn btn-primary" href="admincenter.php?site=admin_carousel&action=admin_carousel_settings" role="button">' . $languageService->get('get_started') . '</a>
           </div>
         </div>
       </div>';

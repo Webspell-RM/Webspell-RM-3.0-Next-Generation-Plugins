@@ -3,8 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("userlist", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('userlist');
+
 $tpl = new Template();
 
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
@@ -13,7 +18,7 @@ $class = htmlspecialchars($config['selected_style']);
 // Header-Daten
 $data_array = [
     'class'    => $class,
-    'title' => $plugin_language['userlist_title'],
+    'title' => $languageService->get('userlist_title'),
     'subtitle' => 'User online'
 ];
 
@@ -43,16 +48,16 @@ while($ds=mysqli_fetch_array($ergebnis)) {
 			if(	$stunden=="0"){
 				$stunden='';
 			}elseif(	$stunden=="1"){
-				$stunden=$stunden.' '.$plugin_language['hour_and'].' ';
+				$stunden=$stunden.' '.$languageService->get('hour_and').' ';
 				$minuten_rest=str_pad($minuten_rest, 2, "0", STR_PAD_LEFT);
 			}else {
-				$stunden=$stunden.' '.$plugin_language['hours_and'].' ';
+				$stunden=$stunden.' '.$languageService->get('hours_and').' ';
 				$minuten_rest=str_pad($minuten_rest, 2, "0", STR_PAD_LEFT);
 			}
-			$last_active = ''.$plugin_language['was_online'].': '.$stunden.''.$minuten_rest.' '.$plugin_language['minutes'].'';
+			$last_active = ''.$languageService->get('was_online').': '.$stunden.''.$minuten_rest.' '.$languageService->get('minutes'].'';
 	}else {	
 		$statuspic='<span class="badge bg-success">OnLine</span> ';	// Ausgabe Statuspic "Online"
-		$last_active=''.$plugin_language['now_on'].'';
+		$last_active=''.$languageService->get('now_on').'';
 	}
 	$username=''.$statuspic.' <a href="index.php?site=profile&amp;id='.$ds['userID'].'"><b>'.$ds['username'].'</b></a>';
 	$ttID='sc_useronline_.'.$ds['userID'].'';				// erzeugt die ID für den Tooltip

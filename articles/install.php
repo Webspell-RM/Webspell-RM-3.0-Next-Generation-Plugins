@@ -67,7 +67,7 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 7, '[[lang:de]]Artikel[[lang:en]]Articles[[lang:it]]Articoli', 'articles', 'admincenter.php?site=admin_articles', 1)");
+('', 8, '[[lang:de]]Artikel[[lang:en]]Articles[[lang:it]]Articoli', 'articles', 'admincenter.php?site=admin_articles', 1)");
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
 ('', 3, '[[lang:de]]Artikel[[lang:en]]Articles[[lang:it]]Articoli', 'articles', 'index.php?site=articles', 1, 1, 'default')");

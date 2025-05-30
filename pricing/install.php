@@ -8,7 +8,7 @@ safe_query("CREATE TABLE IF NOT EXISTS plugins_pricing_plans (
   is_featured TINYINT(1) DEFAULT 0,
   is_advanced TINYINT(1) DEFAULT 0,
   sort_order INT DEFAULT 0
-");
+);");
 
 safe_query("CREATE TABLE IF NOT EXISTS plugins_pricing_features (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -16,7 +16,7 @@ safe_query("CREATE TABLE IF NOT EXISTS plugins_pricing_features (
   feature_text VARCHAR(255) NOT NULL,
   available TINYINT(1) NOT NULL DEFAULT 1,
   FOREIGN KEY (plan_id) REFERENCES plugins_pricing_plans(id) ON DELETE CASCADE
-");
+);");
 
 safe_query("INSERT IGNORE INTO plugins_pricing_plans (title, price, price_unit, is_featured, is_advanced, sort_order)
 VALUES
@@ -78,7 +78,7 @@ safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 7, '[[lang:de]]Pricing[[lang:en]]Pricing[[lang:it]]Pricing', 'pricing', 'admincenter.php?site=admin_pricing', 1)");
+('', 8, '[[lang:de]]Pricing[[lang:en]]Pricing[[lang:it]]Pricing', 'pricing', 'admincenter.php?site=admin_pricing', 1)");
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
 ('', 1, '[[lang:de]]Pricing[[lang:en]]Pricing[[lang:it]]Pricing', 'pricing', 'index.php?site=pricing', 1, 1, 'default')");

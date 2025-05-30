@@ -1,14 +1,27 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden (z. B. admin/language/de/footer_easy.php)
+$languageService->readPluginModule('footer_easy');
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('footer_easy');
 
-$pm = new plugin_manager();
-$plugin_language = $pm->plugin_language("footer_easy", $plugin_path);
+#$pm = new plugin_manager();
+#$plugin_language = $pm->plugin_language("footer_easy", $plugin_path);
 $tpl = new Template();
 
 // speichern
@@ -31,7 +44,7 @@ if (isset($_POST['save'])) {
     }
 
     echo '<div class="alert alert-success">'
-         . $plugin_language['success'] .
+         . $languageService->get('success') .
          '</div>';
     redirect("admincenter.php?site=admin_footer_easy", "", 1);
     exit;
@@ -47,13 +60,13 @@ while ($row = mysqli_fetch_assoc($result)) {
 // Ausgabe
 echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-paragraph"></i> ' . $plugin_language['title'] . '
+        <i class="bi bi-paragraph"></i> ' . $languageService->get('title') . '
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_footer_easy">' . $plugin_language['title'] . '</a></li>
-            <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['breadcrumb_edit'] . '</li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_footer_easy">' . $languageService->get('title') . '</a></li>
+            <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('breadcrumb_edit') . '</li>
         </ol>
     </nav>  
 
@@ -61,15 +74,15 @@ echo '<div class="card">
 
         <div class="container py-5">
 
-        <h2>' . $plugin_language['title'] . '</h2>
+        <h2>' . $languageService->get('title') . '</h2>
 
         <form method="post">
         <table class="table table-bordered table-striped bg-white shadow-sm">
             <thead class="table-light">
           <tr>
-            <th>'.$plugin_language['name'].'</th>
-            <th>'.$plugin_language['link'].'</th>            
-            <th>'.$plugin_language['new_tab'].'</th>
+            <th>'.$languageService->get('name').'</th>
+            <th>'.$languageService->get('link').'</th>            
+            <th>'.$languageService->get('new_tab').'</th>
           </tr>
         </thead>
         <tbody>';
@@ -92,7 +105,7 @@ for ($i = 1; $i <= 5; $i++) {
 echo '    </tbody>
       </table>
       <button name="save" class="btn btn-primary btn-sm">'
-        . $plugin_language['save'] .
+        . $languageService->get('save') .
       '</button>
     </form>
   </div>

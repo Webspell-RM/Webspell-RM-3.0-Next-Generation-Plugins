@@ -1,15 +1,25 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$lang = $languageService->detectLanguage();
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('clan_rules');
+
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('clan_rules');
-
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("clan_rules", $plugin_path);
 
 if (isset($_GET[ 'action' ])) {
     $action = $_GET[ 'action' ];
@@ -17,12 +27,8 @@ if (isset($_GET[ 'action' ])) {
     $action = '';
 }
 
-
-
 // Initialisiere Captcha-Klasse
 $CAPCLASS = new \webspell\Captcha;
-
-
 
 // Speichern: Neue Regel
 if (isset($_POST["save"])) {
@@ -65,7 +71,7 @@ if (isset($_POST["save"])) {
 
         redirect("admincenter.php?site=admin_clan_rules", "", 0);
     } else {
-        echo $_language->module['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 }
 
@@ -93,7 +99,7 @@ if (isset($_POST["saveedit"]) && $CAPCLASS->checkCaptcha(0, $_POST["captcha_hash
     );
 
     // Logging (separat, korrekt nach safe_query)
-    AdminLogger::updateWithLog(
+    /*AdminLogger::updateWithLog(
         'plugins_clan_rules',
         'clan_rulesID',
         $clan_rulesID,
@@ -101,7 +107,7 @@ if (isset($_POST["saveedit"]) && $CAPCLASS->checkCaptcha(0, $_POST["captcha_hash
         'Bearbeiten',
         'Clanrules',
         $userID
-    );
+    );*/
 
     redirect("admincenter.php?site=admin_clan_rules", "", 3);
 }
@@ -117,7 +123,7 @@ elseif (isset($_POST['sortieren'])) {
 
         redirect("admincenter.php?site=admin_clan_rules", "", 0);
     } else {
-        echo $plugin_language['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 }
 
@@ -133,7 +139,7 @@ elseif (isset($_GET["delete"], $_GET["captcha_hash"], $_GET["clan_rulesID"])) {
             echo "Fehler beim Löschen!";
         }
     } else {
-        echo $_language->module['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST[ 'clan_rules_settings_save' ])) {  
 
@@ -150,7 +156,7 @@ elseif (isset($_GET["delete"], $_GET["captcha_hash"], $_GET["clan_rulesID"])) {
         
         redirect("admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings", "", 0);
     } else {
-        redirect("admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings", $plugin_language[ 'transaction_invalid' ], 3);
+        redirect("admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings", $languageService->get('transaction_invalid'), 3);
     }
 }  
 
@@ -165,30 +171,30 @@ if ($action == "add") {
     
 
     echo '<div class="card">
-            <div class="card-header"><i class="bi bi-paragraph"></i> ' . $plugin_language['clan_rules'] . '</div>
+            <div class="card-header"><i class="bi bi-paragraph"></i> ' . $languageService->get('clan_rules') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb t-5 p-2 bg-light">
-                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $plugin_language['clan_rules'] . '</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['add_clan_rules'] . '</li>
+                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $languageService->get('clan_rules') . '</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('add_clan_rules') . '</li>
                 </ol>
             </nav>
             <div class="card-body">
             <div class="container py-5">
             <form method="post" action="admincenter.php?site=admin_clan_rules" enctype="multipart/form-data" onsubmit="return chkFormular();">
                 <div class="mb-3">
-                    <label class="form-label">' . $plugin_language['clan_rules_name'] . '</label>
+                    <label class="form-label">' . $languageService->get('clan_rules_name') . '</label>
                     <input class="form-control" type="text" name="title" maxlength="255" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">' . $plugin_language['description'] . '</label>
+                    <label class="form-label">' . $languageService->get('description') . '</label>
                     <textarea class="ckeditor form-control" name="message" rows="10" style="width: 100%;"></textarea>
                 </div>
                 <div class="mb-3">
-                    <label class="control-label">' . $plugin_language['is_displayed'] . '</label>
+                    <label class="control-label">' . $languageService->get('is_displayed') . '</label>
                     <input class="form-check-input" type="checkbox" name="displayed" value="1" checked />
                 </div>
                 <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                <button class="btn btn-success btn-sm" type="submit" name="save">' . $plugin_language['add_clan_rules'] . '</button>
+                <button class="btn btn-success btn-sm" type="submit" name="save">' . $languageService->get('add_clan_rules') . '</button>
             </form>
             </div>
         </div></div>';
@@ -208,31 +214,31 @@ elseif ($action == "edit" && isset($_GET["clan_rulesID"])) {
     $displayed = $ds['displayed'] == 1 ? 'checked' : '';
 
     echo '<div class="card">
-            <div class="card-header"><i class="bi bi-paragraph"></i> ' . $plugin_language['clan_rules'] . '</div>
+            <div class="card-header"><i class="bi bi-paragraph"></i> ' . $languageService->get('clan_rules') . '</div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb t-5 p-2 bg-light">
-                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $plugin_language['clan_rules'] . '</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['edit_clan_rules'] . '</li>
+                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $languageService->get('clan_rules') . '</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('edit_clan_rules') . '</li>
                 </ol>
             </nav>
             <div class="card-body">
             <div class="container py-5">
             <form method="post" action="admincenter.php?site=admin_clan_rules" enctype="multipart/form-data" onsubmit="return chkFormular();">
                 <div class="mb-3">
-                    <label class="form-label">' . $plugin_language['clan_rules_name'] . '</label>
+                    <label class="form-label">' . $languageService->get('clan_rules_name') . '</label>
                     <input class="form-control" type="text" name="title" maxlength="255" value="' . htmlspecialchars($ds['title']) . '" />
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">' . $plugin_language['description'] . '</label>
+                    <label class="form-label">' . $languageService->get('description') . '</label>
                     <textarea class="ckeditor form-control" name="message" rows="10">' . htmlspecialchars($ds[ 'text' ]) . '</textarea>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">' . $plugin_language['is_displayed'] . '</label>
+                    <label class="form-label">' . $languageService->get('is_displayed') . '</label>
                     <input class="form-check-input" type="checkbox" name="displayed" value="1" ' . $displayed . ' />
                 </div>
                 <input type="hidden" name="captcha_hash" value="' . $hash . '" />
                 <input type="hidden" name="clan_rulesID" value="' . $clan_rulesID . '" />
-                <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $plugin_language['edit_clan_rules'] . '</button>
+                <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $languageService->get('edit_clan_rules') . '</button>
             </form>
             </div>
         </div></div>';
@@ -254,13 +260,13 @@ elseif ($action == "admin_clan_rules_settings") {
 
     echo '<div class="card">
             <div class="card-header">
-                ' . $plugin_language['settings'] . '
+                ' . $languageService->get('settings') . '
             </div>
 
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb t-5 p-2 bg-light">
-                        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $plugin_language['clan_rules'] . '</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['settings'] . '</li>
+                        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $languageService->get('clan_rules') . '</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('settings') . '</li>
                     </ol>
                 </nav>
 
@@ -270,7 +276,7 @@ elseif ($action == "admin_clan_rules_settings") {
                     <form method="post" action="admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings">
 
                         <div class="mb-3 row">
-                            <label class="col-sm-2 control-label">' . $plugin_language['max_clan_rules'] . ':</label>
+                            <label class="col-sm-2 control-label">' . $languageService->get('max_clan_rules') . ':</label>
                             <div class="col-sm-1">
                                 <input type="number" class="form-control" name="clan_rules" value="' . htmlspecialchars($ds['clan_rules']) . '" min="1" />
                             </div>
@@ -278,7 +284,7 @@ elseif ($action == "admin_clan_rules_settings") {
                         <div class="mb-3 row">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                                <button class="btn btn-primary btn-sm" type="submit" name="clan_rules_settings_save">' . $plugin_language['update'] . '</button>
+                                <button class="btn btn-primary btn-sm" type="submit" name="clan_rules_settings_save">' . $languageService->get('update') . '</button>
                             </div>
                         </div>                    
                     </form>
@@ -292,12 +298,12 @@ elseif ($action == "admin_clan_rules_settings") {
 
 echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-paragraph"></i> ' . $plugin_language['title'] . '
+        <i class="bi bi-paragraph"></i> ' . $languageService->get('title') . '
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $plugin_language['clan_rules'] . '</a></li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_clan_rules">' . $languageService->get('clan_rules') . '</a></li>
             <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
         </ol>
     </nav>  
@@ -305,10 +311,10 @@ echo '<div class="card">
     <div class="card-body">
 
         <div class="form-group row">
-            <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
+            <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
             <div class="col-md-8">
-                <a href="admincenter.php?site=admin_clan_rules&amp;action=add" class="btn btn-primary btn-sm" type="button">' . $plugin_language['new_clan_rules'] . '</a>      
-                <a href="admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings" class="btn btn-primary btn-sm" type="button">' . $plugin_language['settings'] . '</a>
+                <a href="admincenter.php?site=admin_clan_rules&amp;action=add" class="btn btn-primary btn-sm" type="button">' . $languageService->get('new_clan_rules') . '</a>      
+                <a href="admincenter.php?site=admin_clan_rules&action=admin_clan_rules_settings" class="btn btn-primary btn-sm" type="button">' . $languageService->get('settings') . '</a>
             </div>
         </div>
 
@@ -319,10 +325,10 @@ echo '<div class="card">
                     <table class="table table-bordered table-striped bg-white shadow-sm">
                         <thead class="table-light">
                             <tr>
-                                <th width="29%"><b>' . $plugin_language['clan_rules'] . '</b></th>
-                                <th width="15%"><b>' . $plugin_language['is_displayed'] . '</b></th>
-                                <th width="20%"><b>' . $plugin_language['actions'] . '</b></th>
-                                <th width="8%"><b>' . $plugin_language['sort'] . '</b></th>
+                                <th width="29%"><b>' . $languageService->get('clan_rules') . '</b></th>
+                                <th width="15%"><b>' . $languageService->get('is_displayed') . '</b></th>
+                                <th width="20%"><b>' . $languageService->get('actions') . '</b></th>
+                                <th width="8%"><b>' . $languageService->get('sort') . '</b></th>
                             </tr>
                         </thead>
                         <tbody>';
@@ -340,11 +346,11 @@ echo '<div class="card">
             $td = ($i % 2) ? 'td1' : 'td2';
 
             $displayed = ($ds['displayed'] == 1)
-                ? '<font color="green"><b>' . $plugin_language['yes'] . '</b></font>'
-                : '<font color="red"><b>' . $plugin_language['no'] . '</b></font>';
+                ? '<font color="green"><b>' . $languageService->get('yes') . '</b></font>'
+                : '<font color="red"><b>' . $languageService->get('no') . '</b></font>';
 
             $title = $ds['title'];
-            $translate = new multiLanguage(detectCurrentLanguage());
+            $translate = new multiLanguage($lang);
             $translate->detectLanguages($title);
             $title = $translate->getTextByLanguage($title);
 
@@ -352,11 +358,11 @@ echo '<div class="card">
                 <td width="29%" class="' . $td . '">' . htmlspecialchars($title) . '</td>
                 <td width="15%" class="' . $td . '">' . $displayed . '</td>
                 <td width="20%" class="' . $td . '">
-                    <a class="btn btn-warning btn-sm" href="admincenter.php?site=admin_clan_rules&amp;action=edit&amp;clan_rulesID=' . $ds['clan_rulesID'] . '" class="input">' . $plugin_language['edit'] . '</a>
+                    <a class="btn btn-warning btn-sm" href="admincenter.php?site=admin_clan_rules&amp;action=edit&amp;clan_rulesID=' . $ds['clan_rulesID'] . '" class="input">' . $languageService->get('edit') . '</a>
                     
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirm-delete" data-href="admincenter.php?site=admin_clan_rules&amp;delete=true&amp;clan_rulesID=' . $ds['clan_rulesID'] . '&amp;captcha_hash=' . $hash . '">
-                        ' . $plugin_language['delete'] . '
+                        ' . $languageService->get('delete') . '
                     </button>
                     
                     <!-- Modal -->
@@ -364,15 +370,15 @@ echo '<div class="card">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="exampleModalLabel">' . $plugin_language['clan_rules'] . '</h5>
-                                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $plugin_language['close'] . '"></button>
+                                    <h5 class="modal-title" id="exampleModalLabel">' . $languageService->get('clan_rules') . '</h5>
+                                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p>' . $plugin_language['really_delete'] . '</p>
+                                    <p>' . $languageService->get('really_delete') . '</p>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $plugin_language['close'] . '</button>
-                                    <a class="btn btn-danger btn-ok btn-sm">' . $plugin_language['delete'] . '</a>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+                                    <a class="btn btn-danger btn-ok btn-sm">' . $languageService->get('delete') . '</a>
                                 </div>
                             </div>
                         </div>
@@ -392,14 +398,14 @@ echo '<div class="card">
             $i++;
         }
     } else {
-        echo '<tr><td class="td1" colspan="6">' . $plugin_language['no_entries'] . '</td></tr>';
+        echo '<tr><td class="td1" colspan="6">' . $languageService->get('no_entries') . '</td></tr>';
     }
 
     echo '<tr>
             <td class="td_head" colspan="6" align="right">
                 <input type="hidden" name="captcha_hash" value="' . $hash . '">
                 <br>
-                <input class="btn btn-primary btn-sm" type="submit" name="sortieren" value="' . $plugin_language['to_sort'] . '" />
+                <input class="btn btn-primary btn-sm" type="submit" name="sortieren" value="' . $languageService->get('to_sort') . '" />
             </td>
         </tr>
         </tbody>

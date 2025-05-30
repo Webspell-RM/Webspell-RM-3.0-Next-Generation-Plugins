@@ -1,10 +1,10 @@
 <!-- userlist_head -->
-<div class="head-boxes {{ class }}">
-    <span class="head-boxes-head">{{ title }}</span>
+<div class="head-boxes {class}">
+    <span class="head-boxes-head">{title}</span>
     <h2 class="head-h2">
-        <span class="head-boxes-title">{{ title }}</span>
+        <span class="head-boxes-title">{title}</span>
     </h2>
-    <p class="head-boxes-foot">{{ subtitle }}</p>
+    <p class="head-boxes-foot">{subtitle}</p>
 </div>
 <!-- END -->
 <!-- userlist_header -->
@@ -13,12 +13,12 @@
             
 <table width="100%" cellpadding="2" cellspacing="0" border="0">
   <tr>
-    <td>{{ sorter }} <br><br> </td>
+    <td>{sorter} <br><br> </td>
     <td></td>
   </tr>
   <tr>
-    <td>{{ page_link }}</td>
-    <td align="right"><b>{{ gesamt }}</b> {{ registered_users }}</td>
+    <td>{page_link}</td>
+    <td align="right"><b>{gesamt}</b> {registered_users}</td>
   </tr>
 </table>            
 <div class="table-responsive">
@@ -26,22 +26,22 @@
 <table id="plu_gini" class="table table-striped">
   <thead>
     <tr>
-    <th><a class="title1link" href="index.php?site=userlist&amp;sort=username&amp;page={{ page }}">{{ username }}:</a></th>
-    <th>{{ contact }}:</th>
-    <th><a class="title1link" href="index.php?site=userlist&amp;sort=homepage&amp;page={{ page }}">{{ homepage }}:</a></th>
-    <th><a class="titlelink" href="index.php?site=userlist&amp;sort=lastlogin&amp;page={{ page }}">{{ last_login }}:</a></th>
-    <th><a class="titlelink" href="index.php?site=userlist&amp;sort=registerdate&amp;page={{ page }}">{{ registration }}:</a></th>
+    <th><a class="title1link" href="index.php?site=userlist&amp;sort=username&amp;page={page}">{username}:</a></th>
+    <th>{contact}:</th>
+    <th><a class="title1link" href="index.php?site=userlist&amp;sort=homepage&amp;page={page}">{homepage}:</a></th>
+    <th><a class="titlelink" href="index.php?site=userlist&amp;sort=lastlogin&amp;page={page}">{last_login}:</a></th>
+    <th><a class="titlelink" href="index.php?site=userlist&amp;sort=registerdate&amp;page={page}">{registration}:</a></th>
   </tr>
  </thead>
 <tbody>
 <!-- END -->
 <!-- userlist_user_data -->
 <tr>
-    <td>{{ avatar }} {{ username }} {{ member }}</td>
-    <td>{{ email }} {{ pm }}</td>
-    <td>{{ homepage }}</td>
-    <td>{{ login }}</td>
-    <td>{{ register }}</td>
+    <td>{avatar} {username} {member}</td>
+    <td>{email} {pm}</td>
+    <td>{homepage}</td>
+    <td>{login}</td>
+    <td>{register}</td>
 </tr>
 <!-- END -->
 <!-- userlist_footer -->
@@ -62,10 +62,10 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        {{ username }}
+                        {username}
                     </div>
                     <div class="col-md-6 text-end">
-                        <small>{{ last_active }}</small>
+                        <small>{last_active}</small>
                     </div>
                 </div>
             </li>    
@@ -85,10 +85,10 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <img style="height:30px" class="img-fluid rounded-circle" src="{{ avatar }}">&nbsp; {{ username }}
+                        <img style="height:30px" class="img-fluid rounded-circle" src="{avatar}">&nbsp; {username}
                     </div>
                     <div class="col-md-6 text-end">
-                        <span class="badge bg-secondary text-end">{{ register }}</span>
+                        <span class="badge bg-secondary text-end">{register}</span>
                     </div>
                 </div>   
             </li>

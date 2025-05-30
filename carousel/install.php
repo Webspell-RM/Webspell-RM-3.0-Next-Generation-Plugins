@@ -88,7 +88,7 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 9, '[[lang:de]]Carousel[[lang:en]]Carousel[[lang:it]]Carosello Immagini', 'carousel', 'admincenter.php?site=admin_carousel', 1)");
+('', 10, '[[lang:de]]Carousel[[lang:en]]Carousel[[lang:it]]Carosello Immagini', 'carousel', 'admincenter.php?site=admin_carousel', 1)");
 
 #######################################################################################################################################
 

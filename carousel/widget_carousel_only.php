@@ -3,9 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("carousel", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readModule('carousel');
+
 $tpl = new Template();
 
 $filepath = $plugin_path . "images/";
@@ -52,7 +56,7 @@ while ($db = mysqli_fetch_array($carousel)) {
     }
 
     // Übersetzungen
-    $translate = new multiLanguage(detectCurrentLanguage());
+    $translate = new multiLanguage($lang);
     $translate->detectLanguages($db['title']);
     $title = $translate->getTextByLanguage($db['title']);
     $translate->detectLanguages($db['description']);
@@ -61,7 +65,7 @@ while ($db = mysqli_fetch_array($carousel)) {
     // Link vorbereiten
     $link = '';
     if (!empty($db['link'])) {
-        $link = '<a href="' . htmlspecialchars($db['link']) . '" class="btn-get-started animated ' . htmlspecialchars($db['ani_link']) . ' scrollto">' . $plugin_language['read_more'] . '</a>';
+        $link = '<a href="' . htmlspecialchars($db['link']) . '" class="btn-get-started animated ' . htmlspecialchars($db['ani_link']) . ' scrollto">' . $languageService->get('read_more') . '</a>';
     }
 
     $data_array = [

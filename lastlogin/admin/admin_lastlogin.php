@@ -1,19 +1,27 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('lastlogin');
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('lastlogin');
 
 // Sprachdateien laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("userlist", $plugin_path);
-$title = $plugin_language['title'];
-
-use webspell\AccessControl;
-AccessControl::checkAdminAccess('userlist');
+$pm = new plugin_manager();
 
 // Standard-Zeitraumklassen für farbliche Markierung
 $colors = [
@@ -26,8 +34,6 @@ $colors = [
     183 => 'table-secondary',
     365 => 'table-dark'
 ];
-
-
 
 $squadTableExists = tableExists('plugins_squads_members');
 
@@ -114,25 +120,25 @@ if ($squadTableExists) {
 <!-- HTML & Filterformular -->
 
 <div class="card">
-    <div class="card-header"><i class="bi bi-person-fills"></i> <?= $plugin_language['lastlogin_activity_control'] ?></div>
+    <div class="card-header"><i class="bi bi-person-fills"></i> <?= $languageService->get('lastlogin_activity_control') ?></div>
     <div class="card-body">
 
         <form method="get" action="admincenter.php" class="row g-3 mb-3" id="filterForm">
             <input type="hidden" name="site" value="admin_lastlogin">
             <div class="col-md-4">
-                <input type="text" class="form-control" name="search_username" placeholder="<?= $plugin_language['lastlogin_search_username'] ?>" value="<?= htmlspecialchars($searchUsername) ?>">
+                <input type="text" class="form-control" name="search_username" placeholder="<?= $languageService->get('lastlogin_search_username') ?>" value="<?= htmlspecialchars($searchUsername) ?>">
             </div>
             <div class="col-md-3">
                 <select class="form-select" name="filter_activity">
-                    <option value="all" <?= $filterActivity === 'all' ? 'selected' : '' ?>><?= $plugin_language['lastlogin_filter_all_activity'] ?></option>
-                    <option value="active" <?= $filterActivity === 'active' ? 'selected' : '' ?>><?= $plugin_language['lastlogin_activ'] ?></option>
-                    <option value="inactive" <?= $filterActivity === 'inactive' ? 'selected' : '' ?>><?= $plugin_language['lastlogin_inactiv'] ?></option>
+                    <option value="all" <?= $filterActivity === 'all' ? 'selected' : '' ?>><?= $languageService->get('lastlogin_filter_all_activity') ?></option>
+                    <option value="active" <?= $filterActivity === 'active' ? 'selected' : '' ?>><?= $languageService->get('lastlogin_activ') ?></option>
+                    <option value="inactive" <?= $filterActivity === 'inactive' ? 'selected' : '' ?>><?= $languageService->get('lastlogin_inactiv') ?></option>
                 </select>
             </div>
             <?php if ($squadTableExists): ?>
                 <div class="col-md-3">
                     <select class="form-select" name="filter_squad">
-                        <option value="all" <?= $filterSquad === 'all' ? 'selected' : '' ?>><?= $plugin_language['lastlogin_filter_all_squads'] ?></option>
+                        <option value="all" <?= $filterSquad === 'all' ? 'selected' : '' ?>><?= $languageService->get('lastlogin_filter_all_squads') ?></option>
                         <?php foreach ($squads as $id => $name): ?>
                             <option value="<?= $id ?>" <?= $filterSquad == $id ? 'selected' : '' ?>><?= htmlspecialchars($name) ?></option>
                         <?php endforeach; ?>
@@ -140,21 +146,21 @@ if ($squadTableExists) {
                 </div>
             <?php endif; ?>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-danger w-100"><?= $plugin_language['lastlogin_submit'] ?></button>
+                <button type="submit" class="btn btn-danger w-100"><?= $languageService->get('lastlogin_submit') ?></button>
             </div>
         </form>
 
         <table id="userlistTable" class="table table-striped table-bordered table-hover" style="width:100%">
             <thead>
                 <tr>
-                    <th><a href="<?= buildSortUrl('userID') ?>"><?= $plugin_language['lastlogin_id'] ?></a></th>
-                    <th><a href="<?= buildSortUrl('username') ?>"><?= $plugin_language['lastlogin_member'] ?></a></th>
+                    <th><a href="<?= buildSortUrl('userID') ?>"><?= $languageService->get('lastlogin_id') ?></a></th>
+                    <th><a href="<?= buildSortUrl('username') ?>"><?= $languageService->get('lastlogin_member') ?></a></th>
                     <?php if ($squadTableExists): ?>
-                    <th><?= $plugin_language['lastlogin_squad'] ?></th>
+                    <th><?= $languageService->get('lastlogin_squad') ?></th>
                     <?php endif; ?>
-                    <th><a href="<?= buildSortUrl('lastlogin') ?>"><?= $plugin_language['lastlogin_lastlogin'] ?></a></th>
-                    <th><?= $plugin_language['lastlogin_in_days'] ?></th>
-                    <th><?= $plugin_language['lastlogin_activity'] ?></th>
+                    <th><a href="<?= buildSortUrl('lastlogin') ?>"><?= $languageService->get('lastlogin_lastlogin') ?></a></th>
+                    <th><?= $languageService->get('lastlogin_in_days') ?></th>
+                    <th><?= $languageService->get('lastlogin_activity') ?></th>
                     <th><a href="<?= buildSortUrl('email') ?>">E-Mail</a></th>
                     <th><a href="<?= buildSortUrl('registerdate') ?>">Registrierungsdatum</a></th>
                 </tr>
@@ -180,13 +186,13 @@ if ($squadTableExists) {
                     $daysSinceLogin = $lastloginTimestamp ? round((time() - $lastloginTimestamp) / 86400) : 9999;
 
                     if ($loginDate == $today) {
-                        $tage = $plugin_language['lastlogin_today'];
+                        $tage = $languageService->get('lastlogin_today');
                     } elseif ($loginDate == $yesterday) {
-                        $tage = $plugin_language['lastlogin_yesterday'];
+                        $tage = $languageService->get('lastlogin_yesterday');
                     } elseif ($daysSinceLogin > 999) {
                         $tage = '-';
                     } else {
-                        $tage = $plugin_language['lastlogin_before'] . ' <b>' . $daysSinceLogin . '</b> ' . $plugin_language['lastlogin_days'];
+                        $tage = $languageService->get('lastlogin_before') . ' <b>' . $daysSinceLogin . '</b> ' . $languageService->get('lastlogin_days');
                     }
 
                     // Farb-Klasse bestimmen
@@ -204,10 +210,10 @@ if ($squadTableExists) {
                         $aktiv = '-';
                         $bgaktiv = '';
                     } elseif ((int)$activity === 1) {
-                        $aktiv = $plugin_language['lastlogin_activ'];
+                        $aktiv = $languageService->get('lastlogin_activ');
                         $bgaktiv = 'table-success';
                     } else {
-                        $aktiv = $plugin_language['lastlogin_inactiv'];
+                        $aktiv = $languageService->get('lastlogin_inactiv');
                         $bgaktiv = 'table-danger';
                     }
 
@@ -226,7 +232,7 @@ if ($squadTableExists) {
                         <?php if ($squadTableExists): ?>
                         <td><?= htmlspecialchars($squadname) ?></td>
                         <?php endif; ?>
-                        <td><b><?= $plugin_language['lastlogin_day'] ?>:</b> <?= $loginDate ?> | <b><?= $plugin_language['lastlogin_clock'] ?>:</b> <?= $loginTime ?></td>
+                        <td><b><?= $languageService->get('lastlogin_day') ?>:</b> <?= $loginDate ?> | <b><?= $languageService->get('lastlogin_clock') ?>:</b> <?= $loginTime ?></td>
                         <td class="<?= $bgday ?>"><?= $tage ?></td>
                         <td class="<?= $bgaktiv ?>" align="center"><?= $aktiv ?></td>
                         <td><?= $email ?></td>

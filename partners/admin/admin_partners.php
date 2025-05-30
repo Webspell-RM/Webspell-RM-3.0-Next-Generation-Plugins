@@ -1,17 +1,26 @@
 <?php
+use webspell\LanguageService;
+
+// Session absichern
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $languageService;
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('partners');
 
 use webspell\AccessControl;
 // Den Admin-Zugriff für das Modul überprüfen
 AccessControl::checkAdminAccess('partners');
 
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("partners", $plugin_path);
-
-$title = $plugin_language[ 'title' ]; #sc_datei Info
+$title = $languageService->get('title');
 
 $filepath = $plugin_path."images/";
 
@@ -23,7 +32,7 @@ function normalizeUrl($url) {
 
 function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
     if (!$upload->hasFile()) {
-        return $plugin_language['no_file_uploaded'] ?? 'Keine Datei hochgeladen.';
+        return $languageService->get('no_file_uploaded') ?? 'Keine Datei hochgeladen.';
     }
 
     if ($upload->hasError()) {
@@ -31,12 +40,12 @@ function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
     }
 
     $mime_types = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!$upload->supportedMimeType($mime_types)) return $plugin_language['unsupported_image_type'];
+    if (!$upload->supportedMimeType($mime_types)) return $languageService->get('unsupported_image_type');
 
     $info = getimagesize($upload->getTempFile());
-    if (!is_array($info)) return $plugin_language['broken_image'];
+    if (!is_array($info)) return $languageService->get('broken_image');
 
-    if ($info[0] > 1000 || $info[1] > 500) return sprintf($plugin_language['image_too_big'], 1000, 500);
+    if ($info[0] > 1000 || $info[1] > 500) return sprintf($languageService->get('image_too_big'), 1000, 500);
 
     $extension = match ($info[2]) {
         IMAGETYPE_GIF => '.gif',
@@ -55,7 +64,7 @@ function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
         safe_query("UPDATE plugins_partners SET banner='" . $filename . "' WHERE id='" . $id . "'");
         return true;
     }
-    return $plugin_language['upload_failed'];
+    return $languageService->get('upload_failed');
 }
 
 if (isset($_GET['action'])) {
@@ -76,7 +85,7 @@ if (isset($_GET['delete'])) {
             }
         }
     } else {
-        echo $plugin_language['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST['sortieren'])) {
     $CAPCLASS = new \webspell\Captcha;
@@ -86,7 +95,7 @@ if (isset($_GET['delete'])) {
             safe_query("UPDATE plugins_partners SET sort='" . (int)$sorter[1] . "' WHERE id='" . (int)$sorter[0] . "'");
         }
     } else {
-        echo $plugin_language['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST['save']) || isset($_POST['saveedit'])) {
     $isEdit = isset($_POST['saveedit']);
@@ -115,7 +124,7 @@ if (isset($_GET['delete'])) {
             echo generateErrorBox($uploadResult);
         }
     } else {
-        echo $plugin_language['transaction_invalid'];
+        echo $languageService->get('transaction_invalid');
     }
 } elseif (isset($_POST['partners_settings_save'])) {
     $CAPCLASS = new \webspell\Captcha;
@@ -123,7 +132,7 @@ if (isset($_GET['delete'])) {
         safe_query("UPDATE plugins_partners_settings SET partners='" . htmlspecialchars($_POST['partners']) . "'");
         redirect("admincenter.php?site=admin_partners&action=admin_partners_settings", "", 0);
     } else {
-        redirect("admincenter.php?site=admin_partners&action=admin_partners_settings", $plugin_language['transaction_invalid'], 3);
+        redirect("admincenter.php?site=admin_partners&action=admin_partners_settings", $languageService->get('transaction_invalid'), 3);
     }
 }
 
@@ -136,13 +145,13 @@ if ($action == "add") {
 
     echo '<div class="card">
         <div class="card-header">
-            <i class="bi bi-person-vcard"></i> ' . $plugin_language['partners'] . '
+            <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
         </div>
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb t-5 p-2 bg-light">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language['partners'] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['add_partner'] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('add_partner') . '</li>
             </ol>
         </nav>
 
@@ -151,14 +160,14 @@ if ($action == "add") {
         <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners" enctype="multipart/form-data">
 
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $plugin_language['partner_name'] . ':</label>
+                <label class="col-sm-2 col-form-label">' . $languageService->get('partner_name') . ':</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name="name" placeholder="Name"  required />
                 </div>
             </div>
 
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $plugin_language['banner'] . ':</label>
+                <label class="col-sm-2 col-form-label">' . $languageService->get('banner') . ':</label>
                 <div class="col-sm-10">
                     <input class="form-control" name="banner" type="file" />
                     <small class="form-text text-muted">(max. 1000x500)</small>
@@ -166,7 +175,7 @@ if ($action == "add") {
             </div>
 
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $plugin_language['homepage_url'] . ':</label>
+                <label class="col-sm-2 col-form-label">' . $languageService->get('homepage_url') . ':</label>
                 <div class="col-sm-10">
                     <input type="url" class="form-control" name="url" placeholder="https://" required />
                 </div>
@@ -180,7 +189,7 @@ if ($action == "add") {
             </div>
 
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $plugin_language['is_displayed'] . ':</label>
+                <label class="col-sm-2 col-form-label">' . $languageService->get('is_displayed') . ':</label>
                 <div class="col-sm-10 form-check form-switch" style="padding-left: 43px;">
                     <input class="form-check-input" type="checkbox" name="displayed" value="1" checked="checked" />
                 </div>
@@ -189,7 +198,7 @@ if ($action == "add") {
             <div class="mb-3 row">
                 <div class="col-sm-10 offset-sm-2">
                     <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                    <button class="btn btn-success btn-sm" type="submit" name="save">' . $plugin_language['add_partner'] . '</button>
+                    <button class="btn btn-success btn-sm" type="submit" name="save">' . $languageService->get('add_partner') . '</button>
                 </div>
             </div>
 
@@ -206,13 +215,13 @@ if ($action == "add") {
 
     echo '<div class="card">
         <div class="card-header">
-            <i class="bi bi-person-vcard"></i> ' . $plugin_language['partners'] . '
+            <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
         </div>
 
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb t-5 p-2 bg-light">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language['partners'] . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $plugin_language['edit_partner'] . '</li>
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
+                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('edit_partner') . '</li>
             </ol>
         </nav>
 
@@ -229,26 +238,26 @@ if ($action == "add") {
     echo '<div class="container py-5">
         <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners" enctype="multipart/form-data">
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $plugin_language['current_banner'] . ':</label>
+            <label class="col-sm-2 col-form-label">' . $languageService->get('current_banner') . ':</label>
             <div class="col-sm-10">' . $pic . '</div>
         </div>
 
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $plugin_language['partner_name'] . ':</label>
+            <label class="col-sm-2 col-form-label">' . $languageService->get('partner_name') . ':</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" name="name" value="' . htmlspecialchars($ds['name']) . '" />
             </div>
         </div>
 
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $plugin_language['banner'] . ':</label>
+            <label class="col-sm-2 col-form-label">' . $languageService->get('banner') . ':</label>
             <div class="col-sm-10">
                 <input class="form-control" type="file" name="banner" /> <small class="form-text text-muted">(max. 1000x500)</small>
             </div>
         </div>
 
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $plugin_language['homepage_url'] . ':</label>
+            <label class="col-sm-2 col-form-label">' . $languageService->get('homepage_url') . ':</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" name="url" value="' . htmlspecialchars($ds['url']) . '" />
             </div>
@@ -262,7 +271,7 @@ if ($action == "add") {
         </div>
 
         <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $plugin_language['is_displayed'] . ':</label>
+            <label class="col-sm-2 col-form-label">' . $languageService->get('is_displayed') . ':</label>
             <div class="col-sm-10 form-check form-switch" style="padding-left: 43px;">
                 ' . $displayed . '
             </div>
@@ -272,7 +281,7 @@ if ($action == "add") {
             <div class="col-sm-10 offset-sm-2">
                 <input type="hidden" name="captcha_hash" value="' . $hash . '" />
                 <input type="hidden" name="id" value="' . $id . '" />
-                <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $plugin_language['edit_partner'] . '</button>
+                <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $languageService->get('edit_partner') . '</button>
             </div>
         </div>
     </form>
@@ -290,19 +299,19 @@ if ($action == "add") {
     $ds = mysqli_fetch_array($settings);
 
     echo '<div class="card">
-            <div class="card-header"><i class="bi bi-gear"></i> '.$plugin_language['partners_settings'].'</div>
+            <div class="card-header"><i class="bi bi-gear"></i> '.$languageService->get('partners_settings').'</div>
 
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb t-5 p-2 bg-light">
-                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language[ 'partners' ] . '</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">'.$plugin_language['partners_settings'].'</li>
+                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get( 'partners') . '</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('partners_settings').'</li>
                 </ol>
             </nav>  
             <div class="card-body">
             <div class="container py-5">
                 <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners">
                     <div class="mb-3 row">
-                        <label class="col-sm-2 control-label">'.$plugin_language['max_partners_displayed'].':</label>
+                        <label class="col-sm-2 control-label">'.$languageService->get('max_partners_displayed').':</label>
                         <div class="col-sm-1">
                             <input type="number" class="form-control" name="partners" value="' . (int)$ds['partners'] . '" min="1" />
                         </div>
@@ -310,7 +319,7 @@ if ($action == "add") {
                     <div class="mb-3 row">
                         <div class="col-sm-offset-2 col-sm-10">
                             <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                            <button class="btn btn-primary btn-sm" type="submit" name="partners_settings_save">'.$plugin_language['save_settings'].'</button>
+                            <button class="btn btn-primary btn-sm" type="submit" name="partners_settings_save">'.$languageService->get('save_settings').'</button>
                         </div>
                     </div>
                 </form>
@@ -322,22 +331,22 @@ if ($action == "add") {
 
 echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-person-vcard"></i> ' . $plugin_language['partners'] . '
+        <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $plugin_language['partners'] . '</a></li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
             <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
         </ol>
     </nav>
 
     <div class="card-body">
         <div class="form-group row">
-            <label class="col-md-1 control-label">' . $plugin_language['options'] . ':</label>
+            <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
             <div class="col-md-8">
-                <a href="admincenter.php?site=admin_partners&amp;action=add" class="btn btn-primary btn-sm">' . $plugin_language['new_partner'] . '</a>
-                <a href="admincenter.php?site=admin_partners&amp;action=admin_partners_settings" class="btn btn-primary btn-sm">' . $plugin_language['partners_settings'] . '</a>
+                <a href="admincenter.php?site=admin_partners&amp;action=add" class="btn btn-primary btn-sm">' . $languageService->get('new_partner') . '</a>
+                <a href="admincenter.php?site=admin_partners&amp;action=admin_partners_settings" class="btn btn-primary btn-sm">' . $languageService->get('partners_settings') . '</a>
             </div>
         </div>
 
@@ -346,11 +355,11 @@ echo '<div class="card">
                 <table class="table table-bordered table-striped">
                     <thead class="table-light">
                         <tr>
-                            <th>' . $plugin_language['partners'] . '</th>
-                            <th>' . $plugin_language['clicks'] . '</th>
-                            <th>' . $plugin_language['is_displayed'] . '</th>
-                            <th>' . $plugin_language['actions'] . '</th>
-                            <th width="10%">' . $plugin_language['sort'] . '</th>
+                            <th>' . $languageService->get('partners') . '</th>
+                            <th>' . $languageService->get('clicks') . '</th>
+                            <th>' . $languageService->get('is_displayed') . '</th>
+                            <th>' . $languageService->get('actions') . '</th>
+                            <th width="10%">' . $languageService->get('sort') . '</th>
                         </tr>
                     </thead>
                     <tbody>';
@@ -376,8 +385,8 @@ $i = 1;
 while ($db = mysqli_fetch_array($partners)) {
     $td = ($i % 2) ? 'td1' : 'td2';
     $displayed = ($db['displayed'] == 1)
-        ? '<span class="text-success fw-bold">' . $plugin_language['yes'] . '</span>'
-        : '<span class="text-danger fw-bold">' . $plugin_language['no'] . '</span>';
+        ? '<span class="text-success fw-bold">' . $languageService->get('yes') . '</span>'
+        : '<span class="text-danger fw-bold">' . $languageService->get('no') . '</span>';
 
     $days = round((time() - $db['date']) / (60 * 60 * 24));
     $perday = $days ? round($db['total_clicks'] / $days, 2) : $db['total_clicks'];
@@ -389,11 +398,11 @@ while ($db = mysqli_fetch_array($partners)) {
         <td>' . (int)$db['total_clicks'] . ' (' . $perday . ')</td>
         <td>' . $displayed . '</td>
         <td>
-            <a href="admincenter.php?site=admin_partners&amp;action=edit&amp;id=' . (int)$db['id'] . '" class="btn btn-warning btn-sm">' . $plugin_language['edit'] . '</a>
+            <a href="admincenter.php?site=admin_partners&amp;action=edit&amp;id=' . (int)$db['id'] . '" class="btn btn-warning btn-sm">' . $languageService->get('edit') . '</a>
 
             <!-- Delete Button -->
             <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#' . $modal_id . '" data-href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">
-                ' . $plugin_language['delete'] . '
+                ' . $languageService->get('delete') . '
             </button>
 
             <!-- Modal -->
@@ -401,15 +410,15 @@ while ($db = mysqli_fetch_array($partners)) {
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modalLabel-' . $modal_id . '">' . $plugin_language['partners'] . '</h5>
-                            <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $plugin_language['close'] . '"></button>
+                            <h5 class="modal-title" id="modalLabel-' . $modal_id . '">' . $languageService->get('partners') . '</h5>
+                            <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
                         </div>
                         <div class="modal-body">
-                            <p>' . $plugin_language['really_delete'] . '</p>
+                            <p>' . $languageService->get('really_delete') . '</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $plugin_language['close'] . '</button>
-                            <a class="btn btn-danger btn-ok btn-sm" href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">' . $plugin_language['delete'] . '</a>
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
+                            <a class="btn btn-danger btn-ok btn-sm" href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">' . $languageService->get('delete') . '</a>
                         </div>
                     </div>
                 </div>
@@ -433,7 +442,7 @@ echo '
     <tr>
         <td colspan="5" class="text-end">
             <input type="hidden" name="captcha_hash" value="' . $hash_2 . '" />
-            <button class="btn btn-primary btn-sm" type="submit" name="sortieren">' . $plugin_language['to_sort'] . '</button>
+            <button class="btn btn-primary btn-sm" type="submit" name="sortieren">' . $languageService->get('to_sort') . '</button>
         </td>
     </tr>
     </tbody>

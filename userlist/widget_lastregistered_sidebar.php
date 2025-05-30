@@ -3,8 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("userlist", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('userlist');
 
 $tpl = new Template();
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
@@ -13,7 +17,7 @@ $class = htmlspecialchars($config['selected_style']);
 // Header-Daten
 $data_array = [
     'class'    => $class,
-    'title' => $plugin_language['lastregistered'],
+    'title' => $languageService->get('lastregistered'),
     'subtitle' => 'Userlist'
 ];
 
@@ -42,13 +46,13 @@ while ($row = mysqli_fetch_array($result)) {
 
     // Menschlich lesbares Anmeldedatum bestimmen
     if ($interval === 0) {
-        $register = $plugin_language['today'];
+        $register = $languageService->get('today');
     } elseif ($interval === -1) {
-        $register = $plugin_language['tomorrow'];
+        $register = $languageService->get('tomorrow');
     } elseif ($interval > 1) {
         $register = date('d.m.y', $register_timestamp);
     } elseif ($interval === 1) {
-        $register = $plugin_language['yesterday'];
+        $register = $languageService->get('yesterday');
     } else {
         $register = date('d.m.y', $register_timestamp);
     }

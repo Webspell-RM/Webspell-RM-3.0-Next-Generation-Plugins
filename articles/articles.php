@@ -3,9 +3,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-# Sprachdateien aus dem Plugin-Ordner laden
-$pm = new plugin_manager(); 
-$plugin_language = $pm->plugin_language("articles", $plugin_path);
+use webspell\LanguageService;
+
+global $languageService;
+
+$lang = $languageService->detectLanguage();
+$languageService->readPluginModule('articles');
 
 use webspell\AccessControl;
 
@@ -19,7 +22,7 @@ $class = htmlspecialchars($config['selected_style']);
     // Header-Daten
     $data_array = [
         'class'    => $class,
-        'title' => $plugin_language['title'],
+        'title' => $languageService->get('title'),
         'subtitle' => 'About'
     ];
     
@@ -55,10 +58,10 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
 
     $data_array = [
         'articlecatname'    => $articlecatname,
-        'title' => $plugin_language['title'],
-        'title_categories' => $plugin_language['title_categories'],
-        'categories' => $plugin_language['categories'],
-        'category' => $plugin_language['category'],
+        'title' => $languageService->get('title'),
+        'title_categories' => $languageService->get('title_categories'),
+        'categories' => $languageService->get('categories'),
+        'category' => $languageService->get('category'),
     ];
 
     echo $tpl->loadTemplate("articles", "details_head", $data_array, 'plugin');
@@ -75,12 +78,12 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
             $year = date("Y", $timestamp);
 
             $monate = array(
-                1 => $plugin_language['jan'], 2 => $plugin_language['feb'],
-                3 => $plugin_language['mar'], 4 => $plugin_language['apr'],
-                5 => $plugin_language['may'], 6 => $plugin_language['jun'],
-                7 => $plugin_language['jul'], 8 => $plugin_language['aug'],
-                9 => $plugin_language['sep'], 10 => $plugin_language['oct'],
-                11 => $plugin_language['nov'], 12 => $plugin_language['dec']
+                1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
+                3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
+                5 => $languageService->get('may'), 6 => $languageService->get('jun'),
+                7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
+                9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
+                11 => $languageService->get('nov'), 12 => $languageService->get('dec')
             );
 
             $monatname = $monate[$monat];
@@ -92,7 +95,7 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
             $question = $ds['question'];
                 $answer = $ds['answer'];
                 // Übersetzung
-                $translate = new multiLanguage(detectCurrentLanguage());
+                $translate = new multiLanguage($lang);
                 $translate->detectLanguages($ds['question']);
                 $question = $translate->getTextByLanguage($ds['question']);
                 $translate->detectLanguages($ds['answer']);
@@ -114,13 +117,13 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
                 'tag'            => $tag,
                 'monat'          => $monatname,
                 'year'          => $year,
-                'lang_rating' => $plugin_language['rating'],
-                'lang_votes' => $plugin_language['votes'],
-                'link' => $plugin_language['link'],
-                'info' => $plugin_language['info'],
-                'stand' => $plugin_language['stand'],
-                'by' => $plugin_language['by'],
-                'on' => $plugin_language['on'],
+                'lang_rating' => $languageService->get('rating'),
+                'lang_votes' => $languageService->get('votes'),
+                'link' => $languageService->get('link'),
+                'info' => $languageService->get('info'),
+                'stand' => $languageService->get('stand'),
+                'by' => $languageService->get('by'),
+                'on' => $languageService->get('on'),
             ];
 
             echo $tpl->loadTemplate("articles", "details", $data_array, 'plugin');
@@ -141,7 +144,7 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
         }
 
     } else {
-        echo $plugin_language['no_articles'] . '<br><br>[ <a href="index.php?site=articles" class="alert-article">' . $plugin_language['go_back'] . '</a> ]';
+        echo $languageService->get('no_articles') . '<br><br>[ <a href="index.php?site=articles" class="alert-article">' . $languageService->get('go_back') . '</a> ]';
     }
 }
 
@@ -258,9 +261,9 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
             'articlecatname' => $cat['articlecatname'],
             'question' => $ds['question'],
             'articlecatID' => $ds['articlecatID'],
-            'title_categories' => $plugin_language['title_categories'],
-            'categories' => $plugin_language['categories'],
-            'category' => $plugin_language['category'],
+            'title_categories' => $languageService->get('title_categories'),
+            'categories' => $languageService->get('categories'),
+            'category' => $languageService->get('category'),
         ];
 
         echo $tpl->loadTemplate("articles", "content_details_head", $data_array, 'plugin');
@@ -276,11 +279,11 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
 
         if ($loggedin) {
             if ($hasRated) {
-                $rateform = '<p><em>' . $plugin_language['you_have_already_rated'] . '</em></p>';
+                $rateform = '<p><em>' . $languageService->get('you_have_already_rated') . '</em></p>';
             } else {
                 $rateform = '<form method="post" action="" class="row g-2 align-items-center">
                     <div class="col-auto">
-                        <label for="rating" class="form-label">' . $plugin_language['rate_now'] . '</label>
+                        <label for="rating" class="form-label">' . $languageService->get('rate_now') . '</label>
                     </div>
                     <div class="col-auto">
                         <select name="rating" class="form-select">';
@@ -293,12 +296,12 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                         <input type="hidden" name="submit_rating" value="1">
                     </div>
                     <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">' . $plugin_language['rate'] . '</button>
+                        <button type="submit" class="btn btn-primary">' . $languageService->get('rate') . '</button>
                     </div>
                 </form>';
             }
         } else {
-            $rateform = '<p><em>' . $plugin_language['rate_have_to_reg_login'] . '</em></p>';
+            $rateform = '<p><em>' . $languageService->get('rate_have_to_reg_login') . '</em></p>';
         }
 
         // Bewertung anzeigen
@@ -316,7 +319,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
 
         $image = $ds['banner'] ? "includes/plugins/articles/images/article/{$ds['banner']}" : "includes/plugins/articles/images/no-image.jpg";
         $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
-        $link = $ds['url'] ? '<a href="' . $ds['url'] . '" target="_blank">' . $ds['url'] . '</a>' : $plugin_language['no_link'];
+        $link = $ds['url'] ? '<a href="' . $ds['url'] . '" target="_blank">' . $ds['url'] . '</a>' : $languageService->get('no_link');
 
         $data_array = [
             'question' => $ds['question'],
@@ -329,12 +332,12 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
             'views' => $ds['views'],
             'image' => $image,
             'link' => $link,
-            'lang_rating' => $plugin_language['rating'],
-            'lang_votes' => $plugin_language['votes'],
-            'lang_link' => $plugin_language['link'],
-            'info' => $plugin_language['info'],
-            'stand' => $plugin_language['stand'],
-            'lang_views' => $plugin_language['views'],
+            'lang_rating' => $languageService->get('rating'),
+            'lang_votes' => $languageService->get('votes'),
+            'lang_link' => $languageService->get('link'),
+            'info' => $languageService->get('info'),
+            'stand' => $languageService->get('stand'),
+            'lang_views' => $languageService->get('views'),
         ];
 
         echo $tpl->loadTemplate("articles", "content_details", $data_array, 'plugin');
@@ -347,7 +350,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
             WHERE c.plugin = '$pluginName' AND c.itemID = $articleID 
             ORDER BY c.date DESC
         ");
-        echo '<div class="mt-5"><h5>' . $plugin_language['comments'] . '</h5><ul class="list-group">';
+        echo '<div class="mt-5"><h5>' . $languageService->get('comments') . '</h5><ul class="list-group">';
         while ($row = mysqli_fetch_array($comments)) {
             $deleteLink = '';
 
@@ -356,7 +359,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
             $canDelete = ($userID == $row['userID'] || has_role($userID, 'Admin'));
             
                 if ($canDelete) {    
-                    $deleteLink = '<a href="index.php?site=articles&action=deletecomment&id=' . $row['commentID'] . '&ref=' . urlencode($_SERVER['REQUEST_URI']) . '&token=' . $_SESSION['csrf_token'] . '" class="btn btn-sm btn-danger ms-2" onclick="return confirm(\'Kommentar wirklich löschen?\')">' . $plugin_language['delete'] . '</a>';
+                    $deleteLink = '<a href="index.php?site=articles&action=deletecomment&id=' . $row['commentID'] . '&ref=' . urlencode($_SERVER['REQUEST_URI']) . '&token=' . $_SESSION['csrf_token'] . '" class="btn btn-sm btn-danger ms-2" onclick="return confirm(\'Kommentar wirklich löschen?\')">' . $languageService->get('delete') . '</a>';
                 } else {
                     $deleteLink = '';
                 }
@@ -380,7 +383,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                 <button type="submit" name="submit_comment" class="btn btn-success">Kommentar abschicken</button>
             </form>';
         } else {
-            echo '<p><em>' . $plugin_language['must_login_comment'] . '</em></p>';
+            echo '<p><em>' . $languageService->get('must_login_comment') . '</em></p>';
         }
     }
 
@@ -422,7 +425,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
     if (mysqli_num_rows($cats)) {
 
         $data_array = [
-                'title_categories'       => $plugin_language['title_categories'],
+                'title_categories'       => $languageService->get('title_categories'),
             ];
 
         echo $tpl->loadTemplate("articles", "category", $data_array, 'plugin');
@@ -451,12 +454,12 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                 $year = date("Y", $timestamp);
 
                 $monate = array(
-                    1 => $plugin_language['jan'], 2 => $plugin_language['feb'],
-                    3 => $plugin_language['mar'], 4 => $plugin_language['apr'],
-                    5 => $plugin_language['may'], 6 => $plugin_language['jun'],
-                    7 => $plugin_language['jul'], 8 => $plugin_language['aug'],
-                    9 => $plugin_language['sep'], 10 => $plugin_language['oct'],
-                    11 => $plugin_language['nov'], 12 => $plugin_language['dec']
+                    1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
+                    3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
+                    5 => $languageService->get('may'), 6 => $languageService->get('jun'),
+                    7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
+                    9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
+                    11 => $languageService->get('nov'), 12 => $languageService->get('dec')
                 );
 
                 $monatname = $monate[$monat];
@@ -467,7 +470,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                 $question = $db['question'];
                 $answer = $db['answer'];
                 // Übersetzung
-                $translate = new multiLanguage(detectCurrentLanguage());
+                $translate = new multiLanguage($lang);
                 $translate->detectLanguages($db['question']);
                 $question = $translate->getTextByLanguage($db['question']);
                 $translate->detectLanguages($db['answer']);
@@ -494,7 +497,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                     'image'          => $image,
                     'username'       => $username,
                     'articleID'      => $articleID,
-                    'by'             => $plugin_language['by'],
+                    'by'             => $languageService->get('by'),
                 ];
 
                 echo $tpl->loadTemplate("articles", "content_all", $data_array, 'plugin');
@@ -515,7 +518,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
         }
 
     } else {
-        echo $plugin_language['no_categories'];
+        echo $languageService->get('no_categories');
     }
 
 }

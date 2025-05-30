@@ -29,7 +29,7 @@ safe_query("INSERT IGNORE INTO plugins_userlist_settings_widgets (id, position, 
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
-('', 'Userlist', 'userlist', '[[lang:de]]Mit diesem Plugin könnt ihr euer Registered Users anzeigen lassen.[[lang:en]]With this plugin you can display your registered user.[[lang:it]]Con questo plugin puoi visualizzare la lista dei tuoi utenti registrati.', 'admin_reg_userlist,admin_lastlogin', 1, 'T-Seven', 'https://webspell-rm.de', 'userlist', '', '0.1', 'includes/plugins/userlist/', 1, 1, 1, 1, 'deactivated')");
+('', 'Userlist', 'userlist', '[[lang:de]]Mit diesem Plugin könnt ihr euer Registered Users anzeigen lassen.[[lang:en]]With this plugin you can display your registered user.[[lang:it]]Con questo plugin puoi visualizzare la lista dei tuoi utenti registrati.', 'admin_userlist', 1, 'T-Seven', 'https://webspell-rm.de', 'userlist', '', '0.1', 'includes/plugins/userlist/', 1, 1, 1, 1, 'deactivated')");
 
 safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetname, widgetdatei, area) VALUES
 ('', 'userlist', 'Last Registered Sidebar', 'widget_lastregistered_sidebar', 4),
@@ -38,7 +38,7 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 3, '[[lang:de]]User Liste[[lang:en]]User List[[lang:it]]Lista Utenti', 'userlist', 'admincenter.php?site=admin_reg_userlist', 1)");
+('', 3, '[[lang:de]]User Liste[[lang:en]]User List[[lang:it]]Lista Utenti', 'userlist', 'admincenter.php?site=admin_userlist', 1)");
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
 ('', 3, '[[lang:de]]User Liste[[lang:en]]User List[[lang:it]]Lista Utenti', 'userlist', 'index.php?site=userlist', 1, 1, 'default')");

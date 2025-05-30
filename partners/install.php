@@ -72,7 +72,7 @@ safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetnam
 ## NAVIGATION #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO navigation_dashboard_links (linkID, catID, name, modulname, url, sort) VALUES
-('', 12, '[[lang:de]]Partner[[lang:en]]Partners[[lang:it]]Partner', 'partners', 'admincenter.php?site=admin_partners', 1)");
+('', 13, '[[lang:de]]Partner[[lang:en]]Partners[[lang:it]]Partner', 'partners', 'admincenter.php?site=admin_partners', 1)");
 
 
 safe_query("INSERT IGNORE INTO navigation_website_sub (snavID, mnavID, name, modulname, url, sort, indropdown, themes_modulname) VALUES
