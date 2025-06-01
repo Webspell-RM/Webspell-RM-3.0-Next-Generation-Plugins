@@ -70,7 +70,7 @@ if (mysqli_num_rows($ergebnis)) {
 
     while ($ds = mysqli_fetch_array($ergebnis)) {
         $id = $ds['userID'];
-        $username = '<a href="index.php?site=profile&amp;id=' . $id . '">' . getusername($id) . '</a>';
+        $username = '<a href="index.php?site=profile&amp;userID=' . $id . '">' . getusername($id) . '</a>';
 
         $dx = mysqli_fetch_array(safe_query("SELECT * FROM settings_plugins WHERE modulname='squads'"));
         $member = (@$dx['modulname'] === 'squads' && isclanmember($id)) ? ' <i class="bi bi-person" style="color: #5cb85c"></i>' : '';
@@ -86,18 +86,36 @@ if (mysqli_num_rows($ergebnis)) {
             $homepage = '<i class="bi bi-house-slash" style="font-size:18px;"></i><i> ' . $languageService->get('homepage') . '</i>';
         }
 
+        $loggedin = isset($_SESSION['userID']) && $_SESSION['userID'] > 0;
+        $userID = $loggedin ? (int)$_SESSION['userID'] : 0;
+
         $pm = ($loggedin && $id != $userID)
             ? ' / <a href="index.php?site=messenger&amp;action=touser&amp;touser=' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '"><i class="bi bi-messenger"></i> ' . $languageService->get('message') . '</a>'
             : ' / <i class="bi bi-slash-circle"> ' . $languageService->get('message') . '</i>';
 
-        #$status = isonline($id);
-        $status = '';
-        $lastlogin = $ds['lastlogin'];
+        $lastlogin = $ds['lastlogin'] ?? '1970-01-01 00:00:00';
+        $registerdate = $ds['registerdate'] ?? '1970-01-01 00:00:00';
 
+        $lastActivityTimestamp = strtotime($lastlogin);
+        $nowTimestamp = time();
+        $onlineTimeout = 10 * 60; // 10 Minuten in Sekunden
+
+        // Status ermitteln
+        if ($lastlogin === '1970-01-01 00:00:00' || $lastlogin === $registerdate) {
+            // Wenn kein letzter Login oder nur Registrierungsdatum, dann offline
+            $status = "offline";
+        } else {
+            // Online, wenn letzte Aktivität innerhalb des Timeouts liegt, sonst offline
+            $status = ($lastActivityTimestamp !== false && ($nowTimestamp - $lastActivityTimestamp) <= $onlineTimeout)
+                ? "online"
+                : "offline";
+        }
+
+        // Ausgabe je nach Status
         if ($status === "offline") {
-            $login = ($lastlogin === '1970-01-01 00:00:00' || $lastlogin === $ds['registerdate'])
+            $login = ($lastlogin === '1970-01-01 00:00:00' || $lastlogin === $registerdate)
                 ? $languageService->get('n_a')
-                : date("d.m.Y - H:i", strtotime($lastlogin));
+                : date("d.m.Y - H:i", $lastActivityTimestamp);
         } else {
             $login = '<span class="badge bg-success">online</span> ' . $languageService->get('now_on');
         }

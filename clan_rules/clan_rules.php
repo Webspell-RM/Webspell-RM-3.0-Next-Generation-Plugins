@@ -30,7 +30,7 @@ if ($action == "show") {
 
         $get = safe_query("SELECT * FROM plugins_clan_rules WHERE clan_rulesID='$clan_rulesID' LIMIT 1");
         if ($ds = mysqli_fetch_array($get)) {
-            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
+            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['userID'] . '"><strong>' . getusername($ds['userID']) . '</strong></a>';
 
             $translate = new multiLanguage($lang);
             $translate->detectLanguages($ds['title']);
@@ -90,7 +90,7 @@ if ($action == "show") {
 
     if (mysqli_num_rows($ergebnis) > 0) {
         while ($ds = mysqli_fetch_array($ergebnis)) {
-            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
+            $poster = '<a href="index.php?site=profile&amp;id=' . $ds['userID'] . '"><strong>' . getusername($ds['userID']) . '</strong></a>';
 
             $translate = new multiLanguage($lang);
             $translate->detectLanguages($ds['title']);

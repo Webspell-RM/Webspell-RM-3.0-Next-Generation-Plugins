@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $_SESSION['language'] = $_SESSION['language'] ?? 'de';
 
 // LanguageService initialisieren
-global $languageService;
+global $_database,$languageService;
 $languageService = new LanguageService($_database);
 
 // Admin-Modul-Sprache laden

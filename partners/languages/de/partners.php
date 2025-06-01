@@ -34,6 +34,7 @@ $language_array = array(
   'tooltip'             => 'Maximale Anzahl von Partnern pro Seite',
   'save_settings'              => 'Ändern',
   'close'               => 'Schließen',
+  'no_file_uploaded' => 'Keine Datei hochgeladen.',
 
 );
 

@@ -1,4 +1,5 @@
 <?php
+
 use webspell\LanguageService;
 
 // Session absichern
@@ -10,7 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $_SESSION['language'] = $_SESSION['language'] ?? 'de';
 
 // LanguageService initialisieren
-global $languageService;
+global $_database,$languageService;
+$lang = $languageService->detectLanguage();
 $languageService = new LanguageService($_database);
 
 // Admin-Modul-Sprache laden
@@ -30,7 +32,7 @@ function normalizeUrl($url) {
         : $url;
 }
 
-function handlePartnerImageUpload($upload, $filepath, $id, $plugin_language) {
+function handlePartnerImageUpload($upload, $filepath, $id, $languageService) {
     if (!$upload->hasFile()) {
         return $languageService->get('no_file_uploaded') ?? 'Keine Datei hochgeladen.';
     }
@@ -103,7 +105,7 @@ if (isset($_GET['delete'])) {
     if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
         $name = htmlspecialchars($_POST['name']);
         $url = normalizeUrl(htmlspecialchars($_POST['url']));
-        $info = htmlspecialchars($_POST['message']);
+        $info = $_POST['message'];
         $displayed = isset($_POST['displayed']) ? 1 : 0;
 
         if ($isEdit) {
@@ -115,10 +117,9 @@ if (isset($_GET['delete'])) {
             $id = mysqli_insert_id($_database);
         }
 
-        $_language->readModule('formvalidation', true, true);
         $filepath = $plugin_path . "/images/";
         $upload = new \webspell\HttpUpload('banner');
-        $uploadResult = handlePartnerImageUpload($upload, $filepath, $id, $plugin_language);
+        $uploadResult = handlePartnerImageUpload($upload, $filepath, $id, $languageService);
 
         if (is_string($uploadResult)) {
             echo generateErrorBox($uploadResult);
@@ -266,7 +267,7 @@ if ($action == "add") {
         <div class="mb-3 row">
             <label class="col-sm-2 col-form-label">Info:</label>
             <div class="col-sm-10">
-                <textarea class="ckeditor" id="ckeditor" name="message" rows="10">' . htmlspecialchars($ds['info']) . '</textarea>
+                <textarea class="ckeditor" name="message" rows="10">' . $ds['info'] . '</textarea>
             </div>
         </div>
 

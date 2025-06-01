@@ -3,6 +3,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+
+
 use webspell\LanguageService;
 
 global $languageService;
@@ -16,6 +18,9 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+
+
+
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
 $class = htmlspecialchars($config['selected_style']);
 
@@ -28,36 +33,35 @@ $class = htmlspecialchars($config['selected_style']);
     
     echo $tpl->loadTemplate("articles", "head", $data_array, 'plugin');
 
-if (isset($_GET[ 'action' ])) {
-    $action = $_GET[ 'action' ];
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
 } else {
     $action = '';
 }
 
-if ($action == "show" && is_numeric($_GET['articlecatID'])) {
-    $articlecatID = (int)$_GET['articlecatID'];
+if ($action == "show" && isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $id = (int)$_GET['id'];
 
-    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-    if ($page < 1) $page = 1;
-
+    $page = isset($_GET['page']) ? max((int)$_GET['page'], 1) : 1;
     $limit = 6;
     $offset = ($page - 1) * $limit;
 
-    $getcat = safe_query("SELECT * FROM plugins_articles_categories WHERE articlecatID='$articlecatID'");
+    // Kategorie laden
+    $getcat = safe_query("SELECT * FROM plugins_articles_categories WHERE id='$id'");
     $ds = mysqli_fetch_array($getcat);
-    $articlecatname = $ds['articlecatname'];
+    $name = $ds['name'];
 
-    // Artikelanzahl für Pagination
-    $total_articles_query = safe_query("SELECT COUNT(*) as total FROM plugins_articles WHERE articlecatID='$articlecatID' AND displayed = '1'");
+    // Gesamtanzahl Artikel für Paginierung
+    $total_articles_query = safe_query("SELECT COUNT(*) as total FROM plugins_articles WHERE id='$id' AND is_active ='1'");
     $total_articles_result = mysqli_fetch_array($total_articles_query);
     $total_articles = (int)$total_articles_result['total'];
     $total_pages = ceil($total_articles / $limit);
 
-    // Lade Artikel
-    $ergebnis = safe_query("SELECT * FROM plugins_articles WHERE articlecatID='$articlecatID' AND displayed = '1' ORDER BY date DESC LIMIT $offset, $limit");
+    // Artikel laden
+    $ergebnis = safe_query("SELECT * FROM plugins_articles WHERE id='$id' AND is_active ='1' ORDER BY updated_at DESC LIMIT $offset, $limit");
 
     $data_array = [
-        'articlecatname'    => $articlecatname,
+        'name'    => $name,
         'title' => $languageService->get('title'),
         'title_categories' => $languageService->get('title_categories'),
         'categories' => $languageService->get('categories'),
@@ -65,58 +69,49 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
     ];
 
     echo $tpl->loadTemplate("articles", "details_head", $data_array, 'plugin');
-    // Head-Bereich
     echo $tpl->loadTemplate("articles", "content_all_head", $data_array, 'plugin');
 
     if (mysqli_num_rows($ergebnis)) {
+        $monate = [
+            1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
+            3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
+            5 => $languageService->get('may'), 6 => $languageService->get('jun'),
+            7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
+            9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
+            11 => $languageService->get('nov'), 12 => $languageService->get('dec')
+        ];
+
         while ($ds = mysqli_fetch_array($ergebnis)) {
-            $question = $ds['question'];
-            $answer = $ds['answer'];
-            $timestamp = strtotime($ds['date']);
+            $timestamp = strtotime($ds['updated_at']);
             $tag = date("d", $timestamp);
             $monat = date("n", $timestamp);
             $year = date("Y", $timestamp);
-
-            $monate = array(
-                1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
-                3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
-                5 => $languageService->get('may'), 6 => $languageService->get('jun'),
-                7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
-                9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
-                11 => $languageService->get('nov'), 12 => $languageService->get('dec')
-            );
-
             $monatname = $monate[$monat];
-            $username = getusername($ds['poster']);
+            $username = getusername($ds['userID']);
 
-            $banner = $ds['banner'];
-            $image = $banner ? "/includes/plugins/articles/images/article/".$banner : "/includes/plugins/articles/images/no-image.jpg";
+            $banner_image = $ds['banner_image'];
+            $image = $banner_image ? "/includes/plugins/articles/images/article/" . $banner_image : "/includes/plugins/articles/images/no-image.jpg";
 
-            $question = $ds['question'];
-                $answer = $ds['answer'];
-                // Übersetzung
-                $translate = new multiLanguage($lang);
-                $translate->detectLanguages($ds['question']);
-                $question = $translate->getTextByLanguage($ds['question']);
-                $translate->detectLanguages($ds['answer']);
-                $answer = $translate->getTextByLanguage($ds['answer']);
+            // Übersetzung laden
+            $translate = new multiLanguage($lang);
+            $title = $translate->getTextByLanguage($ds['title']);
 
-                // Optional kürzen
-                $maxblogchars = 15; // oder dein gewünschtes Limit
-                $short_question = $ds['question'];
-                if (mb_strlen($short_question) > $maxblogchars) {
-                    $short_question = mb_substr($short_question, 0, $maxblogchars) . '...';
-                }
+            // Optionale Kürzung
+            $maxblogchars = 15;
+            $short_content = (mb_strlen($title) > $maxblogchars)
+                ? mb_substr($title, 0, $maxblogchars) . '...'
+                : $title;
+            $id = (int)$ds['id'];
 
             $data_array = [
-                'articlecatname'    => $articlecatname,
-                'question'       => $short_question,
-                'answer' => $answer,
+                'name' => $name,
+                'title' => $title,
                 'username' => $username,
                 'image' => $image,
-                'tag'            => $tag,
-                'monat'          => $monatname,
-                'year'          => $year,
+                'tag' => $tag,
+                'monat' => $monatname,
+                'year' => $year,
+                'id'             => $id,
                 'lang_rating' => $languageService->get('rating'),
                 'lang_votes' => $languageService->get('votes'),
                 'link' => $languageService->get('link'),
@@ -128,7 +123,7 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
 
             echo $tpl->loadTemplate("articles", "details", $data_array, 'plugin');
         }
-        // Footer
+
         echo $tpl->loadTemplate("articles", "content_all_foot", $data_array, 'plugin');
 
         // Pagination
@@ -137,18 +132,15 @@ if ($action == "show" && is_numeric($_GET['articlecatID'])) {
             for ($i = 1; $i <= $total_pages; $i++) {
                 $active = ($i == $page) ? ' active' : '';
                 echo '<li class="page-item' . $active . '">
-                    <a class="page-link" href="index.php?site=articles&action=show&articlecatID=' . $articlecatID . '&page=' . $i . '">' . $i . '</a>
-                </li>';
+                        <a class="page-link" href="index.php?site=articles&action=show&id=' . $id . '&page=' . $i . '">' . $i . '</a>
+                      </li>';
             }
             echo '</ul></nav>';
         }
-
     } else {
-        echo $languageService->get('no_articles') . '<br><br>[ <a href="index.php?site=articles" class="alert-article">' . $languageService->get('go_back') . '</a> ]';
+        echo $plugin_language['no_articles'] . '<br><br>[ <a href="index.php?site=articles" class="alert-article">' . $plugin_language['go_back'] . '</a> ]';
     }
 }
-
-
 
 
 
@@ -186,10 +178,10 @@ if (
     if ($row = mysqli_fetch_assoc($res)) {
         $avg_rating = round($row['avg_rating'], 1);  // Beispiel 1 Dezimalstelle
         // Falls du eine Tabelle hast, wo der Durchschnitt gespeichert wird, z.B. articles
-        safe_query("UPDATE plugins_articles SET rating = $avg_rating WHERE articleID = $itemID");
+        safe_query("UPDATE plugins_articles SET rating = $avg_rating WHERE id = $itemID");
     }
 
-    header("Location: index.php?site=articles&action=watch&articleID=$itemID");
+    header("Location: index.php?site=articles&action=watch&id=$itemID");
     exit();
 }
 
@@ -200,19 +192,21 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 if (isset($_POST['submit_comment'])) {
+    $loggedin = isset($_SESSION['userID']) && $_SESSION['userID'] > 0;
+    $userID = $loggedin ? (int)$_SESSION['userID'] : 0;
     if (
         $loggedin &&
         !empty($_POST['comment']) &&
-        is_numeric($_POST['articleID']) &&
+        is_numeric($_POST['id']) &&
         isset($_POST['csrf_token']) &&
         hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
     ) {
         $comment = htmlspecialchars($_POST['comment']);
-        $itemID = (int)$_POST['articleID'];
+        $itemID = (int)$_POST['id'];
 
-        safe_query("INSERT INTO comments (plugin, itemID, userID, comment, date, parentID) VALUES ('$plugin_name', $itemID, $userID, '$comment', NOW(), 0)");
+        safe_query("INSERT INTO comments (plugin, itemID, userID, comment, date, parentID, modulname) VALUES ('$plugin_name', $itemID, $userID, '$comment', NOW(), 0, '$plugin_name')");
 
-        header("Location: index.php?site=articles&action=watch&articleID=$itemID");
+        header("Location: index.php?site=articles&action=watch&id=$itemID");
         exit;
     } else {
         die("Ungültiger CSRF-Token oder fehlende Eingaben.");
@@ -220,16 +214,24 @@ if (isset($_POST['submit_comment'])) {
 }
 
 if (isset($_GET['action']) && $_GET['action'] === 'deletecomment' && isset($_GET['id']) && is_numeric($_GET['id'])) {
-    session_start();  // falls noch nicht gestartet
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();  // Session nur starten, wenn noch nicht aktiv
+    }
+
+    // Simple slugdecode Funktion (bitte ggf. anpassen oder deine eigene verwenden)
+    function slugdecode(string $slug): string {
+        return urldecode(str_replace('-', ' ', $slug));
+    }
 
     $commentID = (int)$_GET['id'];
-    $referer = isset($_GET['ref']) ? urldecode($_GET['ref']) : 'index.php?site=articles';
+    $referer = isset($_GET['ref']) ? slugdecode($_GET['ref']) : 'index.php?site=articles';
 
     if (!isset($_GET['token']) || !hash_equals($_SESSION['csrf_token'], $_GET['token'])) {
         die('Ungültiger CSRF-Token.');
     }
 
-    // Kommentar aus deiner comments Tabelle löschen
+    // Kommentar aus der comments Tabelle löschen
     $res = safe_query("DELETE FROM comments WHERE commentID = $commentID");
 
     if ($res) {
@@ -244,39 +246,44 @@ if (isset($_GET['action']) && $_GET['action'] === 'deletecomment' && isset($_GET
 
 
 
+
 // Bewertung speichern (falls in deinem Originalcode noch da, sonst ergänzen)
 
-if ($action == "watch" && is_numeric($_GET['articleID'])) {
-    $articleID = (int)$_GET['articleID'];
+if ($action == "watch" && is_numeric($_GET['id'])) {
+    $id = (int)$_GET['id'];
     $pluginName = 'articles';
 
-    $settings = safe_query("SELECT * FROM plugins_articles WHERE articleID = $articleID");
-    if (mysqli_num_rows($settings)) {
-        $ds = mysqli_fetch_array($settings);
+    $articleQuery = safe_query("SELECT * FROM plugins_articles WHERE id = $id AND is_active = 1");
+    if (mysqli_num_rows($articleQuery)) {
+        $article = mysqli_fetch_array($articleQuery);
 
-        $category = safe_query("SELECT * FROM plugins_articles_categories WHERE articlecatID = '{$ds['articlecatID']}'");
-        $cat = mysqli_fetch_array($category);
+        $categoryQuery = safe_query("SELECT * FROM plugins_articles_categories WHERE id = " . (int)$article['category_id']);
+        $category = mysqli_fetch_array($categoryQuery);
 
         $data_array = [
-            'articlecatname' => $cat['articlecatname'],
-            'question' => $ds['question'],
-            'articlecatID' => $ds['articlecatID'],
+            'name' => htmlspecialchars($category['name']),
+            'title' => htmlspecialchars($article['title']),
+            'id' => $article['id'],
             'title_categories' => $languageService->get('title_categories'),
             'categories' => $languageService->get('categories'),
             'category' => $languageService->get('category'),
         ];
-
         echo $tpl->loadTemplate("articles", "content_details_head", $data_array, 'plugin');
 
-        safe_query("UPDATE plugins_articles SET views = views + 1 WHERE articleID = $articleID");
+        // Views erhöhen
+        safe_query("UPDATE plugins_articles SET views = views + 1 WHERE id = $id");
 
-        // Bewertung laden
+        // Bewertung prüfen
+        $loggedin = isset($_SESSION['userID']) && $_SESSION['userID'] > 0;
+        $userID = $loggedin ? (int)$_SESSION['userID'] : 0;
+
         $hasRated = false;
         if ($loggedin) {
-            $check = safe_query("SELECT * FROM ratings WHERE plugin = '$pluginName' AND itemID = $articleID AND userID = $userID");
+            $check = safe_query("SELECT * FROM ratings WHERE plugin = '$pluginName' AND itemID = $id AND userID = $userID");
             $hasRated = mysqli_num_rows($check) > 0;
         }
 
+        // Bewertungsformular
         if ($loggedin) {
             if ($hasRated) {
                 $rateform = '<p><em>' . $languageService->get('you_have_already_rated') . '</em></p>';
@@ -292,7 +299,7 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
                 }
                 $rateform .= '</select>
                         <input type="hidden" name="plugin" value="' . $pluginName . '">
-                        <input type="hidden" name="itemID" value="' . $articleID . '">
+                        <input type="hidden" name="itemID" value="' . $id . '">
                         <input type="hidden" name="submit_rating" value="1">
                     </div>
                     <div class="col-auto">
@@ -305,31 +312,28 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
         }
 
         // Bewertung anzeigen
-        // Rating aus der globalen Tabelle holen
-        $r = safe_query("SELECT AVG(rating) AS avg_rating, COUNT(ratingID) AS votes FROM ratings WHERE plugin = 'articles' AND itemID = $articleID");
+        $r = safe_query("SELECT AVG(rating) AS avg_rating, COUNT(ratingID) AS votes FROM ratings WHERE plugin = 'articles' AND itemID = $id");
         $r = mysqli_fetch_assoc($r);
-
-        // Absicherung gegen NULL-Werte bei AVG und COUNT
         $avg_rating = round($r['avg_rating'] ?? 0);
         $votes = (int)($r['votes'] ?? 0);
+        $ratingpic = '<span title="' . $avg_rating . '/10">'
+            . str_repeat('<img src="/includes/plugins/articles/images/rating_1.png" width="21" height="21" alt="">', $avg_rating)
+            . str_repeat('<img src="/includes/plugins/articles/images/rating_0.png" width="21" height="21" alt="">', 10 - $avg_rating)
+            . '</span>';
 
-        // Rating-Bilder erzeugen (voll / leer)
-        $ratingpic = str_repeat('<img src="/includes/plugins/articles/images/rating_1.png" width="21" height="21" alt="">', $avg_rating)
-                   . str_repeat('<img src="/includes/plugins/articles/images/rating_0.png" width="21" height="21" alt="">', 10 - $avg_rating);
-
-        $image = $ds['banner'] ? "includes/plugins/articles/images/article/{$ds['banner']}" : "includes/plugins/articles/images/no-image.jpg";
-        $poster = '<a href="index.php?site=profile&amp;id=' . $ds['poster'] . '"><strong>' . getusername($ds['poster']) . '</strong></a>';
-        $link = $ds['url'] ? '<a href="' . $ds['url'] . '" target="_blank">' . $ds['url'] . '</a>' : $languageService->get('no_link');
+        $image = $article['banner_image'] ? "includes/plugins/articles/images/article/{$article['banner_image']}" : "includes/plugins/articles/images/no-image.jpg";
+        $username = '<a href="index.php?site=profile&amp;userID=' . $article['userID'] . '"><strong>' . getusername($article['userID']) . '</strong></a>';
+        $link = $article['slug'] ? '<a href="' . $article['slug'] . '" target="_blank">' . $article['slug'] . '</a>' : $languageService->get('no_link');
 
         $data_array = [
-            'question' => $ds['question'],
-            'answer' => $ds['answer'],
-            'poster' => $poster,
-            'date' => date('d.m.Y H:i', strtotime($ds['date'])),
+            'title' => $article['title'],
+            'content' => $article['content'],
+            'username' => $username,
+            'date' => date('d.m.Y H:i', $article['updated_at']),
             'ratingpic' => $ratingpic,
             'votes' => $votes,
             'rateform' => $rateform,
-            'views' => $ds['views'],
+            'views' => $article['views'],
             'image' => $image,
             'link' => $link,
             'lang_rating' => $languageService->get('rating'),
@@ -343,94 +347,72 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
         echo $tpl->loadTemplate("articles", "content_details", $data_array, 'plugin');
 
         // Kommentare anzeigen
-        $comments = safe_query("
-            SELECT c.*, u.username 
-            FROM comments c 
-            JOIN users u ON c.userID = u.userID 
-            WHERE c.plugin = '$pluginName' AND c.itemID = $articleID 
-            ORDER BY c.date DESC
-        ");
-        echo '<div class="mt-5"><h5>' . $languageService->get('comments') . '</h5><ul class="list-group">';
-        while ($row = mysqli_fetch_array($comments)) {
-            $deleteLink = '';
+        if ($article['allow_comments']) {
+            $comments = safe_query("
+                SELECT c.*, u.username 
+                FROM comments c 
+                JOIN users u ON c.userID = u.userID 
+                WHERE c.plugin = '$pluginName' AND c.itemID = $id 
+                ORDER BY c.date DESC
+            ");
 
-            // Nur anzeigen, wenn aktueller User = Autor oder Admin
-            if ($userID == $row['userID']) {
-            $canDelete = ($userID == $row['userID'] || has_role($userID, 'Admin'));
-            
-                if ($canDelete) {    
-                    $deleteLink = '<a href="index.php?site=articles&action=deletecomment&id=' . $row['commentID'] . '&ref=' . urlencode($_SERVER['REQUEST_URI']) . '&token=' . $_SESSION['csrf_token'] . '" class="btn btn-sm btn-danger ms-2" onclick="return confirm(\'Kommentar wirklich löschen?\')">' . $languageService->get('delete') . '</a>';
-                } else {
-                    $deleteLink = '';
-                }
-            }    
-            echo '<li class="list-group-item">
-                    <strong>' . htmlspecialchars($row['username']) . '</strong><br>
-                    ' . nl2br(htmlspecialchars($row['comment'])) . '
-                    <div class="text-muted small">' . date('d.m.Y H:i', strtotime($row['date'])) . '</div>
-                    <div>' . $deleteLink . '</div>
-                  </li>';
-        }
-        echo '</ul></div>';
+            echo '<div class="mt-5"><h5>' . $languageService->get('comments') . '</h5><ul class="list-group">';
+            while ($row = mysqli_fetch_array($comments)) {
+                $deleteLink = '';
+                $loggedin = isset($_SESSION['userID']) && $_SESSION['userID'] > 0;
+                $userID = $loggedin ? (int)$_SESSION['userID'] : 0;
 
 
-        // Kommentarformular
-        if ($loggedin) {
-            echo '<form method="POST" action="index.php?site=articles&action=watch&articleID='. $articleID .'" class="mt-4">
-                <textarea class="form-control" name="comment" rows="4" required></textarea>
-                <input type="hidden" name="articleID" value="' .$articleID .'">
-                <input type="hidden" name="csrf_token" value="' .$_SESSION['csrf_token'] .'">
-                <button type="submit" name="submit_comment" class="btn btn-success">Kommentar abschicken</button>
-            </form>';
-        } else {
-            echo '<p><em>' . $languageService->get('must_login_comment') . '</em></p>';
+                // Nur anzeigen, wenn aktueller User = Autor oder Admin
+                if ($userID == $row['userID']) {
+                $canDelete = ($userID == $row['userID'] || has_role($userID, 'Admin'));
+                
+                    if ($canDelete) {    
+                        $deleteLink = '<a href="index.php?site=articles&action=deletecomment&id=' . $row['commentID'] . '&ref=' . urlencode($_SERVER['REQUEST_URI']) . '&token=' . $_SESSION['csrf_token'] . '" class="btn btn-sm btn-danger ms-2" onclick="return confirm(\'Kommentar wirklich löschen?\')">' . $languageService->get('delete') . '</a>';
+                    } else {
+                        $deleteLink = '';
+                    }
+                }  
+
+                echo '<li class="list-group-item">
+                        <strong>' . htmlspecialchars($row['username']) . '</strong><br>
+                        ' . nl2br(htmlspecialchars($row['comment'])) . '
+                        <div class="text-muted small">' . date('d.m.Y H:i', strtotime($row['date'])) . '</div>
+                        <div>' . $deleteLink . '</div>
+                      </li>';
+            }
+            echo '</ul></div>';
+            $loggedin = isset($_SESSION['userID']) && $_SESSION['userID'] > 0;
+            $userID = $loggedin ? (int)$_SESSION['userID'] : 0;
+
+            // Kommentarformular
+            if ($loggedin) {
+                echo '<form method="POST" action="index.php?site=articles&action=watch&id=' . $id . '" class="mt-4">
+                    <textarea class="form-control" name="comment" rows="4" required></textarea>
+                    <input type="hidden" name="id" value="' . $id . '">
+                    <input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">
+                    <button type="submit" name="submit_comment" class="btn btn-success">Kommentar abschicken</button>
+                </form>';
+            } else {
+                echo '<p><em>' . $languageService->get('must_login_comment') . '</em></p>';
+            }
         }
     }
+}
 
+ elseif ($action == "") {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-} elseif ($action == "") {
-    
-   
-
-    function getArticleCategoryName($catID) {
-        $cat = mysqli_fetch_assoc(safe_query("SELECT articlecatname, description FROM plugins_articles_categories WHERE articlecatID = '$catID'"));
-        return '<a data-toggle="tooltip" title="'.$cat['description'].'" href="index.php?site=articles&action=show&articlecatID=' . $catID . '"><strong style="font-size: 16px">' . $cat['articlecatname'] . '</strong></a>';
-    }
-
-    // Kategorien anzeigen
-    $cats = safe_query("SELECT * FROM plugins_articles_categories ORDER BY articlecatname");
-
-    if (mysqli_num_rows($cats)) {
+    // Kategorien laden und anzeigen
+    $cats_result = safe_query("SELECT * FROM plugins_articles_categories ORDER BY sort_order ASC");
+    if (mysqli_num_rows($cats_result) > 0) {
 
         $data_array = [
-                'title_categories'       => $languageService->get('title_categories'),
-            ];
+            'title_categories' => $languageService->get('title_categories'),
+        ];
 
         echo $tpl->loadTemplate("articles", "category", $data_array, 'plugin');
 
-        // Head-Bereich
+        // Head-Bereich der Artikelliste
         echo $tpl->loadTemplate("articles", "content_all_head", $data_array, 'plugin');
 
         // Pagination vorbereiten
@@ -439,64 +421,71 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
         $limit = 6;
         $offset = ($page - 1) * $limit;
 
-        $total_articles = mysqli_num_rows(safe_query("SELECT articleID FROM plugins_articles"));
+        // Gesamtanzahl aktiver Artikel ermitteln
+        $total_articles_result = safe_query("SELECT COUNT(*) AS total FROM plugins_articles WHERE is_active = 1");
+        $total_articles_row = mysqli_fetch_assoc($total_articles_result);
+        $total_articles = (int)$total_articles_row['total'];
         $total_pages = ceil($total_articles / $limit);
 
-        // Artikel laden
-        $ergebnis = safe_query("SELECT * FROM `plugins_articles` ORDER BY `date` DESC LIMIT $offset, $limit");
+        // Artikel laden (nur aktive)
+        $articles_result = safe_query("SELECT * FROM plugins_articles WHERE is_active = 1 ORDER BY updated_at DESC LIMIT $offset, $limit");
 
-        if (mysqli_num_rows($ergebnis)) {
-            while ($db = mysqli_fetch_array($ergebnis)) {
-                $articleID = $db['articleID'];
-                $timestamp = strtotime($db['date']);
+        if (mysqli_num_rows($articles_result) > 0) {
+
+            // Monatsnamen in der Sprache laden
+            $monate = [
+                1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
+                3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
+                5 => $languageService->get('may'), 6 => $languageService->get('jun'),
+                7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
+                9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
+                11 => $languageService->get('nov'), 12 => $languageService->get('dec')
+            ];
+
+            while ($article = mysqli_fetch_assoc($articles_result)) {
+                $id = (int)$article['id'];
+                $timestamp = (int)$article['updated_at'];
                 $tag = date("d", $timestamp);
-                $monat = date("n", $timestamp);
+                $monat = (int)date("n", $timestamp);
                 $year = date("Y", $timestamp);
 
-                $monate = array(
-                    1 => $languageService->get('jan'), 2 => $languageService->get('feb'),
-                    3 => $languageService->get('mar'), 4 => $languageService->get('apr'),
-                    5 => $languageService->get('may'), 6 => $languageService->get('jun'),
-                    7 => $languageService->get('jul'), 8 => $languageService->get('aug'),
-                    9 => $languageService->get('sep'), 10 => $languageService->get('oct'),
-                    11 => $languageService->get('nov'), 12 => $languageService->get('dec')
-                );
+                $monatname = $monate[$monat] ?? '';
 
-                $monatname = $monate[$monat];
-                $banner = $db['banner'];
-                $image = $banner ? "/includes/plugins/articles/images/article/".$banner : "/includes/plugins/articles/images/no-image.jpg";
+                $banner_image = $article['banner_image'];
+                $image = $banner_image ? "/includes/plugins/articles/images/article/" . $banner_image : "/includes/plugins/articles/images/no-image.jpg";
 
-                $username = getusername($db['poster']);
-                $question = $db['question'];
-                $answer = $db['answer'];
-                // Übersetzung
+                // username holen (z.B. aus userID)
+                $username = getusername($article['userID']);
+
+                // Übersetzung (angenommen, dein multiLanguage-Objekt funktioniert so)
                 $translate = new multiLanguage($lang);
-                $translate->detectLanguages($db['question']);
-                $question = $translate->getTextByLanguage($db['question']);
-                $translate->detectLanguages($db['answer']);
-                $answer = $translate->getTextByLanguage($db['answer']);
 
-                // Optional kürzen
-                $maxblogchars = 15; // oder dein gewünschtes Limit
-                $short_question = $db['question'];
-                if (mb_strlen($short_question) > $maxblogchars) {
-                    $short_question = mb_substr($short_question, 0, $maxblogchars) . '...';
+                $translate->detectLanguages($article['title']);
+                $title = $translate->getTextByLanguage($article['title']);
+
+                // Optional kürzen (Titel auf max 50 Zeichen z.B.)
+                $maxTitleChars = 50;
+                $short_title = $title;
+                if (mb_strlen($short_title) > $maxTitleChars) {
+                    $short_title = mb_substr($short_title, 0, $maxTitleChars) . '...';
                 }
 
-                
+                // Kategorie-Name laden
+                $catID = (int)$article['category_id'];
+                $cat_query = safe_query("SELECT name, description FROM plugins_articles_categories WHERE id = $catID");
+                $cat = mysqli_fetch_assoc($cat_query);
 
-                $article_catname = getArticleCategoryName($db['articlecatID']);
+                $article_catname = '<a data-toggle="tooltip" title="' . htmlspecialchars($cat['description']) . '" href="index.php?site=articles&action=show&category_id=' . $catID . '"><strong style="font-size: 16px">' . htmlspecialchars($cat['name']) . '</strong></a>';
 
                 $data_array = [
-                    'articlecatname' => $article_catname,
-                    'question'       => $short_question,
-                    'answer'         => $answer,
+                    'name' => $article_catname,
+                    'title'          => htmlspecialchars($short_title),
                     'tag'            => $tag,
                     'monat'          => $monatname,
-                    'year'          => $year,
+                    'year'           => $year,
                     'image'          => $image,
                     'username'       => $username,
-                    'articleID'      => $articleID,
+                    'id'             => $id,
                     'by'             => $languageService->get('by'),
                 ];
 
@@ -504,15 +493,15 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
             }
         }
 
-        // Footer
+        // Footer-Bereich der Artikelliste
         echo $tpl->loadTemplate("articles", "content_all_foot", $data_array, 'plugin');
 
-        // Pagination Links
+        // Pagination Links ausgeben, falls mehrere Seiten
         if ($total_pages > 1) {
             echo '<nav><ul class="pagination justify-content-center">';
             for ($i = 1; $i <= $total_pages; $i++) {
-                $active = ($i == $page) ? 'active' : '';
-                echo '<li class="page-item '.$active.'"><a class="page-link" href="index.php?site=articles&page='.$i.'">'.$i.'</a></li>';
+                $active = ($i === $page) ? 'active' : '';
+                echo '<li class="page-item ' . $active . '"><a class="page-link" href="index.php?site=articles&page=' . $i . '">' . $i . '</a></li>';
             }
             echo '</ul></nav>';
         }
@@ -520,5 +509,4 @@ if ($action == "watch" && is_numeric($_GET['articleID'])) {
     } else {
         echo $languageService->get('no_categories');
     }
-
 }

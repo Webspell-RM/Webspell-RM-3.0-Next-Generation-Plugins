@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\LanguageService;
 
-global $languageService;
+global $_database,$languageService;
 
 $lang = $languageService->detectLanguage();
 $languageService->readPluginModule('partners');
@@ -93,7 +93,7 @@ if ($result && $result->num_rows > 0) {
                 </div>
                 <div class="card-body">
                     <h5 class="card-title"><?php echo $name; ?></h5>
-                    <p class="card-text"><?php echo nl2br(htmlspecialchars($partner['info'])); ?></p>
+                    <p class="card-text"><?php echo $partner['info']; ?></p>
 
                     <?php if (!empty($url)): ?>
                         <a href="./includes/plugins/partners/click.php?id=<?php echo $partnerId; ?>"
