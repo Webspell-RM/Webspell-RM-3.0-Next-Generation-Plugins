@@ -1,6 +1,7 @@
 <?php
 
 use webspell\LanguageService;
+use webspell\AccessControl;
 
 // Session absichern
 if (session_status() === PHP_SESSION_NONE) {
@@ -11,447 +12,267 @@ if (session_status() === PHP_SESSION_NONE) {
 $_SESSION['language'] = $_SESSION['language'] ?? 'de';
 
 // LanguageService initialisieren
-global $_database,$languageService;
+global $languageService;
 $lang = $languageService->detectLanguage();
 $languageService = new LanguageService($_database);
 
 // Admin-Modul-Sprache laden
 $languageService->readPluginModule('partners');
 
-use webspell\AccessControl;
-// Den Admin-Zugriff für das Modul überprüfen
+// Admin-Zugriff prüfen
 AccessControl::checkAdminAccess('partners');
 
-$title = $languageService->get('title');
+// Einfaches Routing: action aus GET/POST
+$action = $_GET['action'] ?? ($_POST['action'] ?? null);
 
-$filepath = $plugin_path."images/";
+// Pfad zu Logo-Uploads
+$uploadDir = dirname(__DIR__) . '/images/';
 
-function normalizeUrl($url) {
-    return (!empty($url) && !str_starts_with($url, 'http://') && !str_starts_with($url, 'https://'))
-        ? 'http://' . $url
-        : $url;
-}
+// Helper Funktion: Datei-Upload verarbeiten
+function handleLogoUpload($file, $oldFile = null) {
+    global $uploadDir;
 
-function handlePartnerImageUpload($upload, $filepath, $id, $languageService) {
-    if (!$upload->hasFile()) {
-        return $languageService->get('no_file_uploaded') ?? 'Keine Datei hochgeladen.';
-    }
+    if ($file && $file['error'] === UPLOAD_ERR_OK) {
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
 
-    if ($upload->hasError()) {
-        return $upload->translateError();
-    }
+        if (!in_array($ext, $allowed)) {
+            return ['error' => 'Nur JPG, PNG, GIF erlaubt'];
+        }
 
-    $mime_types = ['image/jpeg', 'image/png', 'image/gif'];
-    if (!$upload->supportedMimeType($mime_types)) return $languageService->get('unsupported_image_type');
+        $filename = uniqid('partner_') . '.' . $ext;
+        $target = $uploadDir . $filename;
 
-    $info = getimagesize($upload->getTempFile());
-    if (!is_array($info)) return $languageService->get('broken_image');
-
-    if ($info[0] > 1000 || $info[1] > 500) return sprintf($languageService->get('image_too_big'), 1000, 500);
-
-    $extension = match ($info[2]) {
-        IMAGETYPE_GIF => '.gif',
-        IMAGETYPE_PNG => '.png',
-        default => '.jpg'
-    };
-
-    $filename = $id . $extension;
-    foreach (['.gif', '.jpg', '.png'] as $ext) {
-        $oldfile = $filepath . $id . $ext;
-        if (file_exists($oldfile)) unlink($oldfile);
-    }
-
-    if ($upload->saveAs($filepath . $filename)) {
-        chmod($filepath . $filename, 0777);
-        safe_query("UPDATE plugins_partners SET banner='" . $filename . "' WHERE id='" . $id . "'");
-        return true;
-    }
-    return $languageService->get('upload_failed');
-}
-
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-} else {
-    $action = '';
-}
-
-if (isset($_GET['delete'])) {
-    $CAPCLASS = new \webspell\Captcha;
-    if ($CAPCLASS->checkCaptcha(0, $_GET['captcha_hash'])) {
-        $id = (int)$_GET['id'];
-        safe_query("DELETE FROM plugins_partners WHERE id='" . $id . "'");
-        $filepath = "../images/partners/";
-        foreach (['.gif', '.jpg', '.png'] as $ext) {
-            if (file_exists($filepath . $id . $ext)) {
-                unlink($filepath . $id . $ext);
+        if (move_uploaded_file($file['tmp_name'], $target)) {
+            // Altes Logo löschen
+            if ($oldFile && file_exists($uploadDir . $oldFile)) {
+                unlink($uploadDir . $oldFile);
             }
-        }
-    } else {
-        echo $languageService->get('transaction_invalid');
-    }
-} elseif (isset($_POST['sortieren'])) {
-    $CAPCLASS = new \webspell\Captcha;
-    if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
-        foreach ($_POST['sort'] as $sortstring) {
-            $sorter = explode("-", $sortstring);
-            safe_query("UPDATE plugins_partners SET sort='" . (int)$sorter[1] . "' WHERE id='" . (int)$sorter[0] . "'");
-        }
-    } else {
-        echo $languageService->get('transaction_invalid');
-    }
-} elseif (isset($_POST['save']) || isset($_POST['saveedit'])) {
-    $isEdit = isset($_POST['saveedit']);
-    $CAPCLASS = new \webspell\Captcha;
-    if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
-        $name = htmlspecialchars($_POST['name']);
-        $url = normalizeUrl(htmlspecialchars($_POST['url']));
-        $info = $_POST['message'];
-        $displayed = isset($_POST['displayed']) ? 1 : 0;
-
-        if ($isEdit) {
-            $id = (int)$_POST['id'];
-            safe_query("UPDATE plugins_partners SET name='$name', url='$url', info='$info', displayed='$displayed' WHERE id='$id'");
-            $id = $id;
+            return ['filename' => $filename];
         } else {
-            safe_query("INSERT INTO plugins_partners (name, url, displayed, date, info, sort) VALUES ('$name', '$url', '$displayed', '" . time() . "', '$info', '1')");
-            $id = mysqli_insert_id($_database);
+            return ['error' => 'Fehler beim Hochladen'];
+        }
+    }
+    return ['filename' => $oldFile]; // Kein Upload -> altes behalten
+}
+
+// POST: Löschen
+if (isset($_POST['delete_id'])) {
+    $id = (int)$_POST['delete_id'];
+    // Logo-Datei holen
+    $res = $_database->query("SELECT logo FROM plugins_partners WHERE id = $id");
+    $row = $res->fetch_assoc();
+    if ($row && $row['logo']) {
+        @unlink($uploadDir . $row['logo']);
+    }
+    $_database->query("DELETE FROM plugins_partners WHERE id = $id");
+    header("Location: admincenter.php?site=admin_partners");
+    exit;
+}
+
+// POST: Add/Edit partner speichern
+$error = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_partner'])) {
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+    $name = $_database->real_escape_string(trim($_POST['name']));
+    $url = $_database->real_escape_string(trim($_POST['url']));
+    $active = isset($_POST['active']) ? 1 : 0;
+
+    $oldLogo = '';
+    if ($id > 0) {
+        $res = $_database->query("SELECT logo FROM plugins_partners WHERE id = $id");
+        $row = $res->fetch_assoc();
+        $oldLogo = $row['logo'] ?? '';
+    }
+
+    $uploadResult = handleLogoUpload($_FILES['logo'] ?? null, $oldLogo);
+
+    if (isset($uploadResult['error'])) {
+        $error = $uploadResult['error'];
+    } else {
+        $logo = $uploadResult['filename'];
+
+        if ($id > 0) {
+            // Update
+            $stmt = $_database->prepare("UPDATE plugins_partners SET name=?, url=?, logo=?, active=? WHERE id=?");
+            $stmt->bind_param("sssii", $name, $url, $logo, $active, $id);
+            $stmt->execute();
+            $stmt->close();
+        } else {
+            // Insert
+            $stmt = $_database->prepare("INSERT INTO plugins_partners (name, url, logo, active) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssi", $name, $url, $logo, $active);
+            $stmt->execute();
+            $stmt->close();
         }
 
-        $filepath = $plugin_path . "/images/";
-        $upload = new \webspell\HttpUpload('banner');
-        $uploadResult = handlePartnerImageUpload($upload, $filepath, $id, $languageService);
-
-        if (is_string($uploadResult)) {
-            echo generateErrorBox($uploadResult);
-        }
-    } else {
-        echo $languageService->get('transaction_invalid');
-    }
-} elseif (isset($_POST['partners_settings_save'])) {
-    $CAPCLASS = new \webspell\Captcha;
-    if ($CAPCLASS->checkCaptcha(0, $_POST['captcha_hash'])) {
-        safe_query("UPDATE plugins_partners_settings SET partners='" . htmlspecialchars($_POST['partners']) . "'");
-        redirect("admincenter.php?site=admin_partners&action=admin_partners_settings", "", 0);
-    } else {
-        redirect("admincenter.php?site=admin_partners&action=admin_partners_settings", $languageService->get('transaction_invalid'), 3);
+        header("Location: admincenter.php?site=admin_partners");
+        exit;
     }
 }
 
 
-if ($action == "add") {
+// === Anzeige abhängig von action ===
+if ($action === 'add' || $action === 'edit') {
 
-    $CAPCLASS = new \webspell\Captcha;
-    $CAPCLASS->createTransaction();
-    $hash = $CAPCLASS->getHash();
+    $editpartner = null;
 
-    echo '<div class="card">
-        <div class="card-header">
-            <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
+    if ($action === 'edit' && isset($_GET['edit']) && is_numeric($_GET['edit'])) {
+        $id = (int)$_GET['edit'];
+        $res = $_database->query("SELECT * FROM plugins_partners WHERE id = $id");
+        $editpartner = $res->fetch_assoc();
+    }
+
+    ?>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div><i class="bi bi-journal-text"></i> Partner verwalten</div>
+        <div>
+            <a href="admincenter.php?site=admin_partners&action=add" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Neu</a>
+            <a href="admincenter.php?site=admin_partners_settings" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Partner Setting</a>
         </div>
-
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb t-5 p-2 bg-light">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('add_partner') . '</li>
-            </ol>
-        </nav>
-
-        <div class="card-body">
-        <div class="container py-5">
-        <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners" enctype="multipart/form-data">
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $languageService->get('partner_name') . ':</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" name="name" placeholder="Name"  required />
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $languageService->get('banner') . ':</label>
-                <div class="col-sm-10">
-                    <input class="form-control" name="banner" type="file" />
-                    <small class="form-text text-muted">(max. 1000x500)</small>
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $languageService->get('homepage_url') . ':</label>
-                <div class="col-sm-10">
-                    <input type="url" class="form-control" name="url" placeholder="https://" required />
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Info:</label>
-                <div class="col-sm-10">
-                    <textarea class="ckeditor" id="ckeditor" name="message" rows="10"></textarea>
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">' . $languageService->get('is_displayed') . ':</label>
-                <div class="col-sm-10 form-check form-switch" style="padding-left: 43px;">
-                    <input class="form-check-input" type="checkbox" name="displayed" value="1" checked="checked" />
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <div class="col-sm-10 offset-sm-2">
-                    <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                    <button class="btn btn-success btn-sm" type="submit" name="save">' . $languageService->get('add_partner') . '</button>
-                </div>
-            </div>
-
-        </form>
-        </div>
-        </div>
-    </div>';
-}
- elseif ($action == "edit") {
-
-    $CAPCLASS = new \webspell\Captcha;
-    $CAPCLASS->createTransaction();
-    $hash = $CAPCLASS->getHash();
-
-    echo '<div class="card">
-        <div class="card-header">
-            <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
-        </div>
-
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb t-5 p-2 bg-light">
-                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
-                <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('edit_partner') . '</li>
-            </ol>
-        </nav>
-
-        <div class="card-body">';
-
-    $id = (int) $_GET['id'];
-    $ergebnis = safe_query("SELECT * FROM plugins_partners WHERE id='$id'");
-    $ds = mysqli_fetch_array($ergebnis);
-
-    $pic = '<img id="img-upload" class="img-thumbnail" style="width: 100%; max-width: 150px" src="../' . $filepath . (!empty($ds['banner']) ? $ds['banner'] : 'no-image.jpg') . '" alt="">';
-
-    $displayed = '<input class="form-check-input" type="checkbox" name="displayed" value="1"' . ($ds['displayed'] == '1' ? ' checked' : '') . ' />';
-
-    echo '<div class="container py-5">
-        <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners" enctype="multipart/form-data">
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $languageService->get('current_banner') . ':</label>
-            <div class="col-sm-10">' . $pic . '</div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $languageService->get('partner_name') . ':</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="name" value="' . htmlspecialchars($ds['name']) . '" />
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $languageService->get('banner') . ':</label>
-            <div class="col-sm-10">
-                <input class="form-control" type="file" name="banner" /> <small class="form-text text-muted">(max. 1000x500)</small>
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $languageService->get('homepage_url') . ':</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" name="url" value="' . htmlspecialchars($ds['url']) . '" />
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">Info:</label>
-            <div class="col-sm-10">
-                <textarea class="ckeditor" name="message" rows="10">' . $ds['info'] . '</textarea>
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <label class="col-sm-2 col-form-label">' . $languageService->get('is_displayed') . ':</label>
-            <div class="col-sm-10 form-check form-switch" style="padding-left: 43px;">
-                ' . $displayed . '
-            </div>
-        </div>
-
-        <div class="mb-3 row">
-            <div class="col-sm-10 offset-sm-2">
-                <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                <input type="hidden" name="id" value="' . $id . '" />
-                <button class="btn btn-warning btn-sm" type="submit" name="saveedit">' . $languageService->get('edit_partner') . '</button>
-            </div>
-        </div>
-    </form>
-    </div>
-    </div>
-</div>';
-}
- elseif ($action == "admin_partners_settings") {
-
-    $CAPCLASS = new \webspell\Captcha;
-    $CAPCLASS->createTransaction();
-    $hash = $CAPCLASS->getHash();
-
-    $settings = safe_query("SELECT * FROM plugins_partners_settings");
-    $ds = mysqli_fetch_array($settings);
-
-    echo '<div class="card">
-            <div class="card-header"><i class="bi bi-gear"></i> '.$languageService->get('partners_settings').'</div>
-
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb t-5 p-2 bg-light">
-                    <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get( 'partners') . '</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">'.$languageService->get('partners_settings').'</li>
-                </ol>
-            </nav>  
-            <div class="card-body">
-            <div class="container py-5">
-                <form class="form-horizontal" method="post" action="admincenter.php?site=admin_partners">
-                    <div class="mb-3 row">
-                        <label class="col-sm-2 control-label">'.$languageService->get('max_partners_displayed').':</label>
-                        <div class="col-sm-1">
-                            <input type="number" class="form-control" name="partners" value="' . (int)$ds['partners'] . '" min="1" />
-                        </div>
-                    </div>
-                    <div class="mb-3 row">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <input type="hidden" name="captcha_hash" value="' . $hash . '" />
-                            <button class="btn btn-primary btn-sm" type="submit" name="partners_settings_save">'.$languageService->get('save_settings').'</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            </div>
-        </div>';
-}
- else {
-
-echo '<div class="card">
-    <div class="card-header">
-        <i class="bi bi-person-vcard"></i> ' . $languageService->get('partners') . '
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">' . $languageService->get('partners') . '</a></li>
-            <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">Partner verwalten</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><?= ($action === 'add' ? 'Partner hinzufügen' : 'Partner bearbeiten') ?></li>
         </ol>
     </nav>
 
-    <div class="card-body">
-        <div class="form-group row">
-            <label class="col-md-1 control-label">' . $languageService->get('options') . ':</label>
-            <div class="col-md-8">
-                <a href="admincenter.php?site=admin_partners&amp;action=add" class="btn btn-primary btn-sm">' . $languageService->get('new_partner') . '</a>
-                <a href="admincenter.php?site=admin_partners&amp;action=admin_partners_settings" class="btn btn-primary btn-sm">' . $languageService->get('partners_settings') . '</a>
-            </div>
-        </div>
-
+    <div class="card-body p-0">
         <div class="container py-5">
-            <form method="post" action="admincenter.php?site=admin_partners">
-                <table class="table table-bordered table-striped">
-                    <thead class="table-light">
-                        <tr>
-                            <th>' . $languageService->get('partners') . '</th>
-                            <th>' . $languageService->get('clicks') . '</th>
-                            <th>' . $languageService->get('is_displayed') . '</th>
-                            <th>' . $languageService->get('actions') . '</th>
-                            <th width="10%">' . $languageService->get('sort') . '</th>
-                        </tr>
-                    </thead>
-                    <tbody>';
 
-$partners = safe_query("
-    SELECT p.*, COALESCE(SUM(c.clicks), 0) AS total_clicks
-    FROM plugins_partners p
-    LEFT JOIN plugins_partners_clicks c ON p.id = c.partner_id
-    GROUP BY p.id
-    ORDER BY p.sort
-");
+        <h1><?= $editpartner ? 'partner bearbeiten' : 'Neuen partner hinzufügen' ?></h1>
 
-$tmp = mysqli_fetch_assoc(safe_query("SELECT count(id) as cnt FROM plugins_partners"));
-$anzpartners = $tmp['cnt'];
+        <?php if ($error): ?>
+          <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
-$CAPCLASS = new \webspell\Captcha;
-$CAPCLASS->createTransaction();
-$hash = $CAPCLASS->getHash();
-$CAPCLASS->createTransaction();
-$hash_2 = $CAPCLASS->getHash();
+        <form method="post" enctype="multipart/form-data" action="admincenter.php?site=admin_partners&action=<?= $action ?><?= $editpartner ? '&edit=' . (int)$editpartner['id'] : '' ?>">
+            <input type="hidden" name="id" value="<?= htmlspecialchars($editpartner['id'] ?? '') ?>">
 
-$i = 1;
-while ($db = mysqli_fetch_array($partners)) {
-    $td = ($i % 2) ? 'td1' : 'td2';
-    $displayed = ($db['displayed'] == 1)
-        ? '<span class="text-success fw-bold">' . $languageService->get('yes') . '</span>'
-        : '<span class="text-danger fw-bold">' . $languageService->get('no') . '</span>';
-
-    $days = round((time() - $db['date']) / (60 * 60 * 24));
-    $perday = $days ? round($db['total_clicks'] / $days, 2) : $db['total_clicks'];
-
-    $modal_id = 'confirm-delete-' . (int)$db['id'];
-
-    echo '<tr>
-        <td><a href="' . htmlspecialchars($db['url']) . '" target="_blank">' . htmlspecialchars($db['name']) . '</a></td>
-        <td>' . (int)$db['total_clicks'] . ' (' . $perday . ')</td>
-        <td>' . $displayed . '</td>
-        <td>
-            <a href="admincenter.php?site=admin_partners&amp;action=edit&amp;id=' . (int)$db['id'] . '" class="btn btn-warning btn-sm">' . $languageService->get('edit') . '</a>
-
-            <!-- Delete Button -->
-            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#' . $modal_id . '" data-href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">
-                ' . $languageService->get('delete') . '
-            </button>
-
-            <!-- Modal -->
-            <div class="modal fade" id="' . $modal_id . '" tabindex="-1" aria-labelledby="modalLabel-' . $modal_id . '" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="modalLabel-' . $modal_id . '">' . $languageService->get('partners') . '</h5>
-                            <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="' . $languageService->get('close') . '"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p>' . $languageService->get('really_delete') . '</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">' . $languageService->get('close') . '</button>
-                            <a class="btn btn-danger btn-ok btn-sm" href="admincenter.php?site=admin_partners&amp;delete=true&amp;id=' . (int)$db['id'] . '&amp;captcha_hash=' . $hash . '">' . $languageService->get('delete') . '</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name *</label>
+                <input type="text" class="form-control" id="name" name="name" required value="<?= htmlspecialchars($editpartner['name'] ?? '') ?>">
             </div>
-            <!-- Modal END -->
-        </td>
-        <td width="8%" class="' . $td . '" align="center">
-            <select name="sort[]">';
-    for ($j = 1; $j <= $anzpartners; $j++) {
-        $selected = ($db['sort'] == $j) ? 'selected="selected"' : '';
-        echo '<option value="' . $db['id'] . '-' . $j . '" ' . $selected . '>' . $j . '</option>';
-    }
-    echo '</select>
-        </td>
-    </tr>';
 
-    $i++;
-}
+            <div class="mb-3">
+                <label for="url" class="form-label">URL</label>
+                <input type="url" class="form-control" id="url" name="url" value="<?= htmlspecialchars($editpartner['url'] ?? '') ?>">
+            </div>
 
-echo '
-    <tr>
-        <td colspan="5" class="text-end">
-            <input type="hidden" name="captcha_hash" value="' . $hash_2 . '" />
-            <button class="btn btn-primary btn-sm" type="submit" name="sortieren">' . $languageService->get('to_sort') . '</button>
-        </td>
-    </tr>
-    </tbody>
-    </table>
-    </form>
+            <div class="mb-3">
+                <label for="logo" class="form-label">Logo (JPG, PNG, GIF)</label>
+                <input type="file" class="form-control" id="logo" name="logo" <?= $editpartner ? '' : 'required' ?>>
+                <?php if (!empty($editpartner['logo'])): ?>
+                    <div class="mt-2">
+                        <img src="/includes/plugins/partners/images/<?= htmlspecialchars($editpartner['logo']) ?>" alt="Logo" style="max-height:80px;">
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="active" name="active" <?= (!isset($editpartner['active']) || $editpartner['active'] == 1) ? 'checked' : '' ?>>
+                <label for="active" class="form-check-label">Aktiv</label>
+            </div>
+
+            <button type="submit" name="save_partner" class="btn btn-primary"><?= $editpartner ? 'Speichern' : 'Hinzufügen' ?></button>
+            <a href="admincenter.php?site=admin_partners" class="btn btn-secondary">Zurück zur Liste</a>
+        </form>
+
+   
+
+    <?php
+} else {
+    // Standard: Liste aller partneren anzeigen
+    $respartners = $_database->query("
+    SELECT s.*, 
+           COALESCE(k.click_count, 0) AS clicks
+    FROM plugins_partners s
+    LEFT JOIN (
+        SELECT itemID, COUNT(*) AS click_count
+        FROM link_clicks
+        WHERE plugin = 'partners'
+        GROUP BY itemID
+    ) k ON s.id = k.itemID
+    ORDER BY s.sort_order ASC
+");
+    ?>
+
+    <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div><i class="bi bi-journal-text"></i> Partneren verwalten</div>
+        <div>
+            <a href="admincenter.php?site=admin_partners&action=add" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Neu</a>
+            <a href="admincenter.php?site=admin_partners_settings" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Partner Setting</a>
+        </div>
     </div>
-    </div>
-    </div>';
 
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb t-5 p-2 bg-light">
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_partners">Partneren verwalten</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Übersicht</li>
+        </ol>
+    </nav>
 
+    <div class="card-body p-0">
+        <div class="container py-5">
+
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Logo</th>
+                    <th>Name</th>
+                    <th>URL</th>
+                    <th>Klicks (pro Tag)</th>
+                    <th>Aktiv</th>
+                    <th>Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($partner = $respartners->fetch_assoc()):
+                    $createdTimestamp = isset($partner['created_at']) ? strtotime($partner['created_at']) : time();
+                    $days = max(1, round((time() - $createdTimestamp) / (60 * 60 * 24))); 
+                    $perday = round($partner['clicks'] / $days, 2);
+                ?>
+                <tr>
+                    <td>
+                        <?php if ($partner['logo'] && file_exists($uploadDir . $partner['logo'])): ?>
+                            <img src="/includes/plugins/partners/images/<?= htmlspecialchars($partner['logo']) ?>" alt="Logo" style="max-height:40px;">
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                    <td><?= htmlspecialchars($partner['name']) ?></td>
+                    <td>
+                        <?php if ($partner['url']): ?>
+                            <a href="<?= htmlspecialchars($partner['url']) ?>" target="_blank" rel="nofollow"><?= htmlspecialchars($partner['url']) ?></a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?= (int)$partner['clicks'] ?> (Ø <?= $perday ?>/Tag)
+                    </td>
+                    <td><?= $partner['active'] ? 'Ja' : 'Nein' ?></td>
+                    <td>
+                        <a href="admincenter.php?site=admin_partners&action=edit&edit=<?= $partner['id'] ?>" class="btn btn-sm btn-warning">Bearbeiten</a>
+                        <form method="post" style="display:inline-block" onsubmit="return confirm('Wirklich löschen?');">
+                            <input type="hidden" name="delete_id" value="<?= $partner['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-danger">Löschen</button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+                <?php if ($respartners->num_rows === 0): ?>
+                    <tr><td colspan="7" class="text-center">Keine partneren gefunden.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+
+    </div></div></div>
+
+    <?php
 }

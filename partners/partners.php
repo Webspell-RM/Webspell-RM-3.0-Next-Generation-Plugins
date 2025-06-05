@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\LanguageService;
 
-global $_database,$languageService;
+global $_database, $languageService;
 
 $lang = $languageService->detectLanguage();
 $languageService->readPluginModule('partners');
@@ -13,20 +13,19 @@ $languageService->readPluginModule('partners');
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
 $class = htmlspecialchars($config['selected_style']);
 
-    // Header-Daten
-    $data_array = [
-        'class'    => $class,
-        'title' => $languageService->get('title'),
-        'subtitle' => 'Partners'
-    ];
-    
-    echo $tpl->loadTemplate("partners", "head", $data_array, 'plugin');
+// Header-Daten
+$data_array = [
+    'class' => $class,
+    'title' => $languageService->get('title'),
+    'subtitle' => 'Partners'
+];
 
+echo $tpl->loadTemplate("partners", "head", $data_array, 'plugin');
 
 $alertColors = ['primary', 'secondary', 'success', 'warning', 'danger', 'info'];
 $filepath = "/includes/plugins/partners/images/";
 
-$query = "SELECT * FROM plugins_partners WHERE displayed = 1 ORDER BY `sort`";
+$query = "SELECT * FROM plugins_partners WHERE active = 1 ORDER BY sort_order";
 $result = $_database->query($query);
 
 $colorIndex = 0;
@@ -69,7 +68,8 @@ $colorIndex = 0;
 if ($result && $result->num_rows > 0) {
     while ($partner = $result->fetch_assoc()) {
         $name = htmlspecialchars($partner['name']);
-        $banner = !empty($partner['banner']) ? $filepath . $partner['banner'] : $filepath . "no-image.jpg";
+        $logo = !empty($partner['logo']) ? $filepath . $partner['logo'] : $filepath . "no-image.jpg";
+        $description = nl2br(htmlspecialchars($partner['description']));
 
         $colorKey = $alertColors[$colorIndex];
         $colorIndex = ($colorIndex + 1) % count($alertColors);
@@ -89,19 +89,19 @@ if ($result && $result->num_rows > 0) {
         <div class="col-md-6 col-lg-4">
             <div class="card-box position-relative">
                 <div class="img-wrapper alert alert-<?php echo $colorKey; ?>">
-                    <img src="<?php echo htmlspecialchars($banner); ?>" alt="Banner von <?php echo $name; ?>" class="card-img-top" loading="lazy">
+                    <img src="<?php echo htmlspecialchars($logo); ?>" alt="Logo von <?php echo $name; ?>" class="card-img-top" loading="lazy">
                 </div>
                 <div class="card-body">
                     <h5 class="card-title"><?php echo $name; ?></h5>
-                    <p class="card-text"><?php echo $partner['info']; ?></p>
+                    <p class="card-text"><?php echo $description; ?></p>
 
                     <?php if (!empty($url)): ?>
                         <a href="./includes/plugins/partners/click.php?id=<?php echo $partnerId; ?>"
-       target="_blank"
-       rel="nofollow"
-       class="<?php echo $btnClass; ?>">
-        Mehr erfahren
-    </a>
+                           target="_blank"
+                           rel="nofollow"
+                           class="<?php echo $btnClass; ?>">
+                            Mehr erfahren
+                        </a>
                     <?php else: ?>
                         <span class="text-muted">Kein gültiger Link vorhanden</span>
                     <?php endif; ?>
@@ -113,9 +113,7 @@ if ($result && $result->num_rows > 0) {
 } else {
     echo '<div class="alert alert-warning">Keine Partner gefunden.</div>';
 }
-// Hinweis: Kein $_database->close(), wenn danach noch DB-Zugriffe erfolgen
 ?>
         </div>
     </div>
 </div>
-

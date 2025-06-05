@@ -1,32 +1,32 @@
 ﻿<?php
 safe_query("CREATE TABLE IF NOT EXISTS plugins_articles_categories (
-  articlecatID int(11) NOT NULL AUTO_INCREMENT,
-  articlecatname varchar(255) NOT NULL DEFAULT '',
-  description text NOT NULL,
-  sort int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (articlecatID)
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL DEFAULT '',
+  description TEXT NOT NULL,
+  sort_order INT(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (id)
 ) AUTO_INCREMENT=1
-  DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci");
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
 safe_query("CREATE TABLE IF NOT EXISTS plugins_articles (
-  articleID int(11) NOT NULL AUTO_INCREMENT,
-  articlecatID int(11) NOT NULL DEFAULT '0',
-  question varchar(255) NOT NULL DEFAULT '',
-  answer text NOT NULL,
-  url varchar(255) NOT NULL DEFAULT '',
-  banner varchar(255) NOT NULL DEFAULT '',
-  sort int(11) NOT NULL DEFAULT '0',
-  date int(14) NOT NULL DEFAULT '0',
-  poster int(11) NOT NULL DEFAULT '0',
-  displayed int(11) NOT NULL DEFAULT '0',
-  rating int(11) NOT NULL DEFAULT '0',
-  points int(11) NOT NULL DEFAULT '0',
-  votes int(11) NOT NULL DEFAULT '0',
-  views int(11) NOT NULL DEFAULT '0',
-  comments int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (articleID)
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  category_id int(11) NOT NULL DEFAULT 0,
+  title varchar(255) NOT NULL DEFAULT '',
+  content text NOT NULL,
+  slug varchar(255) NOT NULL DEFAULT '',
+  banner_image varchar(255) NOT NULL DEFAULT '',
+  sort_order int(11) NOT NULL DEFAULT 0,
+  updated_at int(14) NOT NULL DEFAULT 0,
+  userID int(11) NOT NULL DEFAULT 0,
+  is_active tinyint(1) NOT NULL DEFAULT 0,
+  rating int(11) NOT NULL DEFAULT 0,
+  points int(11) NOT NULL DEFAULT 0,
+  votes int(11) NOT NULL DEFAULT 0,
+  views int(11) NOT NULL DEFAULT 0,
+  allow_comments TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (id)
 ) AUTO_INCREMENT=1
-  DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci");
+  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
 safe_query("CREATE TABLE IF NOT EXISTS plugins_articles_settings (
   articlessetID int(11) NOT NULL AUTO_INCREMENT,

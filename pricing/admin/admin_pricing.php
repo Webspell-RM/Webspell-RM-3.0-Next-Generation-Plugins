@@ -83,13 +83,15 @@ while ($feat = $res2->fetch_assoc()) {
 ?>
 
 <div class="card">
-    <div class="card-header">
-        <i class="bi bi-paragraph"></i> Pricing Verwaltung
-    </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-journal-text"></i> Pricing verwalten</div>
+            <div>
+            </div>
+        </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_pricing">Pricing Verwaltung</a></li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_pricing">Pricing  verwalten</a></li>
             <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
         </ol>
     </nav>  

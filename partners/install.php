@@ -2,36 +2,24 @@
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) NOT NULL DEFAULT '',
-  url varchar(255) NOT NULL DEFAULT '',
-  banner varchar(255) NOT NULL DEFAULT '',
-  info text NOT NULL,
-  date int(14) NOT NULL DEFAULT '0',
-  sort int(11) NOT NULL DEFAULT '0',
-  displayed varchar(255) NOT NULL DEFAULT '1',
-  hits int(11) DEFAULT '0',
+  url varchar(255) DEFAULT NULL,
+  logo varchar(255) DEFAULT NULL,
+  description text DEFAULT NULL,
+  date int(14) NOT NULL DEFAULT 0,
+  sort_order int(11) DEFAULT 0,
+  active tinyint(1) DEFAULT NULL,
   PRIMARY KEY (id)
-) AUTO_INCREMENT=1
-  DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci");
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;");
 
-safe_query("INSERT IGNORE INTO plugins_partners (id, name, url, banner, info, date, sort, displayed) VALUES
-(1, 'Partner 1', 'https://www.webspell-rm.de', '1.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612091, 1, '1'),
-(2, 'Partner 2', 'https://www.webspell-rm.de', '2.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612226, 1, '1'),
-(3, 'Partner 3', 'https://www.webspell-rm.de', '3.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612301, 1, '1'),
-(4, 'Partner 4', 'https://www.webspell-rm.de', '4.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612446, 1, '1'),
-(5, 'Partner 5', 'https://www.webspell-rm.de', '5.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613122, 1, '1'),
-(6, 'Partner 6', 'https://www.webspell-rm.de', '6.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613187, 1, '1'),
-(7, 'Partner 7', 'https://www.webspell-rm.de', '7.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613221, 1, '1')");
+safe_query("INSERT IGNORE INTO plugins_partners (id, name, url, logo, description, date, sort_order, active) VALUES
+(1, 'Partner 1', 'https://www.webspell-rm.de', 'partner_6841c239f0567.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612091, 1, 1),
+(2, 'Partner 2', 'https://www.webspell-rm.de', '2.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612226, 1, 1),
+(3, 'Partner 3', 'https://www.webspell-rm.de', '3.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612301, 1, 1),
+(4, 'Partner 4', 'https://www.webspell-rm.de', '4.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612446, 1, 1),
+(5, 'Partner 5', 'https://www.webspell-rm.de', '5.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613122, 1, 1),
+(6, 'Partner 6', 'https://www.webspell-rm.de', '6.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613187, 1, 1),
+(7, 'Partner 7', 'https://www.webspell-rm.de', '7.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613221, 1, 1);");
 
-
-
-safe_query("CREATE TABLE IF NOT EXISTS plugins_partners_clicks (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  partner_id int(11) NOT NULL,
-  click_date date NOT NULL,
-  clicks int(11) NOT NULL DEFAULT 1,
-  PRIMARY KEY (id),
-  UNIQUE KEY partner_id (partner_id, click_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
 
   
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners_settings (

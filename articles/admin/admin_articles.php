@@ -165,7 +165,7 @@ if (($action ?? '') === "add" || ($action ?? '') === "edit") {
 
                 safe_query("
                     INSERT INTO plugins_articles
-                    (category_id, title, content, slug, banner_image, sort_order, updated_at, user_id, is_active, allow_comments)
+                    (category_id, title, content, slug, banner_image, sort_order, updated_at, userID, is_active, allow_comments)
                     VALUES
                     ('$cat', '$title', '$content', '$slug', '$filename', '$sort_order', UNIX_TIMESTAMP(), '$userID', '$is_active', '$allow_comments')
                 ");
@@ -361,8 +361,16 @@ if (($action ?? '') === "add" || ($action ?? '') === "edit") {
                 <a href="admincenter.php?site=admin_articles&action=categories" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Kategorien</a>
             </div>
         </div>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb t-5 p-2 bg-light">
+                <li class="breadcrumb-item"><a href="admincenter.php?site=admin_articles">Artikel verwalten</a></li>
+                <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
+            </ol>
+        </nav> 
         <div class="card-body p-0">
-            <table class="table table-hover mb-0">
+            <div class="container py-5">
+            <table class="table table-bordered table-striped">
                 <thead class="table-light">
                 <tr>
                     <th>ID</th>
@@ -382,13 +390,14 @@ if (($action ?? '') === "add" || ($action ?? '') === "edit") {
                         <td><?= (int)$row['sort_order'] ?></td>
                         <td><?= $row['is_active'] ? '<span class="badge bg-success">Ja</span>' : '<span class="badge bg-secondary">Nein</span>' ?></td>
                         <td>
-                            <a href="admincenter.php?site=admin_articles&action=edit&id=<?= (int)$row['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
-                            <a href="#" class="btn btn-sm btn-danger btn-delete-article" data-id="<?= (int)$row['id'] ?>"><i class="bi bi-trash"></i></a>
+                            <a href="admincenter.php?site=admin_articles&action=edit&id=<?= (int)$row['id'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Bearbeiten</a>
+                            <a href="#" class="btn btn-sm btn-danger btn-delete-article" data-id="<?= (int)$row['id'] ?>"><i class="bi bi-trash"></i> Löschen</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 <?php

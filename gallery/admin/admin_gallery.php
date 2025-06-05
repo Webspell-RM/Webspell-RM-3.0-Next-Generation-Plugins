@@ -310,9 +310,13 @@ $stmtData->close();
 ?>
 
 <div class="card">
-    <div class="card-header">
-        <i class="bi bi-paragraph"></i> Galerie verwalten
-    </div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-paragraph"></i> Galerie verwalten</div>
+            <div>
+                <a href="admincenter.php?site=admin_gallery&action=add" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Neu</a>                
+                <a href="admincenter.php?site=admin_gallery&action=sort" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Seite sortieren</a>
+            </div>
+        </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
@@ -321,15 +325,7 @@ $stmtData->close();
         </ol>
     </nav>  
 
-    <div class="card-body">
-
-        <div class="form-group row">
-            <label class="col-md-1 control-label">Options:</label>
-            <div class="col-md-8">
-                <a href="admincenter.php?site=admin_gallery&action=add" class="btn btn-primary btn-sm">Bild hinzufügen</a>
-                <a href="admincenter.php?site=admin_gallery&action=sort" class="btn btn-primary btn-sm">Seite sortieren</a>
-            </div>
-        </div>
+    <div class="card-body p-0">
 
         <div class="container py-5">
 

@@ -1,12 +1,12 @@
 ﻿<?php
 safe_query("CREATE TABLE IF NOT EXISTS plugins_clan_rules (
   clan_rulesID int(11) NOT NULL AUTO_INCREMENT,
-  title varchar(255) NOT NULL default '',
+  title varchar(255) NOT NULL DEFAULT '',
   text text NOT NULL,
-  poster int(11) NOT NULL,
+  userID int(11) NOT NULL,
   date timestamp NOT NULL DEFAULT current_timestamp(),
-  sort int(11) NOT NULL DEFAULT '0',
-  displayed varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '1',
+  sort int(11) NOT NULL DEFAULT 0,
+  displayed varchar(255) NOT NULL DEFAULT '1'
   PRIMARY KEY (clan_rulesID)
 ) AUTO_INCREMENT=1
   DEFAULT CHARSET=utf8 DEFAULT COLLATE utf8_unicode_ci");
