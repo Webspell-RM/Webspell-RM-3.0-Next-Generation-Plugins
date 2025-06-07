@@ -93,7 +93,7 @@
 
 
         <div class="resume-item">
-          <h4>🔗 Weitere Informationen</h4>
+          <h4>Weitere Informationen</h4>
           <ul>
             <li><a href="https://www.Webspell-RM.de" target="_blank">Offizielle Website</a></li>
             <li><a href="https://github.com/Webspell-RM/Webspell-RM-Base" target="_blank">GitHub-Repository</a></li>

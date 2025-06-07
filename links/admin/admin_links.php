@@ -1,8 +1,26 @@
 <?php
-global $_database;
 
+use webspell\LanguageService;
+use webspell\AccessControl;
 
+// Session absichern
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+// Sprache setzen, falls nicht vorhanden
+$_SESSION['language'] = $_SESSION['language'] ?? 'de';
+
+// LanguageService initialisieren
+global $_database,$languageService;
+$lang = $languageService->detectLanguage();
+$languageService = new LanguageService($_database);
+
+// Admin-Modul-Sprache laden
+$languageService->readPluginModule('links');
+
+// Admin-Zugriff prüfen
+AccessControl::checkAdminAccess('links');
 
 
 
@@ -186,77 +204,94 @@ if (in_array($action, ['add', 'edit'])) {
     
    <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <div><i class="bi bi-journal-text"></i> Links verwalten</div>
+        <div><i class="bi bi-journal-text"></i> <?= $languageService->get('manage_links') ?></div>
         <div>
-            <a href="admincenter.php?site=admin_links&action=add" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Neu</a>
-            <a href="admincenter.php?site=admin_links_settings" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Links Setting</a>
+            <a href="admincenter.php?site=admin_links&action=add" class="btn btn-success btn-sm">
+                <i class="bi bi-plus"></i> <?= $languageService->get('new_link') ?>
+            </a>
+            <a href="admincenter.php?site=admin_links_settings" class="btn btn-primary btn-sm">
+                <i class="bi bi-tags"></i> <?= $languageService->get('links_settings') ?>
+            </a>
         </div>
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_links">Links verwalten</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><?= ($action === 'add' ? 'Link hinzufügen' : 'Link bearbeiten') ?></li>
+            <li class="breadcrumb-item">
+                <a href="admincenter.php?site=admin_links"><?= $languageService->get('manage_links') ?></a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <?= ($action === 'add' ? $languageService->get('add_link') : $languageService->get('edit_link')) ?>
+            </li>
         </ol>
     </nav>
 
     <div class="card-body p-0">
         <div class="container py-5">
-        <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="action" value="<?= htmlspecialchars($action) ?>" />
-            <div class="mb-3">
-                <label for="title" class="form-label">Titel</label>
-                <input type="text" class="form-control" id="title" name="title" required value="<?= htmlspecialchars($link['title']) ?>">
-            </div>
-            <div class="mb-3">
-                <label for="url" class="form-label">Link-URL</label>
-                <input type="url" class="form-control" id="url" name="url" required value="<?= htmlspecialchars($link['url']) ?>">
-                
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Beschreibung</label>
-                <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($link['description']) ?></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="category_id" class="form-label">Kategorie</label>
-                <select id="category_id" name="category_id" class="form-select" required>
-                    <option value="">-- Bitte wählen --</option>
-                    <?php foreach ($categories as $catId => $catTitle): ?>
-                        <option value="<?= $catId ?>" <?= ($catId == $link['category_id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($catTitle) ?>
+            <form method="post" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="<?= htmlspecialchars($action) ?>" />
+                <div class="mb-3">
+                    <label for="title" class="form-label"><?= $languageService->get('title') ?></label>
+                    <input type="text" class="form-control" id="title" name="title" required value="<?= htmlspecialchars($link['title']) ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="url" class="form-label"><?= $languageService->get('url') ?></label>
+                    <input type="url" class="form-control" id="url" name="url" required value="<?= htmlspecialchars($link['url']) ?>">
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label"><?= $languageService->get('description') ?></label>
+                    <textarea class="form-control" id="description" name="description" rows="3"><?= htmlspecialchars($link['description']) ?></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="category_id" class="form-label"><?= $languageService->get('category') ?></label>
+                    <select id="category_id" name="category_id" class="form-select" required>
+                        <option value=""><?= $languageService->get('please_select') ?></option>
+                        <?php foreach ($categories as $catId => $catTitle): ?>
+                            <option value="<?= $catId ?>" <?= ($catId == $link['category_id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($catTitle) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><?= $languageService->get('og_image_preview') ?></label>
+                    <div id="og-preview" class="mb-2">
+                        <p class="text-muted"><?= $languageService->get('no_url_entered') ?></p>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label"><?= $languageService->get('image_optional') ?></label>
+                    <input class="form-control" type="file" id="image" name="image" accept="image/*" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="target" class="form-label"><?= $languageService->get('link_target') ?></label>
+                    <select id="target" name="target" class="form-select">
+                        <option value="_blank" <?= $link['target'] === '_blank' ? 'selected' : '' ?>>
+                            <?= $languageService->get('new_window') ?>
                         </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
+                        <option value="_self" <?= $link['target'] === '_self' ? 'selected' : '' ?>>
+                            <?= $languageService->get('same_window') ?>
+                        </option>
+                    </select>
+                </div>
 
-<div class="mb-3">
-    <label class="form-label">OG-Image Vorschau</label>
-    <div id="og-preview" class="mb-2">
-        <p class="text-muted">Noch keine URL eingegeben</p>
+                <div class="form-check mb-3">
+                    <input type="checkbox" id="visible" name="visible" class="form-check-input" <?= $link['visible'] ? 'checked' : '' ?>>
+                    <label for="visible" class="form-check-label"><?= $languageService->get('visible') ?></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <?= ($action === 'add' ? $languageService->get('add') : $languageService->get('update')) ?>
+                </button>
+                <a href="admin_links.php" class="btn btn-secondary"><?= $languageService->get('cancel') ?></a>
+            </form>
+        </div>
     </div>
 </div>
 
-<div class="mb-3">
-    <label for="image" class="form-label">Bild (Optional, überschreibt OG-Image)</label>
-    <input class="form-control" type="file" id="image" name="image" accept="image/*" />
-</div>
-            <div class="mb-3">
-                <label for="target" class="form-label">Linkziel</label>
-                <select id="target" name="target" class="form-select">
-                    <option value="_blank" <?= $link['target'] === '_blank' ? 'selected' : '' ?>>Neues Fenster (_blank)</option>
-                    <option value="_self" <?= $link['target'] === '_self' ? 'selected' : '' ?>>Selbes Fenster (_self)</option>
-                </select>
-            </div>
-            <div class="form-check mb-3">
-                <input type="checkbox" id="visible" name="visible" class="form-check-input" <?= $link['visible'] ? 'checked' : '' ?>>
-                <label for="visible" class="form-check-label">Sichtbar</label>
-            </div>
-            <button type="submit" class="btn btn-primary"><?= ($action === 'add' ? 'Hinzufügen' : 'Aktualisieren') ?></button>
-            <a href="admin_links.php" class="btn btn-secondary">Abbrechen</a>
-        </form>
-    </div>
-</div></div>
     <?php
 
     
@@ -291,86 +326,78 @@ $res = $_database->query("
 ");
 
 ?>
-
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div><i class="bi bi-journal-text"></i> Links verwalten</div>
-        <div>
-            <a href="admincenter.php?site=admin_links&action=add" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Neu</a>
-            <a href="admincenter.php?site=admin_links_settings" class="btn btn-primary btn-sm"><i class="bi bi-tags"></i> Links Setting</a>
-        </div>
-    </div>
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_links">Links verwalten</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Übersicht</li>
-        </ol>
-    </nav>
-
-    <div class="card-body p-0">
-        <div class="container py-5">
-
-            <?php if ($msg): ?>
-                <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
-            <?php endif; ?>
-
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Bild</th>
-                        <th>Titel</th>
-                        <th>URL</th>
-                        <th>Kategorie</th>
-                        <th>Klicks (pro Tag)</th>
-                        <th>Sichtbar</th>
-                        <!--<th>Ziel</th>-->
-                        <th>Aktionen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($link = $res->fetch_assoc()): ?>
-                        <?php 
-                        // Datum aus dem Link-Eintrag (hier als Beispiel 'created_at' als DATETIME)
-                        $createdTimestamp = isset($link['created_at']) ? strtotime($link['created_at']) : time();
-                        $days = max(1, round((time() - $createdTimestamp) / (60 * 60 * 24)));
-                        $perday = round($link['clicks'] / $days, 2);
-                        ?>
-                        <tr>
-                            <td>
-                                <?php if ($link['image'] && file_exists($link['image'])): ?>
-                                    <img src="../<?= htmlspecialchars($link['image']) ?>" alt="Bild" style="max-height: 50px;">
-                                <?php else: ?>
-                                    <span class="text-muted">Kein Bild</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= htmlspecialchars($link['title']) ?></td>
-                            <td>
-                                <a href="<?= htmlspecialchars($link['url']) ?>" target="_blank" rel="noopener noreferrer">
-                                    <?= htmlspecialchars($link['url']) ?>
-                                </a>
-                            </td>
-                            <td><?= htmlspecialchars($link['category']) ?></td>
-                            <td>
-                                <?= (int)$link['clicks'] ?> (Ø <?= $perday ?>/Tag)
-                            </td>
-                            <td><?= $link['visible'] ? '<span class="text-success fw-bold">Ja</span>' : '<span class="text-danger fw-bold">Nein</span>' ?></td>
-                            <td>
-                                <a href="admincenter.php?site=admin_links&action=edit&id=<?= (int)$link['id'] ?>" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil"></i> Bearbeiten
-                                </a>
-                                <a href="admincenter.php?site=admin_links&action=delete&id=<?= (int)$link['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Wirklich löschen?')">
-                                    <i class="bi bi-trash"></i> Löschen
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-
-        </div>
+<div class="card-header d-flex justify-content-between align-items-center">
+    <div><i class="bi bi-journal-text"></i> <?= $languageService->get('manage_links') ?></div>
+    <div>
+        <a href="admincenter.php?site=admin_links&action=add" class="btn btn-success btn-sm">
+            <i class="bi bi-plus"></i> <?= $languageService->get('new_link') ?>
+        </a>
+        <a href="admincenter.php?site=admin_links_settings" class="btn btn-primary btn-sm">
+            <i class="bi bi-tags"></i> <?= $languageService->get('links_settings') ?>
+        </a>
     </div>
 </div>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb t-5 p-2 bg-light">
+        <li class="breadcrumb-item"><a href="admincenter.php?site=admin_links"><?= $languageService->get('manage_links') ?></a></li>
+        <li class="breadcrumb-item active" aria-current="page"><?= $languageService->get('breadcrumb_overview') ?></li>
+    </ol>
+</nav>
+
+<div class="card-body p-0">
+        <div class="container py-5">
+
+<table class="table table-bordered table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th><?= $languageService->get('image') ?></th>
+            <th><?= $languageService->get('title') ?></th>
+            <th><?= $languageService->get('url') ?></th>
+            <th><?= $languageService->get('category') ?></th>
+            <th><?= $languageService->get('clicks_per_day') ?></th>
+            <th><?= $languageService->get('visible') ?></th>
+            <th><?= $languageService->get('actions') ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php while ($link = $res->fetch_assoc()): ?>
+            <?php 
+            $createdTimestamp = isset($link['created_at']) ? strtotime($link['created_at']) : time();
+            $days = max(1, round((time() - $createdTimestamp) / (60 * 60 * 24)));
+            $perday = round($link['clicks'] / $days, 2);
+            ?>
+            <tr>
+                <td>
+                    <?php if ($link['image'] && file_exists($link['image'])): ?>
+                        <img src="../<?= htmlspecialchars($link['image']) ?>" alt="Bild" style="max-height: 50px;">
+                    <?php else: ?>
+                        <span class="text-muted"><?= $languageService->get('no_image') ?></span>
+                    <?php endif; ?>
+                </td>
+                <td><?= htmlspecialchars($link['title']) ?></td>
+                <td>
+                    <a href="<?= htmlspecialchars($link['url']) ?>" target="_blank" rel="noopener noreferrer">
+                        <?= htmlspecialchars($link['url']) ?>
+                    </a>
+                </td>
+                <td><?= htmlspecialchars($link['category']) ?></td>
+                <td><?= (int)$link['clicks'] ?> (Ø <?= $perday ?>/Tag)</td>
+                <td><?= $link['visible'] ? '<span class="text-success fw-bold">' . $languageService->get('yes') . '</span>' : '<span class="text-danger fw-bold">' . $languageService->get('no') . '</span>' ?></td>
+                <td>
+                    <a href="admincenter.php?site=admin_links&action=edit&id=<?= (int)$link['id'] ?>" class="btn btn-warning btn-sm">
+                        <i class="bi bi-pencil"></i> <?= $languageService->get('edit') ?>
+                    </a>
+                    <a href="admincenter.php?site=admin_links&action=delete&id=<?= (int)$link['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('<?= $languageService->get('delete_confirm') ?>')">
+                        <i class="bi bi-trash"></i> <?= $languageService->get('delete') ?>
+                    </a>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    </tbody>
+</table>
+ </div></div></div>
 
 <?php
 }

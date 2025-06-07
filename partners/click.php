@@ -10,50 +10,42 @@ require_once $configPath;
 $_database = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $partnerId = (int)$_GET['id'];
-    $today = date('Y-m-d');
+    $id = (int)$_GET['id'];
 
-    // Klick zählen
-    $stmt = $_database->prepare("SELECT clicks FROM plugins_partners_clicks WHERE partner_id = ? AND click_date = ?");
-    if (!$stmt) {
-        die("Prepare failed: " . $_database->error);
-    }
-    $stmt->bind_param("is", $partnerId, $today);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        $stmt->close();
-        $update = $_database->prepare("UPDATE plugins_partners_clicks SET clicks = clicks + 1 WHERE partner_id = ? AND click_date = ?");
-        if (!$update) {
-            die("Prepare failed: " . $_database->error);
-        }
-        $update->bind_param("is", $partnerId, $today);
-        $update->execute();
-        $update->close();
-    } else {
-        $stmt->close();
-        $insert = $_database->prepare("INSERT INTO plugins_partners_clicks (partner_id, click_date, clicks) VALUES (?, ?, 1)");
-        if (!$insert) {
-            die("Prepare failed: " . $_database->error);
-        }
-        $insert->bind_param("is", $partnerId, $today);
-        $insert->execute();
-        $insert->close();
-    }
-
-    // URL holen
+    // Partner-URL holen
     $stmt = $_database->prepare("SELECT url FROM plugins_partners WHERE id = ?");
     if (!$stmt) {
         die("Prepare failed: " . $_database->error);
     }
-    $stmt->bind_param("i", $partnerId);
+    $stmt->bind_param("i", $id);
     $stmt->execute();
     $stmt->bind_result($url);
+    
     if ($stmt->fetch()) {
         $stmt->close();
-        $url = (stripos($url, 'http') === 0) ? $url : 'http://' . $url;
-        header("Location: " . $url);
+
+        // URL formatieren
+        $fullUrl = (stripos($url, 'http') === 0) ? $url : 'http://' . $url;
+
+        // Klick in zentrale Tabelle speichern
+        $clickedAt = date('Y-m-d H:i:s');
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+
+        $insert = $_database->prepare("
+            INSERT INTO link_clicks (plugin, itemID, url, clicked_at, ip_address, user_agent, referrer)
+            VALUES ('partners', ?, ?, ?, ?, ?, ?)
+        ");
+        if (!$insert) {
+            die("Prepare failed: " . $_database->error);
+        }
+        $insert->bind_param("isssss", $id, $fullUrl, $clickedAt, $ip, $userAgent, $referrer);
+        $insert->execute();
+        $insert->close();
+
+        // Weiterleitung
+        header("Location: " . $fullUrl);
         exit;
     } else {
         $stmt->close();

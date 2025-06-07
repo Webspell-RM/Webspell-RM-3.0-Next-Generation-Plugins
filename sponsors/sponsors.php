@@ -24,67 +24,42 @@ $class = htmlspecialchars($config['selected_style']);
 
 
 
-$result = safe_query("SELECT * FROM plugins_sponsors");
 
 
-
-
-
+// Sponsoren-Daten abrufen
 $result = safe_query("SELECT * FROM plugins_sponsors WHERE active = 1 ORDER BY sort_order ASC");
 
-// Farbzuordnung für Sponsoren-Level
+// Sponsoren-Daten abrufen und Array aufbauen
+$sponsors = [];
 $levelColors = [
-    'Platin Sponsor'       => '#00bcd4',
-    'Gold Sponsor'         => '#ffc107',
-    'Silber Sponsor'       => '#adb5bd',
-    'Bronze Sponsor'       => '#cd7f32',
-    'Partner'              => '#6c757d',
-    'Unterstützer'         => '#999'
+    'platin_sponsor'   => '#00bcd4',
+    'gold_sponsor'     => '#ffc107',
+    'silber_sponsor'   => '#adb5bd',
+    'bronze_sponsor'   => '#cd7f32',
+    'partner'          => '#6c757d',
+    'unterstuetzer'    => '#999'
 ];
 
 $imagePath = '/includes/plugins/sponsors/images/';
-?>
 
-<section class="py-5">
-  <div class="container">
-    <div class="row align-items-center">
-      
-      <!-- Linker Textblock -->
-      <div class="col-lg-5 mb-4 mb-lg-0">
-        <h2 class="fw-bold">Unsere Sponsoren & Partner</h2>
-        <p class="lead">
-          Unsere Sponsoren und Partner unterstützen Webspell-RM als modernes, modulares Content-Management-System für Clans, Vereine und Projekte.
-          Sie tragen dazu bei, dass wir kontinuierlich neue Features entwickeln und die Software frei und offen für alle bereitstellen können.
-          Vielen Dank für eure wertvolle Unterstützung!
-        </p>
-      </div>
+while ($ds = mysqli_fetch_array($result)) {
+    $levelKey = strtolower(str_replace([' ', 'ü'], ['_', 'ue'], $ds['level']));
+    
+    $sponsors[] = [
+        'id'    => (int)$ds['id'],
+        'name'  => htmlspecialchars($ds['name']),
+        'logo'  => $imagePath . htmlspecialchars($ds['logo']),
+        'level' => $languageService->get($levelKey),
+        'color'  => $levelColors[$levelKey] ?? '#ccc',
+        'url'   => "/includes/plugins/sponsors/click.php?id=" . (int)$ds['id']
+    ];
+}
 
-      <!-- Rechter Sponsorenbereich -->
-      <div class="col-lg-7">
-        <div class="row g-4">
-          <?php while ($ds = mysqli_fetch_array($result)):
+// Daten in $data_array zusammenfassen
+$data_array = [
+    'headline' => $languageService->get('headline'),
+    'text'     => $languageService->get('text'),
+    'sponsors' => $sponsors
+];
 
-    $sponsorId = (int)$ds['id'];
-    $name      = htmlspecialchars($ds['name']);
-    $logo      = htmlspecialchars($ds['logo']);
-    $level     = htmlspecialchars($ds['level']);
-    $color     = $levelColors[$level] ?? '#000';
-
-    $logoSrc   = $imagePath . $logo;
-    $clickUrl  = "/includes/plugins/sponsors/click.php?id=" . $sponsorId;
-
-?>
-  <div class="col-4 text-center">
-    <!-- Bild als klickbarer Link mit Tracking -->
-    <a href="<?= $clickUrl ?>" target="_blank" rel="nofollow">
-  <img src="<?= $logoSrc ?>" alt="<?= $name ?>" class="img-fluid" style="max-height: 80px;">
-</a>
-    <div class="mt-2 fw-bold text-uppercase" style="color: <?= $color ?>;"><?= $level ?></div>
-  </div>
-<?php endwhile; ?>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
+echo $tpl->loadTemplate("sponsors", "main", $data_array, "plugin");
