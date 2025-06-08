@@ -5,8 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 
 use webspell\LanguageService;
 
-$tpl = new Template();
-
 global $_database,$languageService;
 
 $lang = $languageService->detectLanguage();
@@ -15,20 +13,14 @@ $languageService->readPluginModule('links');
 $config = mysqli_fetch_array(safe_query("SELECT selected_style FROM settings_headstyle_config WHERE id=1"));
 $class = htmlspecialchars($config['selected_style']);
 
-    // Header-Daten
-    $data_array = [
-        'class'    => $class,
-        'title' => $languageService->get('title'),
-        'subtitle' => 'Links'
-    ];
+// Header-Daten
+$data_array = [
+    'class'    => $class,
+    'title' => $languageService->get('title'),
+    'subtitle' => 'Links'
+];
     
-    echo $tpl->loadTemplate("links", "head", $data_array, 'plugin');
-
-
-
-// Verbindung zur Datenbank in $_database sollte bereits bestehen
-
-// SQL: Links mit Kategorien auslesen
+echo $tpl->loadTemplate("links", "head", $data_array, 'plugin');
 
 // SQL-Abfrage
 $sql = "SELECT l.*, c.title AS category, c.icon, c.id AS category_id
@@ -84,7 +76,6 @@ if ($result) {
 
 // Daten für Template vorbereiten
 $data_array = [
-    'title' => 'Linkliste',
     'links' => $links,
     'categories' => $categories,
     'filter_all'     => $languageService->get('filter_all'),

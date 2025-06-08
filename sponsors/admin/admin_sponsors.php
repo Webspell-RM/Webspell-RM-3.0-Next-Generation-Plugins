@@ -75,9 +75,10 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_sponsor'])) {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
     $name = $_database->real_escape_string(trim($_POST['name']));
-    $url = $_database->real_escape_string(trim($_POST['url']));
+    $slug = $_database->real_escape_string(trim($_POST['slug']));
     $level = $_database->real_escape_string(trim($_POST['level']));
-    $active = isset($_POST['active']) ? 1 : 0;
+    $is_active = isset($_POST['is_active']) ? 1 : 0;
+    $userID      = (int)$_SESSION['userID'];
 
     $oldLogo = '';
     if ($id > 0) {
@@ -95,14 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_sponsor'])) {
 
         if ($id > 0) {
             // Update
-            $stmt = $_database->prepare("UPDATE plugins_sponsors SET name=?, url=?, level=?, logo=?, active=? WHERE id=?");
-            $stmt->bind_param("ssssii", $name, $url, $level, $logo, $active, $id);
+            $stmt = $_database->prepare("UPDATE plugins_sponsors SET name=?, slug=?, userID=?, level=?, logo=?, is_active=? WHERE id=?");
+            $stmt->bind_param("sssssii", $name, $slug, $level, $userID, $logo, $is_active, $id);
             $stmt->execute();
             $stmt->close();
         } else {
             // Insert
-            $stmt = $_database->prepare("INSERT INTO plugins_sponsors (name, url, level, logo, active) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("ssssi", $name, $url, $level, $logo, $active);
+            $stmt = $_database->prepare("INSERT INTO plugins_sponsors (name, slug, level, userID, logo, is_active) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssi", $name, $slug, $level, $userID, $logo, $is_active);
             $stmt->execute();
             $stmt->close();
         }
@@ -143,7 +144,7 @@ if ($action === 'add' || $action === 'edit') {
             <li class="breadcrumb-item">
                 <a href="admincenter.php?site=admin_sponsors"><?= $languageService->get('sponsors_manage') ?></a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">
+            <li class="breadcrumb-item is_active" aria-current="page">
                 <?= ($action === 'add' ? $languageService->get('sponsor_add') : $languageService->get('sponsor_edit')) ?>
             </li>
         </ol>
@@ -165,8 +166,8 @@ if ($action === 'add' || $action === 'edit') {
                 </div>
 
                 <div class="mb-3">
-                    <label for="url" class="form-label"><?= $languageService->get('url') ?></label>
-                    <input type="url" class="form-control" id="url" name="url" value="<?= htmlspecialchars($editSponsor['url'] ?? '') ?>">
+                    <label for="slug" class="form-label"><?= $languageService->get('slug') ?></label>
+                    <input type="slug" class="form-control" id="slug" name="slug" value="<?= htmlspecialchars($editSponsor['slug'] ?? '') ?>">
                 </div>
 
                 <div class="mb-3">
@@ -180,20 +181,20 @@ if ($action === 'add' || $action === 'edit') {
                         <?php endforeach; ?>
                     </select>
                 </div>
-
+                
+                <?php if (!empty($editSponsor['logo'])): ?>
+                    <div class="mt-2">
+                        <img src="/includes/plugins/sponsors/images/<?= htmlspecialchars($editSponsor['logo']) ?>" alt="Logo" style="max-height:80px;">
+                    </div>
+                <?php endif; ?>
                 <div class="mb-3">
                     <label for="logo" class="form-label"><?= $languageService->get('logo') ?></label>
-                    <input type="file" class="form-control" id="logo" name="logo" <?= $editSponsor ? '' : 'required' ?>>
-                    <?php if (!empty($editSponsor['logo'])): ?>
-                        <div class="mt-2">
-                            <img src="/includes/plugins/sponsors/images/<?= htmlspecialchars($editSponsor['logo']) ?>" alt="Logo" style="max-height:80px;">
-                        </div>
-                    <?php endif; ?>
+                    <input type="file" class="form-control" id="logo" name="logo" <?= $editSponsor ? '' : 'required' ?>>                    
                 </div>
 
                 <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="active" name="active" <?= (!isset($editSponsor['active']) || $editSponsor['active'] == 1) ? 'checked' : '' ?>>
-                    <label for="active" class="form-check-label"><?= $languageService->get('active') ?></label>
+                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" <?= (!isset($editSponsor['is_active']) || $editSponsor['is_active'] == 1) ? 'checked' : '' ?>>
+                    <label for="is_active" class="form-check-label"><?= $languageService->get('is_active') ?></label>
                 </div>
 
                 <button type="submit" name="save_sponsor" class="btn btn-primary">
@@ -237,7 +238,7 @@ if ($action === 'add' || $action === 'edit') {
             <li class="breadcrumb-item">
                 <a href="admincenter.php?site=admin_sponsors"><?= $languageService->get('sponsors_manage') ?></a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">
+            <li class="breadcrumb-item is_active" aria-current="page">
                 <?= $languageService->get('overview') ?>
             </li>
         </ol>
@@ -251,10 +252,10 @@ if ($action === 'add' || $action === 'edit') {
                 <tr>
                     <th><?= $languageService->get('logo') ?></th>
                     <th><?= $languageService->get('name') ?></th>
-                    <th><?= $languageService->get('url') ?></th>
+                    <th><?= $languageService->get('slug') ?></th>
                     <th><?= $languageService->get('sponsor_level') ?></th>
                     <th><?= $languageService->get('clicks_per_day') ?></th>
-                    <th><?= $languageService->get('active') ?></th>
+                    <th><?= $languageService->get('is_active') ?></th>
                     <th><?= $languageService->get('actions') ?></th>
                 </tr>
             </thead>
@@ -274,8 +275,8 @@ if ($action === 'add' || $action === 'edit') {
                     </td>
                     <td><?= htmlspecialchars($sponsor['name']) ?></td>
                     <td>
-                        <?php if ($sponsor['url']): ?>
-                            <a href="<?= htmlspecialchars($sponsor['url']) ?>" target="_blank" rel="nofollow"><?= htmlspecialchars($sponsor['url']) ?></a>
+                        <?php if ($sponsor['slug']): ?>
+                            <a href="<?= htmlspecialchars($sponsor['slug']) ?>" target="_blank" rel="nofollow"><?= htmlspecialchars($sponsor['slug']) ?></a>
                         <?php else: ?>
                             -
                         <?php endif; ?>
@@ -284,7 +285,7 @@ if ($action === 'add' || $action === 'edit') {
                     <td>
                         <?= (int)$sponsor['clicks'] ?> (Ø <?= $perday ?>/<?= $languageService->get('clicks_per_day') ?>)
                     </td>
-                    <td><?= $sponsor['active'] ? $languageService->get('yes') : $languageService->get('no') ?></td>
+                    <td><?= $sponsor['is_active'] ? $languageService->get('yes') : $languageService->get('no') ?></td>
                     <td>
                         <a href="admincenter.php?site=admin_sponsors&action=edit&edit=<?= $sponsor['id'] ?>" class="btn btn-sm btn-warning"><?= $languageService->get('edit') ?></a>
                         <form method="post" style="display:inline-block" onsubmit="return confirm('<?= $languageService->get('confirm_delete') ?>');">

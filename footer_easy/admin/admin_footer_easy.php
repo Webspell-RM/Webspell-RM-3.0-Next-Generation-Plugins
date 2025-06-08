@@ -13,7 +13,7 @@ $_SESSION['language'] = $_SESSION['language'] ?? 'de';
 global $languageService;
 $languageService = new LanguageService($_database);
 
-// Admin-Modul-Sprache laden (z. B. admin/language/de/footer_easy.php)
+// Admin-Modul-Sprache laden
 $languageService->readPluginModule('footer_easy');
 
 use webspell\AccessControl;
@@ -60,21 +60,19 @@ while ($row = mysqli_fetch_assoc($result)) {
 // Ausgabe
 echo '<div class="card">
     <div class="card-header">
-        <i class="bi bi-paragraph"></i> ' . $languageService->get('title') . '
+        <i class="bi bi-paragraph"></i>  Footer verwalten
     </div>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb t-5 p-2 bg-light">
-            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_footer_easy">' . $languageService->get('title') . '</a></li>
-            <li class="breadcrumb-item active" aria-current="page">' . $languageService->get('breadcrumb_edit') . '</li>
+            <li class="breadcrumb-item"><a href="admincenter.php?site=admin_footer_easy">Footer verwalten</a></li>
+            <li class="breadcrumb-item active" aria-current="page">New / Edit</li>
         </ol>
     </nav>  
 
-    <div class="card-body">
+    <div class="card-body p-0">
 
         <div class="container py-5">
-
-        <h2>' . $languageService->get('title') . '</h2>
 
         <form method="post">
         <table class="table table-bordered table-striped bg-white shadow-sm">

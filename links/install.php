@@ -15,6 +15,8 @@ safe_query("CREATE TABLE IF NOT EXISTS plugins_links (
   image varchar(255) DEFAULT NULL,
   target varchar(10) DEFAULT '_blank',
   visible tinyint(1) DEFAULT 1,
+  userID int(11) NOT NULL DEFAULT 0,
+  updated_at timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (id),
   KEY category_id (category_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
@@ -26,15 +28,16 @@ safe_query("INSERT IGNORE INTO plugins_links_categories (id, title, icon) VALUES
 (4, 'Gaming', 'bi bi-controller'),
 (5, 'Lernen & Wissen', 'bi bi-book');");
 
-safe_query("INSERT IGNORE INTO plugins_links (id, title, url, description, category_id, image, target, visible) VALUES
-(13, 'Linus Tech Tips', 'https://www.youtube.com/user/LinusTechTips', 'Technik-Videos rund ums Thema PC', 2, 'includes/plugins/links/images/linkimg_683df29cbe3fb.jpg', '_blank', 1),
-(14, 'PHP Offizielle Webseite', 'https://www.php.net', 'Offizielle PHP Webseite mit Doku und Downloads', 1, 'includes/plugins/links/images/linkimg_683ded6f9c855.png', '_blank', 1),
-(16, 'GitHub', 'https://github.com', 'Hosting für Softwareprojekte mit Git', 1, 'includes/plugins/links/images/linkimg_683dec5a8925a.jpg', '_blank', 1),
-(18, 'callofduty', 'https://www.callofduty.com', '3r3r', 3, 'includes/plugins/links/images/linkimg_683deed7eabda.jpg', '_blank', 1),
-(19, 'all-inkl', 'https://all-inkl.com', 'zjzj', 3, 'includes/plugins/links/images/upload_683e032cdceeb.png', '_blank', 1),
-(20, 'Webspell-RM 3.0', 'https://208.webspell-rm.de', 'efefe', 3, 'includes/plugins/links/images/linkimg_683df40cc3b82.jpg', '_blank', 1),
-(26, 'werstreamt.es', 'https://www.werstreamt.es/', 'geg', 3, 'includes/plugins/links/images/linkimg_683e0450ba974.png', '_blank', 1),
-(27, 'geg', 'https://www.youtube.com/watch?v=CXBFU97X61I&list=RDMMCXBFU97X61I&start_radio=1', 'nhrhjr', 2, 'includes/plugins/links/images/linkimg_683e047b6f8cb.jpg', '_blank', 1);");
+safe_query("INSERT IGNORE INTO plugins_links (id, title, url, description, category_id, image, target, visible, userID, updated_at) VALUES
+(1, 'Linus Tech Tips', 'https://www.youtube.com/user/LinusTechTips', 'Technik-Videos rund ums Thema PC', 2, 'includes/plugins/links/images/linkimg_6845a2777b0b7.jpg', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(2, 'PHP Offizielle Webseite', 'https://www.php.net', 'Offizielle PHP Webseite mit Doku und Downloads', 1, 'includes/plugins/links/images/linkimg_683ded6f9c855.png', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(3, 'GitHub', 'https://github.com', 'Hosting für Softwareprojekte mit Git', 1, 'includes/plugins/links/images/linkimg_683dec5a8925a.jpg', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(4, 'callofduty', 'https://www.callofduty.com', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.', 4, 'includes/plugins/links/images/linkimg_6845a3a14bd60.jpg', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(5, 'all-inkl', 'https://all-inkl.com', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.', 3, 'includes/plugins/links/images/upload_6845a3872c9f5.png', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(6, 'Webspell-RM 3.0', 'https://208.webspell-rm.de', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.', 3, 'includes/plugins/links/images/linkimg_6845a36655b83.jpg', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(7, 'werstreamt.es', 'https://www.werstreamt.es/', 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.', 3, 'includes/plugins/links/images/linkimg_6845a36eda557.png', '_blank', 1, 1, '2025-06-01 11:46:22'),
+(8, 'Miley Cyrus - End of the World', 'https://www.youtube.com/watch?v=CXBFU97X61I&list=RDMMCXBFU97X61I&start_radio=1', 'Miley Cyrus - End of the World', 2, 'includes/plugins/links/images/linkimg_6845a30d44f11.jpg', '_blank', 1, 1, '2025-06-01 11:46:22');");
+
 
     
 

@@ -297,13 +297,6 @@ if (in_array($action, ['add', 'edit'])) {
     
 }
 else {
-// === Anzeige aller Links ===
-
-#$msg = $_GET['msg'] ?? '';
-
-#$res = $_database->query("SELECT l.*, c.title AS category FROM plugins_links l LEFT JOIN plugins_links_categories c ON l.category_id = c.id ORDER BY l.category_id, l.title");
-
-
 
 $msg = '';
 if (isset($_GET['msg'])) {

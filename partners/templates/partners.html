@@ -7,118 +7,34 @@
     <p class="head-boxes-foot">{subtitle}</p>
 </div>
 <!-- END -->
-<!-- partners_co1ntent -->
+<!-- partners_main -->
 <div class="card">
     <div class="card-body">
-        <h5>$title</h5>
-        <div class="row">
-            <div class="col-md-4">
-                $pic
-            </div>
-            <div class="col-md-8">
-                <p>$info</p>
-                <ul class="text-end" id="box_$partnerID">
-                    $link
-                    <!--$url-->
-                    $facebook
-                    $twitter
-                    $script
-                </ul>
-            </div>
+        <div class="row g-4">
+            {foreach partners as partner}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-box position-relative">
+                        <div class="img-wrapper alert alert-{partner.color}">
+                            <img src="{partner.logo}" alt="Logo von {partner.name}" class="card-img-top" loading="lazy">
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{partner.name}</h5>
+                            <p class="card-text">{partner.description}</p>
+                            {if partner.slug != ""}
+                                <a href="./includes/plugins/partners/click.php?id={partner.id}"
+                                   target="_blank"
+                                   rel="nofollow"
+                                   class="btn btn-outline-{partner.color} btn-sm">
+                                  {partner.learn_more}
+                                </a>
+                            {else}
+                                <span class="text-muted">{partner.no_valid_link}</span>
+                            {endif}
+                        </div>
+                    </div>
+                </div>
+            {/foreach}
         </div>
     </div>
 </div>
 <!-- END -->
-
-
-
-
-
-
-<!-- partners_content_head -->
-<section class="container py-5">
-  <h2 class="text-center mb-5 fw-bold">{title}</h2>
-  
-  <div class="row g-4">
-<!-- END -->
-
-<!-- partners_content -->
-    <div class="col-md-4">
-      <a href="https://airtable.com/shrXJePcfFuEehznv" target="_self" class="text-decoration-none text-reset">
-        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-          <div class="position-relative">
-            <!--<img 
-              src="https://images.ctfassets.net/wl95ljfippl8/10JdQCEMeU3zv3gDOsosp5/a7d9e27a60e0696d46d133a86d94f251/Partner_Resource_1__1_.png" 
-              alt="Partner Resource 1" 
-              class="card-img-top img-fluid"
-              style="aspect-ratio: 16 / 9; object-fit: cover;"
-              loading="lazy"
-            >-->
-            {pic}
-            <span class="badge bg-primary position-absolute top-2 start-2 text-uppercase fw-semibold px-3 py-1" style="font-size:0.75rem;">
-              Application
-            </span>
-          </div>
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title fw-bold mb-3">Become an accredited Airtable Services Partner</h5>
-            <p class="text-muted flex-grow-1">$info</p>
-            <div>
-              <button class="btn btn-primary w-100" type="button" aria-label="Apply now for partner program">
-                Apply now
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right ms-2" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M10.146 4.646a.5.5 0 0 1 .708.708L8.707 7.5H15.5a.5.5 0 0 1 0 1h-6.793l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3z"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-  
-
-    <!-- Hier können weitere Partner-Karten folgen -->
-<!-- END -->
-
-<!-- partners_content_foot -->
-  </div>
-</section>
-
-<script>
-  const badges = document.querySelectorAll('.card .badge');
-  const colors = ['badge-primary', 'badge-success', 'badge-warning', 'badge-danger', 'badge-info'];
-
-  badges.forEach(badge => {
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    badge.classList.add(randomColor);
-  });
-</script>
-
-
-<!-- END -->
-
-
-<!-- partners_widget_head_head -->
-<div class="card">
-    <div class="card-body" style="margin: -12px -12px -17px -12px;">
-        <ul class="list-group list-group-flush">
-<!-- END -->
-<!-- partners_widget_content -->
-            <li class="list-group-item text-center" id="box_$partnerID">
-                {link}
-                {script}
-            </li>  
-<!-- END -->
-<!-- partners_widget_foot_foot -->
-        </ul>
-        <br>
-    </div>
-</div>
-<!-- END -->
-<!-- partners_foot --> 
-<!-- END -->
-
-<!-- partners_widget_slider -->
- {link}
-<!-- END -->
-

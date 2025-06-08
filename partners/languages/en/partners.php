@@ -1,38 +1,40 @@
 <?php
 
 $language_array = array(
+    'title' => 'Partners',
+    'learn_more' => 'Learn more',
+    'no_valid_link' => 'No valid link available',
 
-  'title'                => 'Partners',
-  'access_denied'        => 'Access denied',
-  'actions'              => 'Actions',
-  'add_partner'          => 'Add partner',
-  'back'                 => 'Back',
-  'banner'               => 'Banner',
-  'banner_to_big'        => 'Banner is too big',
-  'clicks'               => 'Clicks (per day)',
-  'current_banner'       => 'Current banner',
-  'delete'               => 'Delete',
-  'edit'                 => 'Edit',
-  'edit_partner'         => 'Edit partner',
-  'format_incorrect'     => 'The format of the banner was wrong. Please upload only banners in * .gif, * .jpg or * .png format.',
-  'homepage_url'         => 'Homepage URL',
-  'is_displayed'         => 'Is displayed?',
-  'max_88x31'            => '(max. 88x31)',
-  'new_partner'          => 'New partner',
-  'no'                   => 'No',
-  'no_partners'          => '<blockquote>no Partner</blockquote>',
-  'partner_name'         => 'Partner name',
-  'partners'             => 'Partners',
-  'really_delete'        => 'Really delete this partner?',
-  'sort'                 => 'Sorting',
-  'transaction_invalid'  => 'Transaction ID invalid',
-  'to_sort'              => 'Sort',
-  'yes'                  => 'Yes',
-  'options'              => 'Options',
-  'settings'             => 'Partner-Settings',
-  'max_partners'         => 'Partners per side:',
-  'tooltip'              => 'Maximum number of partners per page',
-  'update'               => 'Update',
-  'close'                => 'Close',
+    // Admin
+    // General
+    'partners_manage' => 'Manage partners',
+    'partners_new' => 'New',
+    'partners_settings' => 'Partner settings',
+    'partners_breadcrumb' => 'Overview',
+    'partners_logo' => 'Logo',
+    'partners_name' => 'Name',
+    'partners_description' => 'Description',
+    'partners_slug' => 'URL',
+    'partners_clicks' => 'Clicks (per day)',
+    'partners_active' => 'Active',
+    'partners_actions' => 'Actions',
+    'partners_edit' => 'Edit',
+    'partners_delete' => 'Delete',
+    'partners_delete_confirm' => 'Really delete?',
+    'partners_none_found' => 'No partners found.',
+    'partners_add' => 'Add partner',
+    'partners_edit' => 'Edit partner',
+
+    // Form buttons
+    'add' => 'Add',
+    'save' => 'Save',
+    'back_to_list' => 'Back to overview',
+
+    // Form elements
+    'partners_sort_order' => 'Sort order',
+    'active' => 'Active',
+
+    // Misc
+    'yes' => 'Yes',
+    'no' => 'No',
 );
-

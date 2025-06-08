@@ -2,22 +2,24 @@
 safe_query("CREATE TABLE IF NOT EXISTS plugins_sponsors (
   id INT(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) NOT NULL,
-  url varchar(255) DEFAULT NULL,
+  slug varchar(255) DEFAULT NULL,
   logo varchar(255) DEFAULT NULL,
   level enum('Platin Sponsor','Gold Sponsor','Silber Sponsor','Bronze Sponsor','Partner','Unterstützer') DEFAULT 'Unterstützer',
   description text DEFAULT NULL,
+  updated_at timestamp NOT NULL DEFAULT current_timestamp(),
+  userID int(11) NOT NULL,
   sort_order int(11) DEFAULT 0,
-  active tinyint(1) DEFAULT 1,
+  is_active tinyint(1) DEFAULT 1,
   PRIMARY KEY (id)
 ) DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci");
 
-safe_query("INSERT IGNORE INTO plugins_sponsors (id, name, url, logo, level, description, sort_order, active) VALUES
-(1, 'Firma A', 'https://firma-a.de', '1.png', 'Platin Sponsor', NULL, 1, 1),
-(2, 'Firma B', 'https://firma-b.de', '2.png', 'Gold Sponsor', NULL, 2, 1),
-(3, 'Firma C', 'https://firma-c.de', '3.png', 'Silber Sponsor', NULL, 3, 1),
-(4, 'Firma D', 'https://firma-d.de', '4.png', 'Bronze Sponsor', NULL, 4, 1),
-(5, 'Firma E', 'https://firma-e.de', '5.png', 'Partner', NULL, 5, 1),
-(6, 'Firma F', 'https://firma-f.de', '6.png', 'Unterstützer', NULL, 6, 1)");
+safe_query("INSERT IGNORE INTO plugins_sponsors (id, name, slug, logo, level, description, updated_at, userID, sort_order, is_active) VALUES
+(1, 'Firma A', 'https://firma-a.de', '1.png', 'Platin Sponsor', NULL, '2025-06-01 13:46:22', 1, 1, 1),
+(2, 'Firma B', 'https://firma-b.de', '2.png', 'Gold Sponsor', NULL, '2025-06-01 13:46:22', 1, 2, 1),
+(3, 'Firma C', 'https://firma-c.de', '3.png', 'Silber Sponsor', NULL, '2025-06-01 13:46:22', 1, 3, 1),
+(4, 'Firma D', 'https://firma-d.de', '4.png', 'Bronze Sponsor', NULL, '2025-06-01 13:46:22', 1, 4, 1),
+(5, 'Firma E', 'https://firma-e.de', '5.png', 'Partner', NULL, '2025-06-01 13:46:22', 1, 5, 1),
+(6, 'Firma F', 'https://firma-f.de', '6.png', 'Unterstützer', NULL, '2025-06-01 13:46:22', 1, 6, 1)");
 
 safe_query("CREATE TABLE IF NOT EXISTS plugins_sponsors_settings (
   sponsorssetID INT(11) NOT NULL AUTO_INCREMENT,
@@ -42,17 +44,12 @@ safe_query("CREATE TABLE IF NOT EXISTS plugins_sponsors_settings_widgets (
 
 safe_query("INSERT IGNORE INTO plugins_sponsors_settings_widgets (id, position, modulname, themes_modulname, widgetname, widgetdatei, activated, sort) VALUES
 ('1', 'navigation_widget', 'navigation', 'default', 'Navigation', 'widget_navigation', 1, 1),
-('2', 'footer_widget', 'footer', 'default', 'Footer Easy', 'widget_footer_easy', 1, 1)");
+('2', 'footer_widget', 'footer_easy', 'default', 'Footer Easy', 'widget_footer_easy', 1, 1)");
 
 ## SYSTEM #####################################################################################################################################
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
 ('', 'Sponsors', 'sponsors', '[[lang:de]]Mit diesem Plugin könnt ihr eure Sponsoren anzeigen lassen.[[lang:en]]With this plugin you can display your sponsors.[[lang:it]]Con questo plugin puoi visualizzare i tuoi sponsor.', 'admin_sponsors', 1, 'T-Seven', 'https://webspell-rm.de', 'sponsors', '', '0.2', 'includes/plugins/sponsors/', 1, 1, 1, 1, 'deactivated')");
-
-safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetname, widgetdatei, area) VALUES
-('', 'sponsors', 'Sponsors Sidebar', 'widget_sponsors_sidebar', 4),
-('', 'sponsors', 'Sponsors Content One', 'widget_sponsors_content_one', 3),
-('', 'sponsors', 'Sponsors Content Two', 'widget_sponsors_content_two', 3)");
 
 ## NAVIGATION #####################################################################################################################################
 

@@ -1,11 +1,11 @@
 ﻿<?php
 
 $language_array = array(
-    'title' => 'Link list',
+    'title'               => 'Link list',
     'link_no_description' => 'No description available.',
-    'link_visit' => 'Visit',
-    'link_invalid' => 'Invalid link',
-    'filter_all' => 'Show all',
+    'link_visit'          => 'Visit',
+    'link_invalid'        => 'Invalid link',
+    'filter_all'          => 'Show all',
 
     // Admin General
     'manage_links'       => 'Manage links',
@@ -13,7 +13,7 @@ $language_array = array(
     'links_settings'     => 'Links settings',
     'breadcrumb_overview'=> 'Overview',
     'image'              => 'Image',
-    'title'              => 'Title',
+    'link_title'         => 'Title',
     'url'                => 'URL',
     'category'           => 'Category',
     'clicks_per_day'     => 'Clicks (per day)',

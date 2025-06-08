@@ -1,40 +1,41 @@
 <?php
 
 $language_array = array(
+    'title' => 'Partner',
+    'learn_more' => 'Scopri di più',
+    'no_valid_link' => 'Nessun link valido disponibile',
 
-  'title'               => 'Partner',
-  'access_denied'       => 'Accesso negato',
-  'actions'             => 'Azioni',
-  'add_partner'         => 'Aggiungi Partner',
-  'back'                => 'Indietro',
-  'banner'              => 'Banner',
-  'banner_to_big'       => 'Il Banner è troppo Grosso',
-  'clicks'              => 'Click (per giorno)',
-  'current_banner'      => 'Banner Corrente',
-  'delete'              => 'Cancella',
-  'edit'                => 'Edita',
-  'edit_partner'        => 'Salva Partner',
-  'options'             => 'Opzioni',
-  'format_incorrect'    => 'Il formato del banner era errato. Si prega di caricare solo i banner in formato .gif, .jpg o .png.',
-  'homepage_url'        => 'Homepage URL',
-  'is_displayed'        => 'È visualizzato?',
-  'max_88x31'           => '(max. 88x31)',
-  'new_partner'         => 'Nuovo Partner',
-  'no'                  => 'No',
-  'no_partners'         => '<blockquote>Nessun Partner</blockquote>',
-  'partner_name'        => 'Nome Partner',
-  'partners'            => 'Partner',
-  'really_delete'       => 'Davvero eliminare questo partner?',
-  'sort'                => 'Ordine',
-  'transaction_invalid' => 'ID Transazione invalida',
-  'to_sort'             => 'Ordina',
-  'yes'                 => 'Si',
-  'options'             => 'Opzioni',
-  'settings'            => 'Settaggi Partner',
-  'max_partners'        => 'Partner per Pagina:',
-  'tooltip'             => 'Numero massimo di Partner per pagina',
-  'update'              => 'Aggiorna',
-  'close'               => 'Chiudi',
-  
+    // Admin
+    // Generale
+    'partners_manage' => 'Gestisci partner',
+    'partners_new' => 'Nuovo',
+    'partners_settings' => 'Impostazioni partner',
+    'partners_breadcrumb' => 'Panoramica',
+    'partners_logo' => 'Logo',
+    'partners_name' => 'Nome',
+    'partners_description' => 'Descrizione',
+    'partners_slug' => 'URL',
+    'partners_clicks' => 'Click (al giorno)',
+    'partners_active' => 'Attivo',
+    'partners_actions' => 'Azioni',
+    'partners_edit' => 'Modifica',
+    'partners_delete' => 'Elimina',
+    'partners_delete_confirm' => 'Sei sicuro di eliminare?',
+    'partners_none_found' => 'Nessun partner trovato.',
+    'partners_add' => 'Aggiungi partner',
+    'partners_edit' => 'Modifica partner',
+
+    // Pulsanti modulo
+    'add' => 'Aggiungi',
+    'save' => 'Salva',
+    'back_to_list' => 'Torna alla panoramica',
+
+    // Elementi modulo
+    'partners_sort_order' => 'Ordine di visualizzazione',
+    'active' => 'Attivo',
+
+    // Varie
+    'yes' => 'Sì',
+    'no' => 'No',
 );
 

@@ -35,7 +35,7 @@
  </thead>
 <tbody>
 <!-- END -->
-<!-- userlist_user_data -->
+<!-- userlist_user -->
 <tr>
     <td>{avatar} {username} {member}</td>
     <td>{email} {pm}</td>
@@ -59,16 +59,16 @@
         <ul class="list-group list-group-flush">
 <!-- END -->
 <!-- userlist_useronline_content -->
-            <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-6">
-                        {username}
-                    </div>
-                    <div class="col-md-6 text-end">
-                        <small>{last_active}</small>
-                    </div>
-                </div>
-            </li>    
+            <li class="list-group-item d-flex align-items-center flex-wrap">
+    <img class="img-fluid avatar_small me-2" src="{avatar}" alt="Avatar">
+    <div class="flex-grow-1">
+        {username}
+    </div>
+    <div>
+        {statuspic}
+    </div>
+    <small class="w-100 mt-1">{last_active}</small>
+</li>
 <!-- END -->
 <!-- userlist_useronline_foot -->
         </ul>
@@ -85,7 +85,7 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-6">
-                        <img style="height:30px" class="img-fluid rounded-circle" src="{avatar}">&nbsp; {username}
+                        <img class="img-fluid avatar_small" src="{avatar}">&nbsp; {username}
                     </div>
                     <div class="col-md-6 text-end">
                         <span class="badge bg-secondary text-end">{register}</span>

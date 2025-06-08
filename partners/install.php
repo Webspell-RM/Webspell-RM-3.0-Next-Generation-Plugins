@@ -2,25 +2,24 @@
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners (
   id int(11) NOT NULL AUTO_INCREMENT,
   name varchar(255) NOT NULL DEFAULT '',
-  url varchar(255) DEFAULT NULL,
+  slug varchar(255) NOT NULL DEFAULT '',
   logo varchar(255) DEFAULT NULL,
   description text DEFAULT NULL,
-  date int(14) NOT NULL DEFAULT 0,
+  updated_at timestamp NOT NULL DEFAULT current_timestamp(),
+  userID int(11) NOT NULL,
   sort_order int(11) DEFAULT 0,
-  active tinyint(1) DEFAULT NULL,
+  is_active tinyint(1) DEFAULT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;");
 
-safe_query("INSERT IGNORE INTO plugins_partners (id, name, url, logo, description, date, sort_order, active) VALUES
-(1, 'Partner 1', 'https://www.webspell-rm.de', 'partner_6841c239f0567.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612091, 1, 1),
-(2, 'Partner 2', 'https://www.webspell-rm.de', '2.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612226, 1, 1),
-(3, 'Partner 3', 'https://www.webspell-rm.de', '3.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612301, 1, 1),
-(4, 'Partner 4', 'https://www.webspell-rm.de', '4.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577612446, 1, 1),
-(5, 'Partner 5', 'https://www.webspell-rm.de', '5.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613122, 1, 1),
-(6, 'Partner 6', 'https://www.webspell-rm.de', '6.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613187, 1, 1),
-(7, 'Partner 7', 'https://www.webspell-rm.de', '7.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', 1577613221, 1, 1);");
-
-
+safe_query("INSERT IGNORE INTO plugins_partners (id, name, slug, logo, description, updated_at, userID, sort_order, is_active) VALUES
+(1, 'Partner 1', 'https://www.webspell-rm.de', 'partners_684593e67f7cc.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:46:22', 1, 1, 1),
+(2, 'Partner 2', 'https://www.webspell-rm.de', 'partners_684593ef48eae.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:46:42', 1, 1, 1),
+(3, 'Partner 3', 'https://www.webspell-rm.de', 'partners_684593f75b136.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:46:46', 1, 1, 1),
+(4, 'Partner 4', 'https://www.webspell-rm.de', 'partners_684593ff27bc1.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:46:50', 1, 1, 1),
+(5, 'Partner 5', 'https://www.webspell-rm.de', 'partners_68459408c10ee.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:46:57', 1, 1, 1),
+(6, 'Partner 6', 'https://www.webspell-rm.de', 'partners_684594111ac07.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:47:02', 1, 1, 1),
+(7, 'Partner 7', 'https://www.webspell-rm.de', 'partners_68459418bf74f.png', 'Hallo. Ich bin ein kleiner Blindtext. Und zwar schon so lange ich denken kann.', '2025-06-01 13:47:05', 1, 1, 1);");
   
 safe_query("CREATE TABLE IF NOT EXISTS plugins_partners_settings (
   partnerssetID int(11) NOT NULL AUTO_INCREMENT,
@@ -52,10 +51,6 @@ safe_query("INSERT IGNORE INTO plugins_partners_settings_widgets (id, position, 
 
 safe_query("INSERT IGNORE INTO settings_plugins (pluginID, name, modulname, info, admin_file, activate, author, website, index_link, hiddenfiles, version, path, status_display, plugin_display, widget_display, delete_display, sidebar) VALUES
 ('', 'Partner', 'partners', '[[lang:de]]Mit diesem Plugin könnt ihr eure Partner mit Slider und Page anzeigen lassen.[[lang:en]]With this plugin you can display your partners with slider and page.[[lang:it]]Con questo plugin puoi visualizzare i tuoi partner con slider e pagina.', 'admin_partners', 1, 'T-Seven', 'https://webspell-rm.de', 'partners', '', '0.1', 'includes/plugins/partners/', 1, 1, 1, 1, 'deactivated')");
-
-safe_query("INSERT IGNORE INTO settings_plugins_widget (id, modulname, widgetname, widgetdatei, area) VALUES
-('', 'partners', 'Partners Content', 'widget_partners_content', 3),
-('', 'partners', 'Partners Sidebar', 'widget_partners_sidebar', 4)");
 
 ## NAVIGATION #####################################################################################################################################
 
